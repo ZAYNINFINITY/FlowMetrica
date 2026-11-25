@@ -1,4 +1,7 @@
 import { ArrowUpRight } from 'lucide-react';
+import { motion } from 'motion/react';
+
+import { pressable } from '../../lib/motion.js';
 
 const ACCENTS = {
   cyan: {
@@ -26,9 +29,10 @@ export default function ModuleCard({ index, title, description, href, icon: Icon
   const tone = ACCENTS[accent] ?? ACCENTS.cyan;
 
   return (
-    <a
+    <motion.a
       href={href}
-      className={`group flex flex-col overflow-hidden rounded-xl border border-line bg-panel transition-all hover:-translate-y-0.5 hover:shadow-pop focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${tone.border}`}
+      {...pressable}
+      className={`group flex flex-col overflow-hidden rounded-xl border border-line bg-panel transition-colors hover:shadow-pop focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent ${tone.border}`}
     >
       <div className={`relative h-36 overflow-hidden border-b border-line bg-gradient-to-br ${tone.rail} to-rail`}>
         {preview}
@@ -60,6 +64,6 @@ export default function ModuleCard({ index, title, description, href, icon: Icon
           </span>
         </div>
       </div>
-    </a>
+    </motion.a>
   );
 }

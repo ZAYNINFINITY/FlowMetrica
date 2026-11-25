@@ -1,7 +1,9 @@
 import { ArrowRight, CheckCircle2 } from 'lucide-react';
+import { motion } from 'motion/react';
 
 import PageHeader from '../components/common/PageHeader.jsx';
 import SourceBadge from '../components/common/SourceBadge.jsx';
+import { pressable, rise, stagger } from '../lib/motion.js';
 
 const FLOW = [
   {
@@ -51,11 +53,9 @@ const MODULES = [
   },
 ];
 
-const REVEAL_STEPS = ['reveal-1', 'reveal-2', 'reveal-3', 'reveal-4'];
-
-function FlowStep({ step, last, delay }) {
+function FlowStep({ step, last }) {
   return (
-    <li className={`reveal ${delay} relative min-w-0 border-l border-line pl-4`}>
+    <motion.li variants={rise} className="relative min-w-0 border-l border-line pl-4">
       <span className="font-mono text-xs text-accent">{step.number}</span>
       <p className="mt-1 font-display text-lg font-semibold tracking-tight text-ink">{step.value}</p>
       <p className="mt-1 text-xs leading-relaxed text-muted">{step.detail}</p>
@@ -65,7 +65,7 @@ function FlowStep({ step, last, delay }) {
           className="absolute -bottom-3 left-0 h-3 w-3 rotate-90 text-line lg:-right-2 lg:bottom-auto lg:left-auto lg:top-6 lg:rotate-0"
         />
       )}
-    </li>
+    </motion.li>
   );
 }
 
@@ -84,21 +84,32 @@ export default function HowItWorks() {
         }
       />
 
-      <section className="surface relative overflow-hidden p-6 sm:p-8">
-        <p className="reveal reveal-1 meta-label">The whole idea</p>
-        <h2 className="reveal reveal-2 mt-3 max-w-3xl font-display text-display font-semibold text-balance text-ink">
+      <motion.section
+        className="surface relative overflow-hidden p-6 sm:p-8"
+        variants={stagger}
+        initial="hidden"
+        animate="show"
+      >
+        <motion.p variants={rise} className="meta-label">The whole idea</motion.p>
+        <motion.h2
+          variants={rise}
+          className="mt-3 max-w-3xl font-display text-display font-semibold text-balance text-ink"
+        >
           Network questions become <span className="text-accent">linear systems</span>. FlowMetrica shows the algebra, the answer and where it came from.
-        </h2>
-        <p className="reveal reveal-3 mt-4 max-w-3xl text-lede text-pretty text-muted">
+        </motion.h2>
+        <motion.p variants={rise} className="mt-4 max-w-3xl text-lede text-pretty text-muted">
           No browser-side math, no invented live data. One shared execution interface returns every matrix, step, solution and provenance label.
-        </p>
+        </motion.p>
 
-        <ol className="mt-8 grid gap-6 border-t border-line pt-6 md:grid-cols-2 lg:grid-cols-4">
+        <motion.ol
+          variants={stagger}
+          className="mt-8 grid gap-6 border-t border-line pt-6 md:grid-cols-2 lg:grid-cols-4"
+        >
           {FLOW.map((step, index) => (
-            <FlowStep key={step.number} step={step} last={index === FLOW.length - 1} delay={REVEAL_STEPS[index]} />
+            <FlowStep key={step.number} step={step} last={index === FLOW.length - 1} />
           ))}
-        </ol>
-      </section>
+        </motion.ol>
+      </motion.section>
 
       <section className="grid gap-5 lg:grid-cols-split">
         <div className="surface p-6">
@@ -272,18 +283,18 @@ export default function HowItWorks() {
           <p className="mt-1 text-sm text-muted">Pick a module. Every result comes from the same execution interface.</p>
         </div>
         <div className="flex flex-wrap gap-2">
-          <a href="#/module1" className="btn-secondary">
+          <motion.a href="#/module1" className="btn-secondary" {...pressable}>
             Traffic analysis
             <ArrowRight aria-hidden="true" className="h-4 w-4" />
-          </a>
-          <a href="#/module2" className="btn-secondary">
+          </motion.a>
+          <motion.a href="#/module2" className="btn-secondary" {...pressable}>
             Anomaly detection
             <ArrowRight aria-hidden="true" className="h-4 w-4" />
-          </a>
-          <a href="#/module3" className="btn-primary">
+          </motion.a>
+          <motion.a href="#/module3" className="btn-primary" {...pressable}>
             Investigation
             <ArrowRight aria-hidden="true" className="h-4 w-4" />
-          </a>
+          </motion.a>
         </div>
       </section>
     </div>

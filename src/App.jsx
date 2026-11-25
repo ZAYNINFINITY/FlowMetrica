@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useState } from 'react';
+import { AnimatePresence, MotionConfig, motion } from 'motion/react';
 
 import Sidebar from './components/layout/Sidebar.jsx';
 import Topbar from './components/layout/Topbar.jsx';
@@ -6,6 +7,7 @@ import { ToastProvider } from './components/common/Toast.jsx';
 import { useReports } from './hooks/useReports.js';
 import { getHealth, getScenario, getScenarios } from './lib/api.js';
 import { loadPreferences, savePreferences } from './lib/settings.js';
+import { pageOptions, pageTransition } from './lib/motion.js';
 import AnomalyDetection from './pages/AnomalyDetection.jsx';
 import Dashboard from './pages/Dashboard.jsx';
 import HowItWorks from './pages/HowItWorks.jsx';
@@ -177,20 +179,32 @@ export default function App() {
             tabIndex={-1}
             className="flex-1 px-3 py-5 focus:outline-none sm:px-6 sm:py-6 lg:px-8"
           >
-            <div key={view} className="animate-fade-in mx-auto w-full max-w-[1440px]">
-              <Page
-                scenarios={scenarios}
-                details={details}
-                health={health}
-                loading={loading}
-                error={error}
-                onRetry={loadServices}
-                online={online}
-                reports={reports}
-                preferences={preferences}
-                onChangePreferences={updatePreferences}
-              />
-            </div>
+            <MotionConfig reducedMotion={preferences.reduceMotion ? 'always' : 'user'}>
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={view}
+                  variants={pageTransition}
+                  initial="initial"
+                  animate="animate"
+                  exit="exit"
+                  transition={pageOptions}
+                  className="mx-auto w-full max-w-[1440px]"
+                >
+                  <Page
+                    scenarios={scenarios}
+                    details={details}
+                    health={health}
+                    loading={loading}
+                    error={error}
+                    onRetry={loadServices}
+                    online={online}
+                    reports={reports}
+                    preferences={preferences}
+                    onChangePreferences={updatePreferences}
+                  />
+                </motion.div>
+              </AnimatePresence>
+            </MotionConfig>
           </main>
 
           <footer className="no-print border-t border-line px-4 py-2.5 text-[10.5px] text-muted sm:px-6 lg:px-8">

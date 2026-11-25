@@ -9,13 +9,16 @@ import {
   Wifi,
   WifiOff,
 } from 'lucide-react';
+import { motion } from 'motion/react';
 
+import AnimatedNumber from '../components/common/AnimatedNumber.jsx';
 import EmptyState from '../components/common/EmptyState.jsx';
 import ErrorState from '../components/common/ErrorState.jsx';
 import ModuleCard from '../components/common/ModuleCard.jsx';
 import SourceBadge from '../components/common/SourceBadge.jsx';
 import TopologyThumbnail from '../components/visualization/TopologyThumbnail.jsx';
 import { complexityLabel, formatDateTime } from '../lib/format.js';
+import { pressable, rise, stagger } from '../lib/motion.js';
 
 const MODULE_META = [
   {
@@ -98,57 +101,78 @@ function ReportPreview({ report }) {
   );
 }
 
-export default function Dashboard({ scenarios, details, reports, health, loading, error, onRetry, online }) {
+export default function Dashboard({ scenarios, details, reports, health, loading, error, onRetry, online, preferences }) {
+  const reduceMotion = preferences?.reduceMotion ?? false;
   const byModule = (module) => scenarios.filter((scenario) => scenario.module === module);
   const latestReport = reports[0] ?? null;
   const savedCount = health?.services?.savedResults?.count;
 
   return (
     <div className="space-y-6">
-      <section className="relative overflow-hidden rounded-2xl border border-line bg-gradient-to-br from-raised/70 via-panel to-sunken">
+      <motion.section
+        className="relative overflow-hidden rounded-2xl border border-line bg-gradient-to-br from-raised/70 via-panel to-sunken"
+        variants={stagger}
+        initial="hidden"
+        animate="show"
+      >
         <div className="relative grid gap-6 p-5 sm:p-7 lg:grid-cols-[1.55fr_1fr] lg:gap-8">
-          <div className="min-w-0">
-            <p className="reveal reveal-1 inline-flex items-center gap-2 rounded-full border border-accent/25 bg-accent/10 px-2.5 py-1 text-[10.5px] font-semibold uppercase tracking-[0.16em] text-accent">
+          <motion.div className="min-w-0" variants={stagger}>
+            <motion.p
+              variants={rise}
+              className="inline-flex items-center gap-2 rounded-full border border-accent/25 bg-accent/10 px-2.5 py-1 text-[10.5px] font-semibold uppercase tracking-[0.16em] text-accent"
+            >
               <span aria-hidden="true" className="h-1 w-1 rounded-full bg-accent" />
               Network Intelligence Lab
-            </p>
-            <h1 className="reveal reveal-2 mt-3 font-display text-[32px] font-semibold leading-none tracking-tight text-ink sm:text-[38px]">
+            </motion.p>
+            <motion.h1
+              variants={rise}
+              className="mt-3 font-display text-[32px] font-semibold leading-none tracking-tight text-ink sm:text-[38px]"
+            >
               FlowMetrica
-            </h1>
-            <p className="reveal reveal-3 mt-2 text-[15px] font-medium text-ink/90">
+            </motion.h1>
+            <motion.p variants={rise} className="mt-2 text-[15px] font-medium text-ink/90">
               Network Intelligence &amp; Mathematical Analysis
-            </p>
-            <p className="reveal reveal-4 mt-2 max-w-[58ch] text-[13.5px] leading-relaxed text-muted">
+            </motion.p>
+            <motion.p
+              variants={rise}
+              className="mt-2 max-w-[58ch] text-[13.5px] leading-relaxed text-muted"
+            >
               Explore network traffic, analyze anomalies, and investigate network incidents through
               mathematical modeling.{' '}
               <a href="#/overview" className="link-inline whitespace-nowrap">
                 See how it works →
               </a>
-            </p>
+            </motion.p>
 
-            <div className="reveal reveal-5 mt-5 flex flex-wrap items-center gap-2">
-              <a href="#/module1" className="btn-primary">
+            <motion.div variants={rise} className="mt-5 flex flex-wrap items-center gap-2">
+              <motion.a href="#/module1" className="btn-primary" {...pressable}>
                 Open traffic analysis
                 <ArrowRight aria-hidden="true" className="h-4 w-4" />
-              </a>
-              <a href="#/saved" className="btn-secondary">
+              </motion.a>
+              <motion.a href="#/saved" className="btn-secondary" {...pressable}>
                 <FolderSearch aria-hidden="true" className="h-4 w-4" />
                 Saved investigations
-              </a>
-            </div>
+              </motion.a>
+            </motion.div>
 
-            <ul className="reveal reveal-5 mt-5 flex flex-wrap gap-x-5 gap-y-1.5 font-mono text-[11px] text-muted">
+            <motion.ul
+              variants={rise}
+              className="mt-5 flex flex-wrap gap-x-5 gap-y-1.5 font-mono text-[11px] text-muted"
+            >
               <li>
-                <span className="text-ink">{scenarios.length}</span> predefined scenarios
+                <span className="text-ink"><AnimatedNumber value={scenarios.length} reduce={reduceMotion} /></span> predefined scenarios
               </li>
               <li>
-                <span className="text-ink">{reports.length}</span> saved reports
+                <span className="text-ink"><AnimatedNumber value={reports.length} reduce={reduceMotion} /></span> saved reports
               </li>
               <li>offline-first · no account required</li>
-            </ul>
-          </div>
+            </motion.ul>
+          </motion.div>
 
-          <div className="reveal reveal-4 rounded-xl border border-line bg-base/50 p-4">
+          <motion.div
+            variants={rise}
+            className="rounded-xl border border-line bg-base/50 p-4"
+          >
             <div className="flex items-center justify-between gap-2">
               <h2 className="meta-label">
                 Service status
@@ -171,9 +195,9 @@ export default function Dashboard({ scenarios, details, reports, health, loading
                 detail="Served by the local execution interface."
               />
             </ul>
-          </div>
+          </motion.div>
         </div>
-      </section>
+      </motion.section>
 
       {error && (
         <ErrorState
