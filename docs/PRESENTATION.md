@@ -1,11 +1,67 @@
 # FlowMetrica — 4-slide presentation
 
-Simple script for a short demo. One idea per slide, no jargon on the screen.
-Detailed version: [README](../README.md). Roman Urdu pitch: [PDF](FlowMetrica-Pitch-RomanUrdu.pdf).
+PPT-ready content. **Image paths below are from the repo root**, so a tool like Claude can
+read this file and place the images directly. Markdown previews use paths relative to
+this `docs/` folder. Use one idea per slide and keep the text on screen short.
+
+## PPT asset manifest
+
+```json
+{
+  "slides": [
+    {
+      "number": 1,
+      "title": "What is FlowMetrica?",
+      "images": [
+        "docs/assets/banner.png",
+        "docs/screenshots/dashboard.png"
+      ],
+      "layout": "banner on top, dashboard below, three short bullets"
+    },
+    {
+      "number": 2,
+      "title": "How it works",
+      "images": [
+        "docs/screenshots/how-it-works.png"
+      ],
+      "layout": "explainer screenshot on the right, four-step flow on the left"
+    },
+    {
+      "number": 3,
+      "title": "Three modules",
+      "images": [
+        "docs/screenshots/traffic-analysis.png",
+        "docs/screenshots/anomaly-detection.png",
+        "docs/screenshots/investigation.png"
+      ],
+      "layout": "three equal cards, one screenshot per module"
+    },
+    {
+      "number": 4,
+      "title": "Why linear algebra, and why MATLAB?",
+      "images": [
+        "docs/screenshots/traffic-analysis.png"
+      ],
+      "layout": "matrix screenshot on the left, three plain-language points on the right"
+    }
+  ]
+}
+```
 
 ---
 
 ## Slide 1 — What is FlowMetrica?
+
+**Images (repo-root paths)**
+
+- `docs/assets/banner.png`
+- `docs/screenshots/dashboard.png`
+
+**Previews**
+
+![FlowMetrica banner](assets/banner.png)
+
+![Dashboard](screenshots/dashboard.png)
 
 **On screen**
 
@@ -14,44 +70,74 @@ Detailed version: [README](../README.md). Roman Urdu pitch: [PDF](FlowMetrica-Pi
 
 - Works with no internet, no login, no setup
 - 13 ready-made network stories
-- Built for learning and for showing the math, not hiding it
+- Built to show the math, not hide it
 
-**Say:** "Network traffic looks messy, but conservation rules turn it into a few equations. This app makes that visible."
+**Speaker note:** "Sir, network traffic looks messy, but junction rules turn it into a few equations. FlowMetrica makes that visible."
 
 ---
 
 ## Slide 2 — How it works
 
+**Image (repo-root path)**
+
+- `docs/screenshots/how-it-works.png`
+
+**Preview**
+
+![How it works](screenshots/how-it-works.png)
+
 **On screen**
 
 > **Story → Equation → Reduce → Answer + Source**
 
-1. Pick a scenario (fixed JSON)
-2. The server builds `A·x = b`
-3. Row reduction gives rank, pivots and the solution
-4. The answer comes back with an honest label
+1. Pick a scenario — fixed JSON, no typing
+2. Server builds `A·x = b`
+3. Row reduction gives rank, pivots and solution
+4. Answer returns with an honest provenance label
 
 One shared entry point: `POST /api/execute`. The browser never does the math.
 
-**Say:** "Everything goes through one door. That is why the three modules cannot disagree with each other."
+**Speaker note:** "Everything goes through one door. That is why the three modules cannot disagree with each other."
 
 ---
 
 ## Slide 3 — Three modules
 
+**Images (repo-root paths)**
+
+- `docs/screenshots/traffic-analysis.png`
+- `docs/screenshots/anomaly-detection.png`
+- `docs/screenshots/investigation.png`
+
+**Previews**
+
+![Traffic Analysis](screenshots/traffic-analysis.png)
+
+![Anomaly Detection](screenshots/anomaly-detection.png)
+
+![Incident Investigation](screenshots/investigation.png)
+
 **On screen**
 
 | Module | Question | What you see |
 |---|---|---|
-| **Traffic Analysis** | How should demand split across links? | Flow vector, matrix steps, topology |
-| **Anomaly Detection** | Do the readings add up? | Inconsistency, simulated backup route |
-| **Investigation** | What does an incident really prove? | Rank/pivots, structured report |
+| **1 · Traffic Analysis** | How should demand split across links? | Flow vector, matrix steps, topology |
+| **2 · Anomaly Detection** | Do the readings add up? | Inconsistency, simulated backup route |
+| **3 · Investigation** | What does an incident really prove? | Rank/pivots, structured report |
 
-**Say:** "Same question at three depths: plan a healthy network, catch a broken one, then write up a real-looking incident."
+**Speaker note:** "Same question at three depths: plan a healthy network, catch a broken one, then write up an incident."
 
 ---
 
 ## Slide 4 — Why linear algebra, and why MATLAB?
+
+**Image (repo-root path)**
+
+- `docs/screenshots/traffic-analysis.png`
+
+**Preview**
+
+![Matrix and solution](screenshots/traffic-analysis.png)
 
 **On screen**
 
@@ -59,10 +145,10 @@ One shared entry point: `POST /api/execute`. The browser never does the math.
 
 - Rows = junctions; unknowns = link flows
 - Rank and pivots say: unique, impossible, or many answers
-- MATLAB verifies exports independently — it is not a live cloud runner
+- MATLAB verifies exports independently — not a live cloud runner
 - Saved result means saved result. Never called "live" unless it really ran live
 
-**Say:** "MATLAB is here as an independent checker, not as a magic API. The honesty of the label is part of the project."
+**Speaker note:** "MATLAB is an independent checker here, not a magic API. The honesty of the label is part of the project."
 
 ---
 
@@ -73,3 +159,5 @@ One shared entry point: `POST /api/execute`. The browser never does the math.
 3. `#/module2` — show an inconsistent case
 4. `#/module3` — show one incident report
 5. `#/settings` — show preferences, guarantees and developer links
+
+Full spoken pitch: [FlowMetrica-Pitch-RomanUrdu.pdf](FlowMetrica-Pitch-RomanUrdu.pdf)
