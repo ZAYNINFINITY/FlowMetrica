@@ -1,14 +1,17 @@
 import { useState } from 'react';
 import {
+  Check,
   Database,
   Gauge,
   RotateCcw,
-  Settings as SettingsIcon,
+  ShieldCheck,
+  SlidersHorizontal,
   Trash2,
   Wifi,
   WifiOff,
 } from 'lucide-react';
 
+import { GitHubMark, LinkedInMark } from '../components/common/BrandMarks.jsx';
 import ConfirmDialog from '../components/common/ConfirmDialog.jsx';
 import ErrorState from '../components/common/ErrorState.jsx';
 import PageHeader from '../components/common/PageHeader.jsx';
@@ -16,6 +19,15 @@ import { useToast } from '../components/common/Toast.jsx';
 import { useReports } from '../hooks/useReports.js';
 import { formatDateTime } from '../lib/format.js';
 import { DEFAULT_PREFERENCES } from '../lib/settings.js';
+
+// Architectural guarantees, not user preferences: shown as always-on facts so
+// nobody can mistake them for toggles they are expected to choose.
+const GUARANTEES = [
+  { label: 'Offline-first scenarios', detail: 'Every predefined scenario runs without a connection or login.' },
+  { label: 'One execution interface', detail: 'All modules call POST /api/execute; the browser never solves a system.' },
+  { label: 'Verified provenance labels', detail: 'Saved fixtures and simulated data are labelled exactly as they are.' },
+  { label: 'No stored credentials', detail: 'MATLAB export is a manual step outside this app.' },
+];
 
 function Switch({ checked, onChange, label, description }) {
   return (
@@ -83,19 +95,19 @@ export default function Settings({ preferences, onChangePreferences, health, onl
       <PageHeader
         eyebrow="Workspace"
         title="Settings"
-        description="Local interface preferences and stored data. Nothing here leaves this browser."
+        description="Your interface preferences, the app's fixed guarantees, and local data. Nothing here leaves this browser."
       />
 
       <div className="grid gap-4 lg:grid-cols-2">
-        <section aria-labelledby="appearance-heading" className="surface p-5">
+        <section aria-labelledby="preferences-heading" className="surface p-5">
           <div className="flex items-center gap-2">
-            <SettingsIcon aria-hidden="true" className="h-4 w-4 text-accent" />
-            <h2 id="appearance-heading" className="section-title">
-              Appearance &amp; motion
+            <SlidersHorizontal aria-hidden="true" className="h-4 w-4 text-accent" />
+            <h2 id="preferences-heading" className="section-title">
+              Your preferences
             </h2>
           </div>
           <p className="mt-1 prose-note">
-            Motion is decorative in FlowMetrica. Every result stays readable when animations are off.
+            Two local choices. Change them any time; nothing is sent anywhere.
           </p>
 
           <div className="mt-4 space-y-2">
@@ -104,6 +116,12 @@ export default function Settings({ preferences, onChangePreferences, health, onl
               onChange={(value) => onChangePreferences({ reduceMotion: value })}
               label="Reduce motion"
               description="Disable panel fades, hover movement and the sidebar transition. The operating-system reduced-motion setting is always respected."
+            />
+            <Switch
+              checked={preferences.sidebarCollapsed}
+              onChange={(value) => onChangePreferences({ sidebarCollapsed: value })}
+              label="Start with sidebar collapsed"
+              description="Give the workspace more room on load. The sidebar toggle still works at any time."
             />
           </div>
 
@@ -118,6 +136,32 @@ export default function Settings({ preferences, onChangePreferences, health, onl
             <RotateCcw aria-hidden="true" className="h-3.5 w-3.5" />
             Reset preferences
           </button>
+        </section>
+
+        <section aria-labelledby="guarantees-heading" className="surface p-5">
+          <div className="flex items-center gap-2">
+            <ShieldCheck aria-hidden="true" className="h-4 w-4 text-ok" />
+            <h2 id="guarantees-heading" className="section-title">
+              App guarantees
+            </h2>
+          </div>
+          <p className="mt-1 prose-note">
+            Always on by design. These describe the architecture, so they are not switches.
+          </p>
+          <ul className="mt-4 space-y-2">
+            {GUARANTEES.map((item) => (
+              <li key={item.label} className="flex items-start gap-3 rounded-lg border border-line bg-sunken/50 p-3.5">
+                <Check aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0 text-ok" />
+                <div className="min-w-0 flex-1">
+                  <p className="text-[13px] font-medium text-ink">{item.label}</p>
+                  <p className="mt-0.5 text-[11.5px] leading-relaxed text-muted">{item.detail}</p>
+                </div>
+                <span className="shrink-0 whitespace-nowrap font-mono text-[10px] uppercase tracking-wide text-muted">
+                  always on
+                </span>
+              </li>
+            ))}
+          </ul>
         </section>
 
         <section aria-labelledby="data-heading" className="surface p-5">
@@ -192,7 +236,7 @@ export default function Settings({ preferences, onChangePreferences, health, onl
           </ul>
         </section>
 
-        <section aria-labelledby="about-heading" className="surface p-5">
+        <section aria-labelledby="about-heading" className="surface p-5 lg:col-span-2">
           <h2 id="about-heading" className="section-title">
             About FlowMetrica
           </h2>
@@ -219,6 +263,30 @@ export default function Settings({ preferences, onChangePreferences, health, onl
             This interface never solves a system in the browser, and reports are labelled
             Template-Based Report.
           </p>
+
+          <div className="mt-4 border-t border-line pt-4">
+            <p className="meta-label">Developer</p>
+            <div className="mt-2 flex flex-wrap gap-2">
+              <a
+                href="https://github.com/ZAYNINFINITY"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 rounded-lg border border-line bg-sunken/50 px-3 py-2 text-[12.5px] text-muted transition-colors hover:border-accent/40 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+              >
+                <GitHubMark className="h-4 w-4 shrink-0 text-ink/70" />
+                <span className="font-mono">ZAYNINFINITY</span>
+              </a>
+              <a
+                href="https://www.linkedin.com/in/zain-ul-abideen-429735231"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 rounded-lg border border-line bg-sunken/50 px-3 py-2 text-[12.5px] text-muted transition-colors hover:border-accent/40 hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent"
+              >
+                <LinkedInMark className="h-4 w-4 shrink-0 text-ink/70" />
+                <span>Zain Ul Abideen</span>
+              </a>
+            </div>
+          </div>
         </section>
 
       </div>

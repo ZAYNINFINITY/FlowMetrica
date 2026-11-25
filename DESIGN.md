@@ -10,4 +10,5 @@
 - **Palette:** existing fixed tokens (`base`, `panel`, `raised`, `line`, `accent`, `ink`, `muted`); koi naya hex component me nahi.
 - **Motion:** `motion` (Framer Motion) se spring-based stagger — eyebrow → title → lede → numbered flow (70ms intervals) — `AnimatePresence` route fade, aur spring hover/tap. Metric count-ups `useMotionValue` se bina re-render ke. `MotionConfig reducedMotion` Settings toggle + OS preference dono follow karta hai; `prefers-reduced-motion` aur `data-motion='reduced'` CSS guards baki animations ka duration aur delay zero karte hain.
 - **Honesty guardrail:** koi "Live MATLAB" ya "AI service" claim nahi. MATLAB = saved fixture; AI = external ChatGPT→MATLAB handoff.
+- **Settings split:** "Your preferences" selectable hoti hain (reduce motion, sidebar collapse); "App guarantees" always-on facts hain — unhe toggle nahi dikhte. About card me GitHub + LinkedIn muted brand marks ke saath.
 - **Success check:** 360/768/1280 par ek focal flow, clear reading order, zero console errors, zero nonfunctional controls.
