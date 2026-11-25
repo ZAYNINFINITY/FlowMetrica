@@ -116,7 +116,7 @@ export default function Dashboard({ scenarios, details, reports, health, loading
               <span aria-hidden="true" className="h-1 w-1 rounded-full bg-accent" />
               Network Intelligence Lab
             </p>
-            <h1 className="mt-3 text-[32px] font-semibold leading-none tracking-tight text-ink sm:text-[38px]">
+            <h1 className="mt-3 font-display text-[32px] font-semibold leading-none tracking-tight text-ink sm:text-[38px]">
               FlowMetrica
             </h1>
             <p className="mt-2 text-[15px] font-medium text-ink/90">
@@ -124,7 +124,10 @@ export default function Dashboard({ scenarios, details, reports, health, loading
             </p>
             <p className="mt-2 max-w-[58ch] text-[13.5px] leading-relaxed text-muted">
               Explore network traffic, analyze anomalies, and investigate network incidents through
-              mathematical modeling.
+              mathematical modeling.{' '}
+              <a href="#/overview" className="link-inline whitespace-nowrap">
+                See how it works →
+              </a>
             </p>
 
             <div className="mt-5 flex flex-wrap items-center gap-2">

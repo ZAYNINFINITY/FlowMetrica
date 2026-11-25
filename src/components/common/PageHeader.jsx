@@ -8,7 +8,7 @@ export default function PageHeader({ eyebrow, title, description, actions, meta 
             {eyebrow}
           </p>
         )}
-        <h1 className="text-[26px] font-semibold leading-tight tracking-tight text-ink sm:text-[30px]">
+        <h1 className="font-display text-[26px] font-semibold leading-tight tracking-tight text-ink sm:text-[30px]">
           {title}
         </h1>
         {description && (

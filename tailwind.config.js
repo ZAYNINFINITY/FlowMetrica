@@ -21,8 +21,17 @@ export default {
         muted: '#94A3B8',
       },
       fontFamily: {
+        display: ['"Space Grotesk"', 'Inter', 'ui-sans-serif', 'system-ui', 'sans-serif'],
         sans: ['Inter', 'ui-sans-serif', 'system-ui', '-apple-system', 'Segoe UI', 'sans-serif'],
         mono: ['"JetBrains Mono"', 'ui-monospace', 'SFMono-Regular', 'Consolas', 'monospace'],
+      },
+      fontSize: {
+        display: ['clamp(2.25rem, 5vw, 3.5rem)', { lineHeight: '1.04', letterSpacing: '-0.035em' }],
+        lede: ['clamp(1rem, 1.5vw, 1.15rem)', { lineHeight: '1.6' }],
+        metric: ['clamp(1.5rem, 3vw, 2rem)', { lineHeight: '1.1', letterSpacing: '-0.02em' }],
+      },
+      gridTemplateColumns: {
+        split: 'minmax(0, 1.15fr) minmax(0, 0.85fr)',
       },
       boxShadow: {
         panel: 'inset 0 1px 0 0 rgba(241, 245, 249, 0.03), 0 24px 48px -36px rgba(0, 0, 0, 0.9)',

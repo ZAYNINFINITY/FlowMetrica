@@ -8,6 +8,7 @@ import { getHealth, getScenario, getScenarios } from './lib/api.js';
 import { loadPreferences, savePreferences } from './lib/settings.js';
 import AnomalyDetection from './pages/AnomalyDetection.jsx';
 import Dashboard from './pages/Dashboard.jsx';
+import HowItWorks from './pages/HowItWorks.jsx';
 import Investigation from './pages/Investigation.jsx';
 import SavedInvestigations from './pages/SavedInvestigations.jsx';
 import Settings from './pages/Settings.jsx';
@@ -15,6 +16,11 @@ import TrafficAnalysis from './pages/TrafficAnalysis.jsx';
 
 const VIEWS = {
   dashboard: { title: 'Dashboard', crumb: ['Workspace', 'Dashboard'], Component: Dashboard },
+  overview: {
+    title: 'How it works',
+    crumb: ['Workspace', 'How it works'],
+    Component: HowItWorks,
+  },
   module1: {
     title: 'Network Traffic Analysis',
     crumb: ['Analysis', 'Traffic Analysis'],

@@ -1,4 +1,5 @@
 import {
+  BookOpen,
   FileText,
   FolderSearch,
   LayoutDashboard,
@@ -14,6 +15,7 @@ import {
 
 export const NAV_ITEMS = [
   { id: 'dashboard', label: 'Dashboard', Icon: LayoutDashboard },
+  { id: 'overview', label: 'How it works', Icon: BookOpen },
   { id: 'module1', label: 'Network Traffic Analysis', short: 'Traffic Analysis', Icon: Network },
   { id: 'module2', label: 'Anomaly Detection', Icon: ShieldAlert },
   { id: 'module3', label: 'Incident Investigation', short: 'Investigation', Icon: ScanSearch },
@@ -91,7 +93,7 @@ export default function Sidebar({
             </span>
             {!collapsed && (
               <span className="min-w-0">
-                <span className="block truncate text-[14px] font-semibold tracking-tight text-ink">
+                <span className="block truncate font-display text-[14px] font-semibold tracking-tight text-ink">
                   FlowMetrica
                 </span>
                 <span className="block truncate text-[10px] uppercase tracking-[0.14em] text-muted">
