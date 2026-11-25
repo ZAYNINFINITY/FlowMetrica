@@ -88,7 +88,7 @@ cannot attach a `live_network_measurement` label to invented numbers.
 
 ## Tests
 
-`npm test` runs 37 tests covering linear algebra, input purity, row operations,
+`npm test` runs 38 tests covering linear algebra, input purity, row operations,
 catalogue integrity, provenance, MATLAB REST decoding, measurement normalisation,
 concurrency, expiry and live-execution failure paths.
 
