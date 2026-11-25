@@ -1,0 +1,55 @@
+{
+  "id": "incident_capacity_breach_01",
+  "module": "module3",
+  "title": "INC-318 · Edge Capacity Breach",
+  "summary": "A solved 110 Mbps split is mathematically unique, but one link exceeds its rated 60 Mbps capacity.",
+  "severity": "high",
+  "complexity": "intermediate",
+  "tags": ["unique solution", "capacity breach", "capacity alert"],
+  "description": "During the evening surge the gateway recorded a 110 Mbps total across three edge links plus two pairwise differences. The model is fully determined, and it reveals that link A is carrying 20 Mbps more than its documented capacity.",
+  "incidentId": "INC-318",
+  "detectedAt": "2026-11-22T21:05:00Z",
+  "investigationSteps": [
+    "Assign one variable to each monitored edge link.",
+    "Convert the total reading and both pairwise differences into equations.",
+    "Reduce the augmented matrix and confirm full column rank.",
+    "Compare every solved flow with the documented link capacity."
+  ],
+  "variables": [
+    { "symbol": "x₁", "meaning": "Traffic on link A (Mbps)" },
+    { "symbol": "x₂", "meaning": "Traffic on link B (Mbps)" },
+    { "symbol": "x₃", "meaning": "Traffic on link C (Mbps)" }
+  ],
+  "equations": ["x₁ + x₂ + x₃ = 110", "x₁ − x₂ = 60", "x₂ − x₃ = 10"],
+  "topology": {
+    "nodes": [
+      { "id": "GW", "label": "GW · Gateway", "x": 70, "y": 150 },
+      { "id": "A", "label": "Link A", "x": 270, "y": 65 },
+      { "id": "B", "label": "Link B", "x": 270, "y": 235 },
+      { "id": "C", "label": "Link C", "x": 540, "y": 150 }
+    ],
+    "edges": [
+      { "id": "e1", "from": "GW", "to": "A", "label": "x₁", "status": "normal" },
+      { "id": "e2", "from": "GW", "to": "B", "label": "x₂", "status": "normal" },
+      { "id": "e3", "from": "B", "to": "C", "label": "x₃", "status": "normal" }
+    ]
+  },
+  "execution": {
+    "operation": "investigate_incident",
+    "input": {
+      "matrix": [[1, 1, 1], [1, -1, 0], [0, 1, -1]],
+      "vector": [110, 60, 10]
+    }
+  },
+  "verification": { "expectedClassification": "unique", "expectedSolution": [80, 20, 10] },
+  "templateFindings": [
+    "The three measurements are independent, so the model has full column rank and a unique answer.",
+    "RREF gives the split x₁ = 80, x₂ = 20 and x₃ = 10 Mbps.",
+    "Link A is rated for 60 Mbps but is carrying 80 Mbps, an overload of 20 Mbps."
+  ],
+  "suggestedActions": [
+    "Move at least 20 Mbps from link A to a documented backup path.",
+    "Raise the link A capacity alert threshold and verify the rating in the asset register.",
+    "Re-run the model after the routing change and archive the new distribution."
+  ]
+}

@@ -1,0 +1,103 @@
+{
+  "fixtureVersion": "1.0.0",
+  "scenarioId": "incident_contradictory_sensors_01",
+  "operation": "investigate_incident",
+  "functionName": "investigate_incident",
+  "input": {
+    "matrix": [
+      [
+        1,
+        1
+      ],
+      [
+        1,
+        1
+      ]
+    ],
+    "vector": [
+      100,
+      115
+    ]
+  },
+  "output": {
+    "classification": "no_solution",
+    "consistent": false,
+    "rank": 1,
+    "variableCount": 2,
+    "pivotColumns": [
+      0
+    ],
+    "rref": [
+      [
+        1,
+        1,
+        100
+      ],
+      [
+        0,
+        0,
+        1
+      ]
+    ],
+    "steps": [
+      {
+        "operation": "Initial augmented matrix",
+        "reason": "Start with the coefficient matrix joined to the constants vector.",
+        "matrix": [
+          [
+            1,
+            1,
+            100
+          ],
+          [
+            1,
+            1,
+            115
+          ]
+        ]
+      },
+      {
+        "operation": "R2 ← R2 − (1)·R1",
+        "reason": "Clear this column from the remaining rows.",
+        "matrix": [
+          [
+            1,
+            1,
+            100
+          ],
+          [
+            0,
+            0,
+            15
+          ]
+        ]
+      },
+      {
+        "operation": "R2 ← (1/15)·R2",
+        "reason": "Expose the contradiction as 0 = 1.",
+        "matrix": [
+          [
+            1,
+            1,
+            100
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ]
+      }
+    ],
+    "solution": null,
+    "parametricForm": []
+  },
+  "metadata": {
+    "verificationStatus": "reference_verified",
+    "executionEngine": "reference_javascript_gauss_jordan",
+    "matlabVersion": "not executed — MATLAB Online export pending",
+    "generatedAt": "2026-11-25T15:53:41.531Z",
+    "matlabExportStatus": "pending",
+    "method": "Independent Gauss-Jordan elimination with a 1e-9 tolerance, cross-checked against the expected classification and solution stored in the scenario."
+  }
+}

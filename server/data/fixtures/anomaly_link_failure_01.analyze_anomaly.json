@@ -1,0 +1,424 @@
+{
+  "fixtureVersion": "1.0.0",
+  "scenarioId": "anomaly_link_failure_01",
+  "operation": "analyze_anomaly",
+  "functionName": "analyze_anomaly",
+  "input": {
+    "stages": [
+      {
+        "id": "normal",
+        "matrix": [
+          [
+            1,
+            1
+          ],
+          [
+            1,
+            -1
+          ]
+        ],
+        "vector": [
+          120,
+          20
+        ]
+      },
+      {
+        "id": "failed",
+        "matrix": [
+          [
+            1,
+            1
+          ],
+          [
+            1,
+            -1
+          ],
+          [
+            0,
+            1
+          ]
+        ],
+        "vector": [
+          120,
+          20,
+          0
+        ]
+      },
+      {
+        "id": "corrected",
+        "matrix": [
+          [
+            1,
+            1
+          ],
+          [
+            1,
+            -1
+          ]
+        ],
+        "vector": [
+          120,
+          20
+        ]
+      }
+    ]
+  },
+  "output": {
+    "stages": [
+      {
+        "id": "normal",
+        "classification": "unique",
+        "consistent": true,
+        "rank": 2,
+        "variableCount": 2,
+        "pivotColumns": [
+          0,
+          1
+        ],
+        "rref": [
+          [
+            1,
+            0,
+            70
+          ],
+          [
+            0,
+            1,
+            50
+          ]
+        ],
+        "steps": [
+          {
+            "operation": "Initial augmented matrix",
+            "reason": "Start with the coefficient matrix joined to the constants vector.",
+            "matrix": [
+              [
+                1,
+                1,
+                120
+              ],
+              [
+                1,
+                -1,
+                20
+              ]
+            ]
+          },
+          {
+            "operation": "R2 ← R2 − (1)·R1",
+            "reason": "Clear this column from the remaining rows.",
+            "matrix": [
+              [
+                1,
+                1,
+                120
+              ],
+              [
+                0,
+                -2,
+                -100
+              ]
+            ]
+          },
+          {
+            "operation": "R2 ← (1/-2)·R2",
+            "reason": "Normalize the pivot to 1.",
+            "matrix": [
+              [
+                1,
+                1,
+                120
+              ],
+              [
+                0,
+                1,
+                50
+              ]
+            ]
+          },
+          {
+            "operation": "R1 ← R1 − (1)·R2",
+            "reason": "Clear this column from the remaining rows.",
+            "matrix": [
+              [
+                1,
+                0,
+                70
+              ],
+              [
+                0,
+                1,
+                50
+              ]
+            ]
+          }
+        ],
+        "solution": [
+          70,
+          50
+        ],
+        "parametricForm": []
+      },
+      {
+        "id": "failed",
+        "classification": "no_solution",
+        "consistent": false,
+        "rank": 2,
+        "variableCount": 2,
+        "pivotColumns": [
+          0,
+          1
+        ],
+        "rref": [
+          [
+            1,
+            0,
+            70
+          ],
+          [
+            0,
+            1,
+            50
+          ],
+          [
+            0,
+            0,
+            1
+          ]
+        ],
+        "steps": [
+          {
+            "operation": "Initial augmented matrix",
+            "reason": "Start with the coefficient matrix joined to the constants vector.",
+            "matrix": [
+              [
+                1,
+                1,
+                120
+              ],
+              [
+                1,
+                -1,
+                20
+              ],
+              [
+                0,
+                1,
+                0
+              ]
+            ]
+          },
+          {
+            "operation": "R2 ← R2 − (1)·R1",
+            "reason": "Clear this column from the remaining rows.",
+            "matrix": [
+              [
+                1,
+                1,
+                120
+              ],
+              [
+                0,
+                -2,
+                -100
+              ],
+              [
+                0,
+                1,
+                0
+              ]
+            ]
+          },
+          {
+            "operation": "R2 ← (1/-2)·R2",
+            "reason": "Normalize the pivot to 1.",
+            "matrix": [
+              [
+                1,
+                1,
+                120
+              ],
+              [
+                0,
+                1,
+                50
+              ],
+              [
+                0,
+                1,
+                0
+              ]
+            ]
+          },
+          {
+            "operation": "R1 ← R1 − (1)·R2",
+            "reason": "Clear this column from the remaining rows.",
+            "matrix": [
+              [
+                1,
+                0,
+                70
+              ],
+              [
+                0,
+                1,
+                50
+              ],
+              [
+                0,
+                1,
+                0
+              ]
+            ]
+          },
+          {
+            "operation": "R3 ← R3 − (1)·R2",
+            "reason": "Clear this column from the remaining rows.",
+            "matrix": [
+              [
+                1,
+                0,
+                70
+              ],
+              [
+                0,
+                1,
+                50
+              ],
+              [
+                0,
+                0,
+                -50
+              ]
+            ]
+          },
+          {
+            "operation": "R3 ← (1/-50)·R3",
+            "reason": "Expose the contradiction as 0 = 1.",
+            "matrix": [
+              [
+                1,
+                0,
+                70
+              ],
+              [
+                0,
+                1,
+                50
+              ],
+              [
+                0,
+                0,
+                1
+              ]
+            ]
+          }
+        ],
+        "solution": null,
+        "parametricForm": []
+      },
+      {
+        "id": "corrected",
+        "classification": "unique",
+        "consistent": true,
+        "rank": 2,
+        "variableCount": 2,
+        "pivotColumns": [
+          0,
+          1
+        ],
+        "rref": [
+          [
+            1,
+            0,
+            70
+          ],
+          [
+            0,
+            1,
+            50
+          ]
+        ],
+        "steps": [
+          {
+            "operation": "Initial augmented matrix",
+            "reason": "Start with the coefficient matrix joined to the constants vector.",
+            "matrix": [
+              [
+                1,
+                1,
+                120
+              ],
+              [
+                1,
+                -1,
+                20
+              ]
+            ]
+          },
+          {
+            "operation": "R2 ← R2 − (1)·R1",
+            "reason": "Clear this column from the remaining rows.",
+            "matrix": [
+              [
+                1,
+                1,
+                120
+              ],
+              [
+                0,
+                -2,
+                -100
+              ]
+            ]
+          },
+          {
+            "operation": "R2 ← (1/-2)·R2",
+            "reason": "Normalize the pivot to 1.",
+            "matrix": [
+              [
+                1,
+                1,
+                120
+              ],
+              [
+                0,
+                1,
+                50
+              ]
+            ]
+          },
+          {
+            "operation": "R1 ← R1 − (1)·R2",
+            "reason": "Clear this column from the remaining rows.",
+            "matrix": [
+              [
+                1,
+                0,
+                70
+              ],
+              [
+                0,
+                1,
+                50
+              ]
+            ]
+          }
+        ],
+        "solution": [
+          70,
+          50
+        ],
+        "parametricForm": []
+      }
+    ]
+  },
+  "metadata": {
+    "verificationStatus": "reference_verified",
+    "executionEngine": "reference_javascript_gauss_jordan",
+    "matlabVersion": "not executed — MATLAB Online export pending",
+    "generatedAt": "2026-11-25T15:53:41.528Z",
+    "matlabExportStatus": "pending",
+    "method": "Independent Gauss-Jordan elimination with a 1e-9 tolerance, cross-checked against the expected classification and solution stored in the scenario."
+  }
+}

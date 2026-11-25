@@ -1,0 +1,83 @@
+{
+  "id": "anomaly_link_failure_01",
+  "module": "module2",
+  "title": "Core Link R2 → R3 Failure",
+  "summary": "A 120 Mbps flow loses its primary path. The updated system becomes inconsistent until a backup path is modelled.",
+  "complexity": "intermediate",
+  "tags": ["link failure", "inconsistent system", "alternative routing"],
+  "concept": "A failed link is modelled by forcing its flow to zero. If the remaining equations still demand traffic on that link, the augmented matrix reduces to a row like [0 0 | 1] — mathematical proof that no valid flow exists.",
+  "variables": [
+    { "symbol": "x₁", "meaning": "Traffic on R1 → R2 (Mbps)" },
+    { "symbol": "x₂", "meaning": "Traffic on R2 → R3 (Mbps)" },
+    { "symbol": "x₃", "meaning": "Traffic on backup R1 → R4 → R3 (Mbps)" }
+  ],
+  "equations": ["x₁ + x₂ = 120", "x₁ − x₂ = 20", "failed: x₂ = 0", "corrected: x₁ + x₃ = 120, x₁ − x₃ = 20"],
+  "normal": {
+    "label": "Normal state",
+    "description": "Both primary links are healthy and carry 70 and 50 Mbps.",
+    "topology": {
+      "nodes": [
+        { "id": "R1", "label": "R1 · Ingress", "x": 80, "y": 150 },
+        { "id": "R2", "label": "R2 · Core", "x": 300, "y": 65 },
+        { "id": "R3", "label": "R3 · Egress", "x": 520, "y": 150 }
+      ],
+      "edges": [
+        { "id": "e1", "from": "R1", "to": "R2", "label": "x₁", "status": "normal" },
+        { "id": "e2", "from": "R2", "to": "R3", "label": "x₂", "status": "normal" }
+      ]
+    }
+  },
+  "failed": {
+    "label": "Link failed",
+    "description": "R2 → R3 is unavailable. The constraint x₂ = 0 contradicts the measured flow balance.",
+    "failedEdge": "e2",
+    "topology": {
+      "nodes": [
+        { "id": "R1", "label": "R1 · Ingress", "x": 80, "y": 150 },
+        { "id": "R2", "label": "R2 · Core", "x": 300, "y": 65 },
+        { "id": "R3", "label": "R3 · Egress", "x": 520, "y": 150 }
+      ],
+      "edges": [
+        { "id": "e1", "from": "R1", "to": "R2", "label": "x₁", "status": "normal" },
+        { "id": "e2", "from": "R2", "to": "R3", "label": "x₂ · failed", "status": "failed" }
+      ]
+    }
+  },
+  "corrected": {
+    "label": "Corrected (simulated)",
+    "description": "A backup path R1 → R4 → R3 is activated. Traffic is redistributed and the 120 Mbps total is restored mathematically.",
+    "restoredEdges": ["e3", "e4"],
+    "topology": {
+      "nodes": [
+        { "id": "R1", "label": "R1 · Ingress", "x": 70, "y": 150 },
+        { "id": "R2", "label": "R2 · Core", "x": 290, "y": 55 },
+        { "id": "R3", "label": "R3 · Egress", "x": 530, "y": 150 },
+        { "id": "R4", "label": "R4 · Backup", "x": 290, "y": 245 }
+      ],
+      "edges": [
+        { "id": "e1", "from": "R1", "to": "R2", "label": "x₁", "status": "normal" },
+        { "id": "e2", "from": "R2", "to": "R3", "label": "x₂ · failed", "status": "failed" },
+        { "id": "e3", "from": "R1", "to": "R4", "label": "x₃ · backup", "status": "restored" },
+        { "id": "e4", "from": "R4", "to": "R3", "label": "x₃ · backup", "status": "restored" }
+      ]
+    }
+  },
+  "execution": {
+    "operation": "analyze_anomaly",
+    "input": {
+      "stages": [
+        { "id": "normal", "matrix": [[1, 1], [1, -1]], "vector": [120, 20] },
+        { "id": "failed", "matrix": [[1, 1], [1, -1], [0, 1]], "vector": [120, 20, 0] },
+        { "id": "corrected", "matrix": [[1, 1], [1, -1]], "vector": [120, 20] }
+      ]
+    }
+  },
+  "verification": {
+    "expectedClassifications": { "normal": "unique", "failed": "no_solution", "corrected": "unique" }
+  },
+  "teachingNotes": [
+    "A row of zeros on the left with a nonzero value on the right is 0 = 1, which is impossible.",
+    "The correction is a mathematical simulation. It does not repair any physical router.",
+    "Alternative routing means changing the model, not changing the measured demand."
+  ]
+}

@@ -1,0 +1,1211 @@
+{
+  "fixtureVersion": "1.0.0",
+  "scenarioId": "anomaly_capacity_breach_01",
+  "operation": "analyze_anomaly",
+  "functionName": "analyze_anomaly",
+  "input": {
+    "stages": [
+      {
+        "id": "normal",
+        "matrix": [
+          [
+            1,
+            1,
+            1
+          ],
+          [
+            1,
+            -1,
+            0
+          ],
+          [
+            0,
+            1,
+            -1
+          ]
+        ],
+        "vector": [
+          60,
+          10,
+          10
+        ]
+      },
+      {
+        "id": "failed",
+        "matrix": [
+          [
+            1,
+            1,
+            1
+          ],
+          [
+            1,
+            -1,
+            0
+          ],
+          [
+            0,
+            1,
+            -1
+          ],
+          [
+            0,
+            1,
+            0
+          ]
+        ],
+        "vector": [
+          60,
+          10,
+          10,
+          0
+        ]
+      },
+      {
+        "id": "corrected",
+        "matrix": [
+          [
+            1,
+            1,
+            1,
+            0
+          ],
+          [
+            1,
+            -1,
+            0,
+            0
+          ],
+          [
+            0,
+            1,
+            0,
+            -1
+          ],
+          [
+            0,
+            0,
+            1,
+            -1
+          ]
+        ],
+        "vector": [
+          60,
+          10,
+          10,
+          0
+        ]
+      }
+    ]
+  },
+  "output": {
+    "stages": [
+      {
+        "id": "normal",
+        "classification": "unique",
+        "consistent": true,
+        "rank": 3,
+        "variableCount": 3,
+        "pivotColumns": [
+          0,
+          1,
+          2
+        ],
+        "rref": [
+          [
+            1,
+            0,
+            0,
+            30
+          ],
+          [
+            0,
+            1,
+            0,
+            20
+          ],
+          [
+            0,
+            0,
+            1,
+            10
+          ]
+        ],
+        "steps": [
+          {
+            "operation": "Initial augmented matrix",
+            "reason": "Start with the coefficient matrix joined to the constants vector.",
+            "matrix": [
+              [
+                1,
+                1,
+                1,
+                60
+              ],
+              [
+                1,
+                -1,
+                0,
+                10
+              ],
+              [
+                0,
+                1,
+                -1,
+                10
+              ]
+            ]
+          },
+          {
+            "operation": "R2 ← R2 − (1)·R1",
+            "reason": "Clear this column from the remaining rows.",
+            "matrix": [
+              [
+                1,
+                1,
+                1,
+                60
+              ],
+              [
+                0,
+                -2,
+                -1,
+                -50
+              ],
+              [
+                0,
+                1,
+                -1,
+                10
+              ]
+            ]
+          },
+          {
+            "operation": "R2 ← (1/-2)·R2",
+            "reason": "Normalize the pivot to 1.",
+            "matrix": [
+              [
+                1,
+                1,
+                1,
+                60
+              ],
+              [
+                0,
+                1,
+                0.5,
+                25
+              ],
+              [
+                0,
+                1,
+                -1,
+                10
+              ]
+            ]
+          },
+          {
+            "operation": "R1 ← R1 − (1)·R2",
+            "reason": "Clear this column from the remaining rows.",
+            "matrix": [
+              [
+                1,
+                0,
+                0.5,
+                35
+              ],
+              [
+                0,
+                1,
+                0.5,
+                25
+              ],
+              [
+                0,
+                1,
+                -1,
+                10
+              ]
+            ]
+          },
+          {
+            "operation": "R3 ← R3 − (1)·R2",
+            "reason": "Clear this column from the remaining rows.",
+            "matrix": [
+              [
+                1,
+                0,
+                0.5,
+                35
+              ],
+              [
+                0,
+                1,
+                0.5,
+                25
+              ],
+              [
+                0,
+                0,
+                -1.5,
+                -15
+              ]
+            ]
+          },
+          {
+            "operation": "R3 ← (1/-1.5)·R3",
+            "reason": "Normalize the pivot to 1.",
+            "matrix": [
+              [
+                1,
+                0,
+                0.5,
+                35
+              ],
+              [
+                0,
+                1,
+                0.5,
+                25
+              ],
+              [
+                0,
+                0,
+                1,
+                10
+              ]
+            ]
+          },
+          {
+            "operation": "R1 ← R1 − (0.5)·R3",
+            "reason": "Clear this column from the remaining rows.",
+            "matrix": [
+              [
+                1,
+                0,
+                0,
+                30
+              ],
+              [
+                0,
+                1,
+                0.5,
+                25
+              ],
+              [
+                0,
+                0,
+                1,
+                10
+              ]
+            ]
+          },
+          {
+            "operation": "R2 ← R2 − (0.5)·R3",
+            "reason": "Clear this column from the remaining rows.",
+            "matrix": [
+              [
+                1,
+                0,
+                0,
+                30
+              ],
+              [
+                0,
+                1,
+                0,
+                20
+              ],
+              [
+                0,
+                0,
+                1,
+                10
+              ]
+            ]
+          }
+        ],
+        "solution": [
+          30,
+          20,
+          10
+        ],
+        "parametricForm": []
+      },
+      {
+        "id": "failed",
+        "classification": "no_solution",
+        "consistent": false,
+        "rank": 3,
+        "variableCount": 3,
+        "pivotColumns": [
+          0,
+          1,
+          2
+        ],
+        "rref": [
+          [
+            1,
+            0,
+            0,
+            30
+          ],
+          [
+            0,
+            1,
+            0,
+            20
+          ],
+          [
+            0,
+            0,
+            1,
+            10
+          ],
+          [
+            0,
+            0,
+            0,
+            1
+          ]
+        ],
+        "steps": [
+          {
+            "operation": "Initial augmented matrix",
+            "reason": "Start with the coefficient matrix joined to the constants vector.",
+            "matrix": [
+              [
+                1,
+                1,
+                1,
+                60
+              ],
+              [
+                1,
+                -1,
+                0,
+                10
+              ],
+              [
+                0,
+                1,
+                -1,
+                10
+              ],
+              [
+                0,
+                1,
+                0,
+                0
+              ]
+            ]
+          },
+          {
+            "operation": "R2 ← R2 − (1)·R1",
+            "reason": "Clear this column from the remaining rows.",
+            "matrix": [
+              [
+                1,
+                1,
+                1,
+                60
+              ],
+              [
+                0,
+                -2,
+                -1,
+                -50
+              ],
+              [
+                0,
+                1,
+                -1,
+                10
+              ],
+              [
+                0,
+                1,
+                0,
+                0
+              ]
+            ]
+          },
+          {
+            "operation": "R2 ← (1/-2)·R2",
+            "reason": "Normalize the pivot to 1.",
+            "matrix": [
+              [
+                1,
+                1,
+                1,
+                60
+              ],
+              [
+                0,
+                1,
+                0.5,
+                25
+              ],
+              [
+                0,
+                1,
+                -1,
+                10
+              ],
+              [
+                0,
+                1,
+                0,
+                0
+              ]
+            ]
+          },
+          {
+            "operation": "R1 ← R1 − (1)·R2",
+            "reason": "Clear this column from the remaining rows.",
+            "matrix": [
+              [
+                1,
+                0,
+                0.5,
+                35
+              ],
+              [
+                0,
+                1,
+                0.5,
+                25
+              ],
+              [
+                0,
+                1,
+                -1,
+                10
+              ],
+              [
+                0,
+                1,
+                0,
+                0
+              ]
+            ]
+          },
+          {
+            "operation": "R3 ← R3 − (1)·R2",
+            "reason": "Clear this column from the remaining rows.",
+            "matrix": [
+              [
+                1,
+                0,
+                0.5,
+                35
+              ],
+              [
+                0,
+                1,
+                0.5,
+                25
+              ],
+              [
+                0,
+                0,
+                -1.5,
+                -15
+              ],
+              [
+                0,
+                1,
+                0,
+                0
+              ]
+            ]
+          },
+          {
+            "operation": "R4 ← R4 − (1)·R2",
+            "reason": "Clear this column from the remaining rows.",
+            "matrix": [
+              [
+                1,
+                0,
+                0.5,
+                35
+              ],
+              [
+                0,
+                1,
+                0.5,
+                25
+              ],
+              [
+                0,
+                0,
+                -1.5,
+                -15
+              ],
+              [
+                0,
+                0,
+                -0.5,
+                -25
+              ]
+            ]
+          },
+          {
+            "operation": "R3 ← (1/-1.5)·R3",
+            "reason": "Normalize the pivot to 1.",
+            "matrix": [
+              [
+                1,
+                0,
+                0.5,
+                35
+              ],
+              [
+                0,
+                1,
+                0.5,
+                25
+              ],
+              [
+                0,
+                0,
+                1,
+                10
+              ],
+              [
+                0,
+                0,
+                -0.5,
+                -25
+              ]
+            ]
+          },
+          {
+            "operation": "R1 ← R1 − (0.5)·R3",
+            "reason": "Clear this column from the remaining rows.",
+            "matrix": [
+              [
+                1,
+                0,
+                0,
+                30
+              ],
+              [
+                0,
+                1,
+                0.5,
+                25
+              ],
+              [
+                0,
+                0,
+                1,
+                10
+              ],
+              [
+                0,
+                0,
+                -0.5,
+                -25
+              ]
+            ]
+          },
+          {
+            "operation": "R2 ← R2 − (0.5)·R3",
+            "reason": "Clear this column from the remaining rows.",
+            "matrix": [
+              [
+                1,
+                0,
+                0,
+                30
+              ],
+              [
+                0,
+                1,
+                0,
+                20
+              ],
+              [
+                0,
+                0,
+                1,
+                10
+              ],
+              [
+                0,
+                0,
+                -0.5,
+                -25
+              ]
+            ]
+          },
+          {
+            "operation": "R4 ← R4 − (-0.5)·R3",
+            "reason": "Clear this column from the remaining rows.",
+            "matrix": [
+              [
+                1,
+                0,
+                0,
+                30
+              ],
+              [
+                0,
+                1,
+                0,
+                20
+              ],
+              [
+                0,
+                0,
+                1,
+                10
+              ],
+              [
+                0,
+                0,
+                0,
+                -20
+              ]
+            ]
+          },
+          {
+            "operation": "R4 ← (1/-20)·R4",
+            "reason": "Expose the contradiction as 0 = 1.",
+            "matrix": [
+              [
+                1,
+                0,
+                0,
+                30
+              ],
+              [
+                0,
+                1,
+                0,
+                20
+              ],
+              [
+                0,
+                0,
+                1,
+                10
+              ],
+              [
+                0,
+                0,
+                0,
+                1
+              ]
+            ]
+          }
+        ],
+        "solution": null,
+        "parametricForm": []
+      },
+      {
+        "id": "corrected",
+        "classification": "unique",
+        "consistent": true,
+        "rank": 4,
+        "variableCount": 4,
+        "pivotColumns": [
+          0,
+          1,
+          2,
+          3
+        ],
+        "rref": [
+          [
+            1,
+            0,
+            0,
+            0,
+            30
+          ],
+          [
+            0,
+            1,
+            0,
+            0,
+            20
+          ],
+          [
+            0,
+            0,
+            1,
+            0,
+            10
+          ],
+          [
+            0,
+            0,
+            0,
+            1,
+            10
+          ]
+        ],
+        "steps": [
+          {
+            "operation": "Initial augmented matrix",
+            "reason": "Start with the coefficient matrix joined to the constants vector.",
+            "matrix": [
+              [
+                1,
+                1,
+                1,
+                0,
+                60
+              ],
+              [
+                1,
+                -1,
+                0,
+                0,
+                10
+              ],
+              [
+                0,
+                1,
+                0,
+                -1,
+                10
+              ],
+              [
+                0,
+                0,
+                1,
+                -1,
+                0
+              ]
+            ]
+          },
+          {
+            "operation": "R2 ← R2 − (1)·R1",
+            "reason": "Clear this column from the remaining rows.",
+            "matrix": [
+              [
+                1,
+                1,
+                1,
+                0,
+                60
+              ],
+              [
+                0,
+                -2,
+                -1,
+                0,
+                -50
+              ],
+              [
+                0,
+                1,
+                0,
+                -1,
+                10
+              ],
+              [
+                0,
+                0,
+                1,
+                -1,
+                0
+              ]
+            ]
+          },
+          {
+            "operation": "R2 ← (1/-2)·R2",
+            "reason": "Normalize the pivot to 1.",
+            "matrix": [
+              [
+                1,
+                1,
+                1,
+                0,
+                60
+              ],
+              [
+                0,
+                1,
+                0.5,
+                0,
+                25
+              ],
+              [
+                0,
+                1,
+                0,
+                -1,
+                10
+              ],
+              [
+                0,
+                0,
+                1,
+                -1,
+                0
+              ]
+            ]
+          },
+          {
+            "operation": "R1 ← R1 − (1)·R2",
+            "reason": "Clear this column from the remaining rows.",
+            "matrix": [
+              [
+                1,
+                0,
+                0.5,
+                0,
+                35
+              ],
+              [
+                0,
+                1,
+                0.5,
+                0,
+                25
+              ],
+              [
+                0,
+                1,
+                0,
+                -1,
+                10
+              ],
+              [
+                0,
+                0,
+                1,
+                -1,
+                0
+              ]
+            ]
+          },
+          {
+            "operation": "R3 ← R3 − (1)·R2",
+            "reason": "Clear this column from the remaining rows.",
+            "matrix": [
+              [
+                1,
+                0,
+                0.5,
+                0,
+                35
+              ],
+              [
+                0,
+                1,
+                0.5,
+                0,
+                25
+              ],
+              [
+                0,
+                0,
+                -0.5,
+                -1,
+                -15
+              ],
+              [
+                0,
+                0,
+                1,
+                -1,
+                0
+              ]
+            ]
+          },
+          {
+            "operation": "R3 ← (1/-0.5)·R3",
+            "reason": "Normalize the pivot to 1.",
+            "matrix": [
+              [
+                1,
+                0,
+                0.5,
+                0,
+                35
+              ],
+              [
+                0,
+                1,
+                0.5,
+                0,
+                25
+              ],
+              [
+                0,
+                0,
+                1,
+                2,
+                30
+              ],
+              [
+                0,
+                0,
+                1,
+                -1,
+                0
+              ]
+            ]
+          },
+          {
+            "operation": "R1 ← R1 − (0.5)·R3",
+            "reason": "Clear this column from the remaining rows.",
+            "matrix": [
+              [
+                1,
+                0,
+                0,
+                -1,
+                20
+              ],
+              [
+                0,
+                1,
+                0.5,
+                0,
+                25
+              ],
+              [
+                0,
+                0,
+                1,
+                2,
+                30
+              ],
+              [
+                0,
+                0,
+                1,
+                -1,
+                0
+              ]
+            ]
+          },
+          {
+            "operation": "R2 ← R2 − (0.5)·R3",
+            "reason": "Clear this column from the remaining rows.",
+            "matrix": [
+              [
+                1,
+                0,
+                0,
+                -1,
+                20
+              ],
+              [
+                0,
+                1,
+                0,
+                -1,
+                10
+              ],
+              [
+                0,
+                0,
+                1,
+                2,
+                30
+              ],
+              [
+                0,
+                0,
+                1,
+                -1,
+                0
+              ]
+            ]
+          },
+          {
+            "operation": "R4 ← R4 − (1)·R3",
+            "reason": "Clear this column from the remaining rows.",
+            "matrix": [
+              [
+                1,
+                0,
+                0,
+                -1,
+                20
+              ],
+              [
+                0,
+                1,
+                0,
+                -1,
+                10
+              ],
+              [
+                0,
+                0,
+                1,
+                2,
+                30
+              ],
+              [
+                0,
+                0,
+                0,
+                -3,
+                -30
+              ]
+            ]
+          },
+          {
+            "operation": "R4 ← (1/-3)·R4",
+            "reason": "Normalize the pivot to 1.",
+            "matrix": [
+              [
+                1,
+                0,
+                0,
+                -1,
+                20
+              ],
+              [
+                0,
+                1,
+                0,
+                -1,
+                10
+              ],
+              [
+                0,
+                0,
+                1,
+                2,
+                30
+              ],
+              [
+                0,
+                0,
+                0,
+                1,
+                10
+              ]
+            ]
+          },
+          {
+            "operation": "R1 ← R1 − (-1)·R4",
+            "reason": "Clear this column from the remaining rows.",
+            "matrix": [
+              [
+                1,
+                0,
+                0,
+                0,
+                30
+              ],
+              [
+                0,
+                1,
+                0,
+                -1,
+                10
+              ],
+              [
+                0,
+                0,
+                1,
+                2,
+                30
+              ],
+              [
+                0,
+                0,
+                0,
+                1,
+                10
+              ]
+            ]
+          },
+          {
+            "operation": "R2 ← R2 − (-1)·R4",
+            "reason": "Clear this column from the remaining rows.",
+            "matrix": [
+              [
+                1,
+                0,
+                0,
+                0,
+                30
+              ],
+              [
+                0,
+                1,
+                0,
+                0,
+                20
+              ],
+              [
+                0,
+                0,
+                1,
+                2,
+                30
+              ],
+              [
+                0,
+                0,
+                0,
+                1,
+                10
+              ]
+            ]
+          },
+          {
+            "operation": "R3 ← R3 − (2)·R4",
+            "reason": "Clear this column from the remaining rows.",
+            "matrix": [
+              [
+                1,
+                0,
+                0,
+                0,
+                30
+              ],
+              [
+                0,
+                1,
+                0,
+                0,
+                20
+              ],
+              [
+                0,
+                0,
+                1,
+                0,
+                10
+              ],
+              [
+                0,
+                0,
+                0,
+                1,
+                10
+              ]
+            ]
+          }
+        ],
+        "solution": [
+          30,
+          20,
+          10,
+          10
+        ],
+        "parametricForm": []
+      }
+    ]
+  },
+  "metadata": {
+    "verificationStatus": "reference_verified",
+    "executionEngine": "reference_javascript_gauss_jordan",
+    "matlabVersion": "not executed — MATLAB Online export pending",
+    "generatedAt": "2026-11-25T15:53:41.522Z",
+    "matlabExportStatus": "pending",
+    "method": "Independent Gauss-Jordan elimination with a 1e-9 tolerance, cross-checked against the expected classification and solution stored in the scenario."
+  }
+}

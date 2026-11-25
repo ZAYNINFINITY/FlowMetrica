@@ -1,0 +1,54 @@
+{
+  "id": "incident_aggregation_shift_01",
+  "module": "module3",
+  "title": "INC-211 · Aggregation Shift",
+  "summary": "Three aggregation links report a 90 Mbps total with two consistent differences between them.",
+  "severity": "low",
+  "complexity": "intermediate",
+  "tags": ["unique solution", "traffic redistribution", "resolved"],
+  "description": "A scheduled maintenance window shifted traffic across three aggregation links. The gateway logged the total load and two pairwise differences. All three measurements are independent, so the distribution can be identified exactly.",
+  "incidentId": "INC-211",
+  "detectedAt": "2026-11-20T02:15:00Z",
+  "investigationSteps": [
+    "Map each reported link to a variable.",
+    "Write one equation per measurement.",
+    "Compute RREF and verify full column rank.",
+    "Compare the solved vector with the link capacity limits."
+  ],
+  "variables": [
+    { "symbol": "x₁", "meaning": "Traffic on link A (Mbps)" },
+    { "symbol": "x₂", "meaning": "Traffic on link B (Mbps)" },
+    { "symbol": "x₃", "meaning": "Traffic on link C (Mbps)" }
+  ],
+  "equations": ["x₁ + x₂ + x₃ = 90", "x₁ − x₂ = 10", "x₂ − x₃ = 10"],
+  "topology": {
+    "nodes": [
+      { "id": "GW", "label": "GW · Gateway", "x": 70, "y": 150 },
+      { "id": "A", "label": "Link A", "x": 270, "y": 65 },
+      { "id": "B", "label": "Link B", "x": 270, "y": 235 },
+      { "id": "C", "label": "Link C", "x": 530, "y": 150 }
+    ],
+    "edges": [
+      { "id": "e1", "from": "GW", "to": "A", "label": "x₁", "status": "normal" },
+      { "id": "e2", "from": "GW", "to": "B", "label": "x₂", "status": "normal" },
+      { "id": "e3", "from": "A", "to": "C", "label": "x₃", "status": "normal" }
+    ]
+  },
+  "execution": {
+    "operation": "investigate_incident",
+    "input": {
+      "matrix": [[1, 1, 1], [1, -1, 0], [0, 1, -1]],
+      "vector": [90, 10, 10]
+    }
+  },
+  "verification": { "expectedClassification": "unique", "expectedSolution": [40, 30, 20] },
+  "templateFindings": [
+    "The three measurements are independent, so the coefficient matrix has full column rank.",
+    "RREF gives a single solution vector: 40, 30 and 20 Mbps.",
+    "All solved values are positive and below the documented link capacities."
+  ],
+  "suggestedActions": [
+    "Archive the solved distribution as the maintenance-window baseline.",
+    "Keep the current monitoring thresholds; no corrective routing is indicated."
+  ]
+}

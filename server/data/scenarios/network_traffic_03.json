@@ -1,0 +1,38 @@
+{
+  "id": "network_traffic_03",
+  "module": "module1",
+  "title": "Underdetermined Peer Merge",
+  "summary": "Two monitored paths merge into a 70 Mbps uplink. Only their sum and one downstream reading are known.",
+  "complexity": "intermediate",
+  "tags": ["3 links", "free variable", "underdetermined"],
+  "concept": "Two independent equations for three unknowns cannot identify a unique split. Rank tells us how much information the measurements actually contain.",
+  "variables": [
+    { "symbol": "x₁", "meaning": "Traffic on peer path A (Mbps)" },
+    { "symbol": "x₂", "meaning": "Traffic on peer path B (Mbps)" },
+    { "symbol": "x₃", "meaning": "Traffic from B to the uplink (Mbps)" }
+  ],
+  "equations": ["x₁ + x₂ = 70", "x₂ + x₃ = 50"],
+  "topology": {
+    "nodes": [
+      { "id": "GW", "label": "GW · Gateway", "x": 70, "y": 150 },
+      { "id": "A", "label": "Peer A", "x": 270, "y": 70 },
+      { "id": "B", "label": "Peer B", "x": 270, "y": 230 },
+      { "id": "C", "label": "Uplink C", "x": 540, "y": 150 }
+    ],
+    "edges": [
+      { "id": "e1", "from": "GW", "to": "A", "label": "x₁", "status": "normal" },
+      { "id": "e2", "from": "GW", "to": "B", "label": "x₂", "status": "normal" },
+      { "id": "e3", "from": "B", "to": "C", "label": "x₃", "status": "normal" }
+    ]
+  },
+  "execution": {
+    "operation": "solve_network_flow",
+    "input": { "matrix": [[1, 1, 0], [0, 1, 1]], "vector": [70, 50] }
+  },
+  "verification": { "expectedClassification": "infinite_solutions" },
+  "teachingNotes": [
+    "The coefficient matrix has rank 2 while there are 3 unknowns, so one variable remains free.",
+    "Writing x₃ = t gives x₂ = 50 − t and x₁ = 20 + t; every t produces a valid traffic split.",
+    "One more independent measurement is needed before a single distribution can be reported."
+  ]
+}

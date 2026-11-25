@@ -1,0 +1,35 @@
+{
+  "id": "network_traffic_01",
+  "module": "module1",
+  "title": "Campus Backbone Split",
+  "summary": "Two upstream links share a 100 Mbps campus load. One link carries 20 Mbps more than the other.",
+  "complexity": "introductory",
+  "tags": ["2 links", "unique solution", "traffic split"],
+  "concept": "A traffic split is a system of linear equations. Each equation is a constraint on the unknown flow values; solving the system finds the flow that satisfies every constraint at once.",
+  "variables": [
+    { "symbol": "x₁", "meaning": "Traffic on R1 → R2 (Mbps)" },
+    { "symbol": "x₂", "meaning": "Traffic on R1 → R3 (Mbps)" }
+  ],
+  "equations": ["x₁ + x₂ = 100", "x₁ − x₂ = 20"],
+  "topology": {
+    "nodes": [
+      { "id": "R1", "label": "R1 · Gateway", "x": 90, "y": 150 },
+      { "id": "R2", "label": "R2 · Labs", "x": 430, "y": 70 },
+      { "id": "R3", "label": "R3 · Hostel", "x": 430, "y": 230 }
+    ],
+    "edges": [
+      { "id": "e1", "from": "R1", "to": "R2", "label": "x₁", "status": "normal" },
+      { "id": "e2", "from": "R1", "to": "R3", "label": "x₂", "status": "normal" }
+    ]
+  },
+  "execution": {
+    "operation": "solve_network_flow",
+    "input": { "matrix": [[1, 1], [1, -1]], "vector": [100, 20] }
+  },
+  "verification": { "expectedClassification": "unique", "expectedSolution": [60, 40] },
+  "teachingNotes": [
+    "The first row of the coefficient matrix is [1 1] because both links contribute to the total load.",
+    "The second row is [1 -1] because the difference between the two flows is fixed at 20 Mbps.",
+    "RREF turns the augmented matrix into a form where each row directly reads off one answer."
+  ]
+}

@@ -1,0 +1,270 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  color-scheme: dark;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+html {
+  scrollbar-gutter: stable;
+}
+
+body {
+  @apply bg-base font-sans text-ink antialiased;
+  background-image:
+    radial-gradient(ellipse 80% 55% at 12% -12%, rgba(34, 211, 238, 0.07), transparent 62%),
+    radial-gradient(ellipse 70% 50% at 92% 4%, rgba(99, 102, 241, 0.06), transparent 60%);
+  background-attachment: fixed;
+}
+
+/* Technical grid: fixed, non-interactive, faded out at the edges. */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background-image:
+    linear-gradient(to right, rgba(36, 50, 71, 0.55) 1px, transparent 1px),
+    linear-gradient(to bottom, rgba(36, 50, 71, 0.55) 1px, transparent 1px);
+  background-size: 64px 64px;
+  opacity: 0.18;
+  -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 0%, #000 20%, transparent 78%);
+  mask-image: radial-gradient(ellipse 70% 60% at 50% 0%, #000 20%, transparent 78%);
+}
+
+#root {
+  position: relative;
+  z-index: 1;
+}
+
+::selection {
+  background: rgba(34, 211, 238, 0.28);
+}
+
+:focus-visible {
+  outline: 2px solid #22d3ee;
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #2b3b52 transparent;
+}
+
+*::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: #2b3b52;
+  border: 3px solid transparent;
+  border-radius: 999px;
+  background-clip: content-box;
+}
+
+@layer components {
+  .surface {
+    @apply rounded-xl border border-line bg-panel shadow-panel;
+  }
+
+  .surface-sunken {
+    @apply rounded-xl border border-line bg-sunken;
+  }
+
+  .surface-raised {
+    @apply rounded-xl border border-line bg-raised;
+  }
+
+  .btn {
+    @apply inline-flex select-none items-center justify-center gap-2 rounded-lg px-3.5 py-2 text-sm font-medium transition-colors duration-150 disabled:cursor-not-allowed disabled:opacity-50;
+  }
+
+  .btn-primary {
+    @apply btn bg-accent font-semibold text-[#04141a] hover:bg-[#67e8f9] active:translate-y-px;
+  }
+
+  .btn-secondary {
+    @apply btn border border-line bg-raised/60 text-ink hover:border-accent/50 hover:bg-raised active:translate-y-px;
+  }
+
+  .btn-ghost {
+    @apply btn text-muted hover:bg-raised/70 hover:text-ink;
+  }
+
+  .btn-danger {
+    @apply btn border border-danger/40 bg-danger/10 text-danger hover:bg-danger/15;
+  }
+
+  .btn-xs {
+    @apply px-2.5 py-1 text-xs;
+  }
+
+  .field {
+    @apply w-full rounded-lg border border-line bg-sunken px-3 py-2 text-sm text-ink placeholder:text-muted/70 focus:border-accent/60 focus:outline-none;
+  }
+
+  .chip {
+    @apply inline-flex items-center gap-1.5 rounded-md border border-line bg-sunken px-2 py-0.5 text-[11px] font-medium text-muted;
+  }
+
+  .meta-label {
+    @apply text-[11px] font-semibold uppercase tracking-[0.16em] text-muted;
+  }
+
+  .section-title {
+    @apply text-lg font-semibold tracking-tight text-ink;
+  }
+
+  .card-title {
+    @apply text-[15px] font-semibold tracking-tight text-ink;
+  }
+
+  .prose-note {
+    @apply text-[13px] leading-relaxed text-muted;
+  }
+
+  .link-inline {
+    @apply font-medium text-accent underline-offset-4 hover:underline;
+  }
+}
+
+/* ---------- React Flow theme ---------- */
+.react-flow {
+  --xy-background-color: #0a111d;
+  --xy-edge-stroke-default: #22d3ee;
+  --xy-edge-stroke-selected-default: #67e8f9;
+  --xy-connectionline-stroke-default: #22d3ee;
+  --xy-attribution-background-color: transparent;
+}
+
+.react-flow__attribution {
+  display: none;
+}
+
+.react-flow__controls {
+  border: 1px solid #243247;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 10px 24px -16px rgba(0, 0, 0, 0.9);
+}
+
+.react-flow__controls-button {
+  background: #111c2b;
+  border-bottom: 1px solid #243247;
+  fill: #94a3b8;
+  width: 26px;
+  height: 26px;
+}
+
+.react-flow__controls-button:hover {
+  background: #162337;
+  fill: #f1f5f9;
+}
+
+.react-flow__controls-button:focus-visible {
+  outline: 2px solid #22d3ee;
+  outline-offset: -2px;
+}
+
+.react-flow__node {
+  font-family: inherit;
+}
+
+.react-flow__node:focus-visible {
+  outline: none;
+}
+
+.react-flow__pane {
+  cursor: grab;
+}
+
+.react-flow__pane.dragging {
+  cursor: grabbing;
+}
+
+/* ---------- Motion ---------- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+html[data-motion='reduced'] *,
+html[data-motion='reduced'] *::before,
+html[data-motion='reduced'] *::after {
+  animation-duration: 0.01ms !important;
+  animation-iteration-count: 1 !important;
+  transition-duration: 0.01ms !important;
+  scroll-behavior: auto !important;
+}
+
+/* ---------- Print: only the report document leaves the page ---------- */
+@media print {
+  body {
+    background: #ffffff !important;
+    color: #0b1220 !important;
+  }
+
+  body::before {
+    display: none !important;
+  }
+
+  body * {
+    visibility: hidden;
+  }
+
+  .print-target,
+  .print-target * {
+    visibility: visible;
+  }
+
+  .print-target {
+    position: absolute;
+    inset: 0 auto auto 0;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    border: 0 !important;
+    border-radius: 0 !important;
+    background: #ffffff !important;
+    box-shadow: none !important;
+    color: #0b1220 !important;
+  }
+
+  .print-target * {
+    color: #0b1220 !important;
+    border-color: #cbd5e1 !important;
+  }
+
+  .print-target .print-muted {
+    color: #475569 !important;
+  }
+
+  .print-target .print-chip {
+    background: #f1f5f9 !important;
+    border-color: #cbd5e1 !important;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+
+  @page {
+    margin: 16mm;
+  }
+}

@@ -1,0 +1,269 @@
+{
+  "fixtureVersion": "1.0.0",
+  "scenarioId": "network_traffic_02",
+  "operation": "solve_network_flow",
+  "functionName": "solve_network_flow",
+  "input": {
+    "matrix": [
+      [
+        1,
+        1,
+        1
+      ],
+      [
+        1,
+        -1,
+        0
+      ],
+      [
+        0,
+        1,
+        1
+      ]
+    ],
+    "vector": [
+      120,
+      20,
+      70
+    ]
+  },
+  "output": {
+    "classification": "unique",
+    "consistent": true,
+    "rank": 3,
+    "variableCount": 3,
+    "pivotColumns": [
+      0,
+      1,
+      2
+    ],
+    "rref": [
+      [
+        1,
+        0,
+        0,
+        50
+      ],
+      [
+        0,
+        1,
+        0,
+        30
+      ],
+      [
+        0,
+        0,
+        1,
+        40
+      ]
+    ],
+    "steps": [
+      {
+        "operation": "Initial augmented matrix",
+        "reason": "Start with the coefficient matrix joined to the constants vector.",
+        "matrix": [
+          [
+            1,
+            1,
+            1,
+            120
+          ],
+          [
+            1,
+            -1,
+            0,
+            20
+          ],
+          [
+            0,
+            1,
+            1,
+            70
+          ]
+        ]
+      },
+      {
+        "operation": "R2 ← R2 − (1)·R1",
+        "reason": "Clear this column from the remaining rows.",
+        "matrix": [
+          [
+            1,
+            1,
+            1,
+            120
+          ],
+          [
+            0,
+            -2,
+            -1,
+            -100
+          ],
+          [
+            0,
+            1,
+            1,
+            70
+          ]
+        ]
+      },
+      {
+        "operation": "R2 ← (1/-2)·R2",
+        "reason": "Normalize the pivot to 1.",
+        "matrix": [
+          [
+            1,
+            1,
+            1,
+            120
+          ],
+          [
+            0,
+            1,
+            0.5,
+            50
+          ],
+          [
+            0,
+            1,
+            1,
+            70
+          ]
+        ]
+      },
+      {
+        "operation": "R1 ← R1 − (1)·R2",
+        "reason": "Clear this column from the remaining rows.",
+        "matrix": [
+          [
+            1,
+            0,
+            0.5,
+            70
+          ],
+          [
+            0,
+            1,
+            0.5,
+            50
+          ],
+          [
+            0,
+            1,
+            1,
+            70
+          ]
+        ]
+      },
+      {
+        "operation": "R3 ← R3 − (1)·R2",
+        "reason": "Clear this column from the remaining rows.",
+        "matrix": [
+          [
+            1,
+            0,
+            0.5,
+            70
+          ],
+          [
+            0,
+            1,
+            0.5,
+            50
+          ],
+          [
+            0,
+            0,
+            0.5,
+            20
+          ]
+        ]
+      },
+      {
+        "operation": "R3 ← (1/0.5)·R3",
+        "reason": "Normalize the pivot to 1.",
+        "matrix": [
+          [
+            1,
+            0,
+            0.5,
+            70
+          ],
+          [
+            0,
+            1,
+            0.5,
+            50
+          ],
+          [
+            0,
+            0,
+            1,
+            40
+          ]
+        ]
+      },
+      {
+        "operation": "R1 ← R1 − (0.5)·R3",
+        "reason": "Clear this column from the remaining rows.",
+        "matrix": [
+          [
+            1,
+            0,
+            0,
+            50
+          ],
+          [
+            0,
+            1,
+            0.5,
+            50
+          ],
+          [
+            0,
+            0,
+            1,
+            40
+          ]
+        ]
+      },
+      {
+        "operation": "R2 ← R2 − (0.5)·R3",
+        "reason": "Clear this column from the remaining rows.",
+        "matrix": [
+          [
+            1,
+            0,
+            0,
+            50
+          ],
+          [
+            0,
+            1,
+            0,
+            30
+          ],
+          [
+            0,
+            0,
+            1,
+            40
+          ]
+        ]
+      }
+    ],
+    "solution": [
+      50,
+      30,
+      40
+    ],
+    "parametricForm": []
+  },
+  "metadata": {
+    "verificationStatus": "reference_verified",
+    "executionEngine": "reference_javascript_gauss_jordan",
+    "matlabVersion": "not executed — MATLAB Online export pending",
+    "generatedAt": "2026-11-25T15:53:41.534Z",
+    "matlabExportStatus": "pending",
+    "method": "Independent Gauss-Jordan elimination with a 1e-9 tolerance, cross-checked against the expected classification and solution stored in the scenario."
+  }
+}

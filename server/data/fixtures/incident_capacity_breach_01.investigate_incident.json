@@ -1,0 +1,269 @@
+{
+  "fixtureVersion": "1.0.0",
+  "scenarioId": "incident_capacity_breach_01",
+  "operation": "investigate_incident",
+  "functionName": "investigate_incident",
+  "input": {
+    "matrix": [
+      [
+        1,
+        1,
+        1
+      ],
+      [
+        1,
+        -1,
+        0
+      ],
+      [
+        0,
+        1,
+        -1
+      ]
+    ],
+    "vector": [
+      110,
+      60,
+      10
+    ]
+  },
+  "output": {
+    "classification": "unique",
+    "consistent": true,
+    "rref": [
+      [
+        1,
+        0,
+        0,
+        80
+      ],
+      [
+        0,
+        1,
+        0,
+        20
+      ],
+      [
+        0,
+        0,
+        1,
+        10
+      ]
+    ],
+    "rank": 3,
+    "variableCount": 3,
+    "pivotColumns": [
+      0,
+      1,
+      2
+    ],
+    "solution": [
+      80,
+      20,
+      10
+    ],
+    "parametricForm": [],
+    "steps": [
+      {
+        "operation": "Initial augmented matrix",
+        "reason": "Start with the coefficient matrix joined to the constants vector.",
+        "matrix": [
+          [
+            1,
+            1,
+            1,
+            110
+          ],
+          [
+            1,
+            -1,
+            0,
+            60
+          ],
+          [
+            0,
+            1,
+            -1,
+            10
+          ]
+        ]
+      },
+      {
+        "operation": "R2 ← R2 − (1)·R1",
+        "reason": "Clear this column from the remaining rows.",
+        "matrix": [
+          [
+            1,
+            1,
+            1,
+            110
+          ],
+          [
+            0,
+            -2,
+            -1,
+            -50
+          ],
+          [
+            0,
+            1,
+            -1,
+            10
+          ]
+        ]
+      },
+      {
+        "operation": "R2 ← (1/-2)·R2",
+        "reason": "Normalize the pivot to 1.",
+        "matrix": [
+          [
+            1,
+            1,
+            1,
+            110
+          ],
+          [
+            0,
+            1,
+            0.5,
+            25
+          ],
+          [
+            0,
+            1,
+            -1,
+            10
+          ]
+        ]
+      },
+      {
+        "operation": "R1 ← R1 − (1)·R2",
+        "reason": "Clear this column from the remaining rows.",
+        "matrix": [
+          [
+            1,
+            0,
+            0.5,
+            85
+          ],
+          [
+            0,
+            1,
+            0.5,
+            25
+          ],
+          [
+            0,
+            1,
+            -1,
+            10
+          ]
+        ]
+      },
+      {
+        "operation": "R3 ← R3 − (1)·R2",
+        "reason": "Clear this column from the remaining rows.",
+        "matrix": [
+          [
+            1,
+            0,
+            0.5,
+            85
+          ],
+          [
+            0,
+            1,
+            0.5,
+            25
+          ],
+          [
+            0,
+            0,
+            -1.5,
+            -15
+          ]
+        ]
+      },
+      {
+        "operation": "R3 ← (1/-1.5)·R3",
+        "reason": "Normalize the pivot to 1.",
+        "matrix": [
+          [
+            1,
+            0,
+            0.5,
+            85
+          ],
+          [
+            0,
+            1,
+            0.5,
+            25
+          ],
+          [
+            0,
+            0,
+            1,
+            10
+          ]
+        ]
+      },
+      {
+        "operation": "R1 ← R1 − (0.5)·R3",
+        "reason": "Clear this column from the remaining rows.",
+        "matrix": [
+          [
+            1,
+            0,
+            0,
+            80
+          ],
+          [
+            0,
+            1,
+            0.5,
+            25
+          ],
+          [
+            0,
+            0,
+            1,
+            10
+          ]
+        ]
+      },
+      {
+        "operation": "R2 ← R2 − (0.5)·R3",
+        "reason": "Clear this column from the remaining rows.",
+        "matrix": [
+          [
+            1,
+            0,
+            0,
+            80
+          ],
+          [
+            0,
+            1,
+            0,
+            20
+          ],
+          [
+            0,
+            0,
+            1,
+            10
+          ]
+        ]
+      }
+    ]
+  },
+  "metadata": {
+    "verificationStatus": "matlab_verified",
+    "executionEngine": "MATLAB",
+    "matlabVersion": "R2026b (MATLAB Online)",
+    "generatedAt": "2026-11-25T16:29:09.845Z",
+    "matlabExportStatus": "complete",
+    "method": "Classification, consistency, RREF, rank, pivots and solution were computed with MATLAB Online R2026b rref using this scenario exact coefficients and copied from the Command Window. Teaching step annotations were retained from the reference implementation and are not MATLAB output."
+  }
+}

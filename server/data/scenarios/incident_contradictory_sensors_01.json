@@ -1,0 +1,49 @@
+{
+  "id": "incident_contradictory_sensors_01",
+  "module": "module3",
+  "title": "INC-402 · Contradictory Sensors",
+  "summary": "Two sensors watching the same uplink disagree by 15 Mbps, so no traffic split satisfies both readings.",
+  "severity": "high",
+  "complexity": "introductory",
+  "tags": ["no solution", "sensor fault", "duplicate equation"],
+  "description": "Both sensors were configured to report the total across the same two uplinks. One reads 100 Mbps and the other reads 115 Mbps. Because their equations have identical left-hand sides, the system is contradictory rather than underdetermined.",
+  "incidentId": "INC-402",
+  "detectedAt": "2026-11-24T08:30:00Z",
+  "investigationSteps": [
+    "Confirm that both sensors are measuring the same pair of uplinks.",
+    "Write one equation per sensor reading.",
+    "Reduce the augmented matrix and look for a zero row with a non-zero constant.",
+    "Escalate the sensor fault before reporting any traffic distribution."
+  ],
+  "variables": [
+    { "symbol": "x₁", "meaning": "Traffic on uplink A (Mbps)" },
+    { "symbol": "x₂", "meaning": "Traffic on uplink B (Mbps)" }
+  ],
+  "equations": ["x₁ + x₂ = 100", "x₁ + x₂ = 115"],
+  "topology": {
+    "nodes": [
+      { "id": "GW", "label": "GW · Gateway", "x": 90, "y": 150 },
+      { "id": "A", "label": "Uplink A", "x": 430, "y": 70 },
+      { "id": "B", "label": "Uplink B", "x": 430, "y": 230 }
+    ],
+    "edges": [
+      { "id": "e1", "from": "GW", "to": "A", "label": "x₁", "status": "normal" },
+      { "id": "e2", "from": "GW", "to": "B", "label": "x₂", "status": "normal" }
+    ]
+  },
+  "execution": {
+    "operation": "investigate_incident",
+    "input": { "matrix": [[1, 1], [1, 1]], "vector": [100, 115] }
+  },
+  "verification": { "expectedClassification": "no_solution" },
+  "templateFindings": [
+    "Both rows have the same coefficient left-hand side but different constants.",
+    "RREF produces the row [0 0 | 1], which reads as 0 = 1 and proves the readings cannot both be correct.",
+    "There is no valid traffic split, so averaging the two readings would hide the fault."
+  ],
+  "suggestedActions": [
+    "Calibrate or replace the misreporting sensor and record the serial number.",
+    "Add one independent measurement, such as the difference between the uplinks.",
+    "Do not publish a per-link value until the system is consistent again."
+  ]
+}

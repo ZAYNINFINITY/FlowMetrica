@@ -1,0 +1,40 @@
+{
+  "id": "network_traffic_02",
+  "module": "module1",
+  "title": "Three-Router Distribution",
+  "summary": "A 120 Mbps stream is distributed across three router paths with two measured differences.",
+  "complexity": "intermediate",
+  "tags": ["3 links", "full rank", "network flow"],
+  "concept": "With three unknowns we need three independent equations. Full column rank means exactly one traffic distribution satisfies all constraints.",
+  "variables": [
+    { "symbol": "x₁", "meaning": "Traffic on R1 → R2 (Mbps)" },
+    { "symbol": "x₂", "meaning": "Traffic on R2 → R3 (Mbps)" },
+    { "symbol": "x₃", "meaning": "Traffic on R1 → R3 (Mbps)" }
+  ],
+  "equations": ["x₁ + x₂ + x₃ = 120", "x₁ − x₂ = 20", "x₂ + x₃ = 70"],
+  "topology": {
+    "nodes": [
+      { "id": "R1", "label": "R1 · Ingress", "x": 70, "y": 150 },
+      { "id": "R2", "label": "R2 · Core", "x": 300, "y": 60 },
+      { "id": "R3", "label": "R3 · Egress", "x": 540, "y": 150 }
+    ],
+    "edges": [
+      { "id": "e1", "from": "R1", "to": "R2", "label": "x₁", "status": "normal" },
+      { "id": "e2", "from": "R2", "to": "R3", "label": "x₂", "status": "normal" },
+      { "id": "e3", "from": "R1", "to": "R3", "label": "x₃", "status": "normal" }
+    ]
+  },
+  "execution": {
+    "operation": "solve_network_flow",
+    "input": {
+      "matrix": [[1, 1, 1], [1, -1, 0], [0, 1, 1]],
+      "vector": [120, 20, 70]
+    }
+  },
+  "verification": { "expectedClassification": "unique", "expectedSolution": [50, 30, 40] },
+  "teachingNotes": [
+    "A zero in the coefficient matrix means that link does not appear in that particular equation.",
+    "Three independent constraints for three unknowns produce a unique solution vector.",
+    "Compare this system with the incident case where one equation is a multiple of another."
+  ]
+}

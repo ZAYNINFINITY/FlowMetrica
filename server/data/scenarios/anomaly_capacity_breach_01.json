@@ -1,0 +1,92 @@
+{
+  "id": "anomaly_capacity_breach_01",
+  "module": "module2",
+  "title": "Aggregation Capacity Breach",
+  "summary": "A 60 Mbps aggregation group loses one link. The remaining equations cannot hold until a fourth backup variable is introduced.",
+  "complexity": "advanced",
+  "tags": ["capacity", "forced zero", "four variables"],
+  "concept": "A capacity breach can be represented as a link forced to zero flow. When the other measurements still assume that link is alive, the augmented matrix becomes contradictory.",
+  "variables": [
+    { "symbol": "x₁", "meaning": "Traffic on link A (Mbps)" },
+    { "symbol": "x₂", "meaning": "Traffic on link B (Mbps)" },
+    { "symbol": "x₃", "meaning": "Traffic on link C (Mbps)" },
+    { "symbol": "x₄", "meaning": "Traffic on restored backup path (Mbps)" }
+  ],
+  "equations": ["x₁ + x₂ + x₃ = 60", "x₁ − x₂ = 10", "x₂ − x₃ = 10", "failed: x₂ = 0"],
+  "normal": {
+    "label": "Normal state",
+    "description": "Links A, B and C carry 30, 20 and 10 Mbps respectively.",
+    "topology": {
+      "nodes": [
+        { "id": "GW", "label": "GW · Gateway", "x": 70, "y": 150 },
+        { "id": "A", "label": "Link A", "x": 250, "y": 65 },
+        { "id": "B", "label": "Link B", "x": 250, "y": 235 },
+        { "id": "C", "label": "Link C", "x": 540, "y": 150 }
+      ],
+      "edges": [
+        { "id": "e1", "from": "GW", "to": "A", "label": "x₁", "status": "normal" },
+        { "id": "e2", "from": "GW", "to": "B", "label": "x₂", "status": "normal" },
+        { "id": "e3", "from": "B", "to": "C", "label": "x₃", "status": "normal" }
+      ]
+    }
+  },
+  "failed": {
+    "label": "Link failed",
+    "description": "Link B is unavailable, but the logged total and pairwise differences still assume it carries traffic.",
+    "failedEdge": "e2",
+    "topology": {
+      "nodes": [
+        { "id": "GW", "label": "GW · Gateway", "x": 70, "y": 150 },
+        { "id": "A", "label": "Link A", "x": 250, "y": 65 },
+        { "id": "B", "label": "Link B", "x": 250, "y": 235 },
+        { "id": "C", "label": "Link C", "x": 540, "y": 150 }
+      ],
+      "edges": [
+        { "id": "e1", "from": "GW", "to": "A", "label": "x₁", "status": "normal" },
+        { "id": "e2", "from": "GW", "to": "B", "label": "x₂ · failed", "status": "failed" },
+        { "id": "e3", "from": "B", "to": "C", "label": "x₃", "status": "normal" }
+      ]
+    }
+  },
+  "corrected": {
+    "label": "Corrected (simulated)",
+    "description": "A backup path from A to the egress carries 10 Mbps, restoring the 60 Mbps total in the model.",
+    "restoredEdges": ["e4"],
+    "topology": {
+      "nodes": [
+        { "id": "GW", "label": "GW · Gateway", "x": 60, "y": 150 },
+        { "id": "A", "label": "Link A", "x": 240, "y": 60 },
+        { "id": "B", "label": "Link B", "x": 240, "y": 240 },
+        { "id": "E", "label": "Egress", "x": 560, "y": 150 }
+      ],
+      "edges": [
+        { "id": "e1", "from": "GW", "to": "A", "label": "x₁", "status": "normal" },
+        { "id": "e2", "from": "GW", "to": "B", "label": "x₂ · failed", "status": "failed" },
+        { "id": "e3", "from": "B", "to": "E", "label": "x₃", "status": "normal" },
+        { "id": "e4", "from": "A", "to": "E", "label": "x₄ · backup", "status": "restored" }
+      ]
+    }
+  },
+  "execution": {
+    "operation": "analyze_anomaly",
+    "input": {
+      "stages": [
+        { "id": "normal", "matrix": [[1, 1, 1], [1, -1, 0], [0, 1, -1]], "vector": [60, 10, 10] },
+        { "id": "failed", "matrix": [[1, 1, 1], [1, -1, 0], [0, 1, -1], [0, 1, 0]], "vector": [60, 10, 10, 0] },
+        { "id": "corrected", "matrix": [[1, 1, 1, 0], [1, -1, 0, 0], [0, 1, 0, -1], [0, 0, 1, -1]], "vector": [60, 10, 10, 0] }
+      ]
+    }
+  },
+  "verification": {
+    "expectedClassifications": {
+      "normal": "unique",
+      "failed": "no_solution",
+      "corrected": "unique"
+    }
+  },
+  "teachingNotes": [
+    "A capacity breach is modelled as zero flow on the affected link, not as a smaller positive number.",
+    "The corrected stage introduces a fourth unknown, so the backup route is explicit in the algebra.",
+    "No physical router is repaired here — only the mathematical model changes."
+  ]
+}

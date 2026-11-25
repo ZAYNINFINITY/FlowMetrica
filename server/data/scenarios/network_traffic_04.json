@@ -1,0 +1,43 @@
+{
+  "id": "network_traffic_04",
+  "module": "module1",
+  "title": "Four-Router Core Mesh",
+  "summary": "A 140 Mbps core load crosses four hops with three measured differences between adjacent links.",
+  "complexity": "advanced",
+  "tags": ["4 links", "full rank", "core mesh"],
+  "concept": "A larger system still reduces to one answer when every column has a pivot. Full column rank is the test for a unique solution.",
+  "variables": [
+    { "symbol": "x₁", "meaning": "Traffic on R1 → R2 (Mbps)" },
+    { "symbol": "x₂", "meaning": "Traffic on R2 → R3 (Mbps)" },
+    { "symbol": "x₃", "meaning": "Traffic on R3 → R4 (Mbps)" },
+    { "symbol": "x₄", "meaning": "Traffic on R1 → R4 direct path (Mbps)" }
+  ],
+  "equations": ["x₁ + x₂ + x₃ + x₄ = 140", "x₁ − x₂ = −10", "x₂ − x₃ = −10", "x₃ − x₄ = −10"],
+  "topology": {
+    "nodes": [
+      { "id": "R1", "label": "R1 · Ingress", "x": 60, "y": 150 },
+      { "id": "R2", "label": "R2 · Core A", "x": 220, "y": 65 },
+      { "id": "R3", "label": "R3 · Core B", "x": 390, "y": 65 },
+      { "id": "R4", "label": "R4 · Egress", "x": 560, "y": 150 }
+    ],
+    "edges": [
+      { "id": "e1", "from": "R1", "to": "R2", "label": "x₁", "status": "normal" },
+      { "id": "e2", "from": "R2", "to": "R3", "label": "x₂", "status": "normal" },
+      { "id": "e3", "from": "R3", "to": "R4", "label": "x₃", "status": "normal" },
+      { "id": "e4", "from": "R1", "to": "R4", "label": "x₄", "status": "normal" }
+    ]
+  },
+  "execution": {
+    "operation": "solve_network_flow",
+    "input": {
+      "matrix": [[1, 1, 1, 1], [1, -1, 0, 0], [0, 1, -1, 0], [0, 0, 1, -1]],
+      "vector": [140, -10, -10, -10]
+    }
+  },
+  "verification": { "expectedClassification": "unique", "expectedSolution": [20, 30, 40, 50] },
+  "teachingNotes": [
+    "A zero in the matrix means that link does not appear in that particular measurement.",
+    "A negative right-hand side is simply an ordered difference, not a negative traffic value.",
+    "All four pivots are non-zero, so the solution vector is unique and every flow is positive."
+  ]
+}

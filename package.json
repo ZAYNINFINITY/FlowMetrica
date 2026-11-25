@@ -1,0 +1,35 @@
+{
+  "name": "flowmetrica",
+  "version": "0.1.0-mvp",
+  "private": true,
+  "type": "module",
+  "description": "Offline-first educational network analysis with a shared JSON execution interface.",
+  "scripts": {
+    "dev": "concurrently -n api,web -c cyan,magenta \"npm:dev:api\" \"npm:dev:web\"",
+    "dev:api": "node --watch server/index.js",
+    "dev:web": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "start": "node server/index.js",
+    "test": "node --test",
+    "fixtures:generate": "node scripts/generate-reference-fixtures.mjs"
+  },
+  "dependencies": {
+    "@fontsource/inter": "^5.3.0",
+    "@fontsource/jetbrains-mono": "^5.3.0",
+    "@xyflow/react": "^13.0.3",
+    "express": "^4.21.2",
+    "lucide-react": "^1.80.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "universal-speedtest": "^3.0.0"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.4",
+    "autoprefixer": "^10.4.20",
+    "concurrently": "^9.1.2",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.17",
+    "vite": "^6.0.7"
+  }
+}

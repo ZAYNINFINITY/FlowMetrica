@@ -1,0 +1,100 @@
+{
+  "fixtureVersion": "1.0.0",
+  "scenarioId": "network_traffic_03",
+  "operation": "solve_network_flow",
+  "functionName": "solve_network_flow",
+  "input": {
+    "matrix": [
+      [
+        1,
+        1,
+        0
+      ],
+      [
+        0,
+        1,
+        1
+      ]
+    ],
+    "vector": [
+      70,
+      50
+    ]
+  },
+  "output": {
+    "classification": "infinite_solutions",
+    "consistent": true,
+    "rank": 2,
+    "variableCount": 3,
+    "pivotColumns": [
+      0,
+      1
+    ],
+    "rref": [
+      [
+        1,
+        0,
+        -1,
+        20
+      ],
+      [
+        0,
+        1,
+        1,
+        50
+      ]
+    ],
+    "steps": [
+      {
+        "operation": "Initial augmented matrix",
+        "reason": "Start with the coefficient matrix joined to the constants vector.",
+        "matrix": [
+          [
+            1,
+            1,
+            0,
+            70
+          ],
+          [
+            0,
+            1,
+            1,
+            50
+          ]
+        ]
+      },
+      {
+        "operation": "R1 ← R1 − (1)·R2",
+        "reason": "Clear this column from the remaining rows.",
+        "matrix": [
+          [
+            1,
+            0,
+            -1,
+            20
+          ],
+          [
+            0,
+            1,
+            1,
+            50
+          ]
+        ]
+      }
+    ],
+    "solution": null,
+    "parametricForm": [
+      "x1 = 20 + 1x3",
+      "x2 = 50 − 1x3",
+      "x3 = t1  (free parameter)"
+    ]
+  },
+  "metadata": {
+    "verificationStatus": "reference_verified",
+    "executionEngine": "reference_javascript_gauss_jordan",
+    "matlabVersion": "not executed — MATLAB Online export pending",
+    "generatedAt": "2026-11-25T15:53:41.534Z",
+    "matlabExportStatus": "pending",
+    "method": "Independent Gauss-Jordan elimination with a 1e-9 tolerance, cross-checked against the expected classification and solution stored in the scenario."
+  }
+}

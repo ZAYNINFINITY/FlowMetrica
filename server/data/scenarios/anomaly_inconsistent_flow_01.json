@@ -1,0 +1,90 @@
+{
+  "id": "anomaly_inconsistent_flow_01",
+  "module": "module2",
+  "title": "Inconsistent Aggregation Readings",
+  "summary": "Three aggregation links carry 110 Mbps. A failed link is forced to zero while the old differences remain, producing an impossible system until a backup is modelled.",
+  "complexity": "advanced",
+  "tags": ["inconsistent system", "link failure", "alternative routing"],
+  "concept": "Forcing one variable to zero can contradict measurements that were perfectly consistent before the failure. The backup route must be written as a new variable, not silently ignored.",
+  "variables": [
+    { "symbol": "x₁", "meaning": "Traffic on aggregation link A (Mbps)" },
+    { "symbol": "x₂", "meaning": "Traffic on aggregation link B (Mbps)" },
+    { "symbol": "x₃", "meaning": "Traffic on aggregation link C / restored backup (Mbps)" }
+  ],
+  "equations": ["x₁ + x₂ + x₃ = 110", "x₁ − x₂ = 15", "x₂ − x₃ = 10", "failed: x₃ = 0"],
+  "normal": {
+    "label": "Normal state",
+    "description": "All three links are healthy and carry 50, 35 and 25 Mbps.",
+    "topology": {
+      "nodes": [
+        { "id": "GW", "label": "GW · Gateway", "x": 60, "y": 150 },
+        { "id": "A", "label": "Link A", "x": 240, "y": 60 },
+        { "id": "B", "label": "Link B", "x": 240, "y": 240 },
+        { "id": "C", "label": "Link C", "x": 540, "y": 150 }
+      ],
+      "edges": [
+        { "id": "e1", "from": "GW", "to": "A", "label": "x₁", "status": "normal" },
+        { "id": "e2", "from": "GW", "to": "B", "label": "x₂", "status": "normal" },
+        { "id": "e3", "from": "B", "to": "C", "label": "x₃", "status": "normal" }
+      ]
+    }
+  },
+  "failed": {
+    "label": "Link failed",
+    "description": "Link C reports zero while the logs still claim x₂ − x₃ = 10 and a 110 Mbps total. The three statements cannot hold together.",
+    "failedEdge": "e3",
+    "topology": {
+      "nodes": [
+        { "id": "GW", "label": "GW · Gateway", "x": 60, "y": 150 },
+        { "id": "A", "label": "Link A", "x": 240, "y": 60 },
+        { "id": "B", "label": "Link B", "x": 240, "y": 240 },
+        { "id": "C", "label": "Link C", "x": 540, "y": 150 }
+      ],
+      "edges": [
+        { "id": "e1", "from": "GW", "to": "A", "label": "x₁", "status": "normal" },
+        { "id": "e2", "from": "GW", "to": "B", "label": "x₂", "status": "normal" },
+        { "id": "e3", "from": "B", "to": "C", "label": "x₃ · failed", "status": "failed" }
+      ]
+    }
+  },
+  "corrected": {
+    "label": "Corrected (simulated)",
+    "description": "A backup path carries the 25 Mbps that link C can no longer carry. The two remaining links keep their original split.",
+    "restoredEdges": ["e3"],
+    "topology": {
+      "nodes": [
+        { "id": "GW", "label": "GW · Gateway", "x": 60, "y": 150 },
+        { "id": "A", "label": "Link A", "x": 240, "y": 60 },
+        { "id": "B", "label": "Link B", "x": 240, "y": 240 },
+        { "id": "E", "label": "Egress", "x": 560, "y": 150 }
+      ],
+      "edges": [
+        { "id": "e1", "from": "GW", "to": "A", "label": "x₁", "status": "normal" },
+        { "id": "e2", "from": "GW", "to": "B", "label": "x₂", "status": "normal" },
+        { "id": "e3", "from": "B", "to": "E", "label": "x₃ · backup", "status": "restored" }
+      ]
+    }
+  },
+  "execution": {
+    "operation": "analyze_anomaly",
+    "input": {
+      "stages": [
+        { "id": "normal", "matrix": [[1, 1, 1], [1, -1, 0], [0, 1, -1]], "vector": [110, 15, 10] },
+        { "id": "failed", "matrix": [[1, 1, 1], [1, -1, 0], [0, 1, -1], [0, 0, 1]], "vector": [110, 15, 10, 0] },
+        { "id": "corrected", "matrix": [[1, 1, 0], [1, -1, 0], [0, 0, 1]], "vector": [85, 15, 25] }
+      ]
+    }
+  },
+  "verification": {
+    "expectedClassifications": {
+      "normal": "unique",
+      "failed": "no_solution",
+      "corrected": "unique"
+    }
+  },
+  "teachingNotes": [
+    "The failed stage is inconsistent because the old relationship x₂ − x₃ = 10 still expects traffic on a dead link.",
+    "The corrected model changes the equations to describe the backup path; it does not change the measured demand.",
+    "This recovery is a classroom simulation and does not repair physical hardware."
+  ]
+}
