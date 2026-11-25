@@ -23,12 +23,12 @@ Open `http://localhost:5173` in dev, or `http://localhost:3001` after a build.
 - Module 2: four anomaly cases (link failure, redundant sensor, inconsistent
   readings and capacity breach), inconsistent-system detection, simulated
   backup-route correction, before/after topologies.
-- Module 3: four predefined incidents (unique, infinite, no-solution and
-  capacity breach), RREF-based investigation, template report generation and
-  localStorage report history.
-- Dashboard, status bar, scenario metadata and all 12 verified saved results.
+- Module 3: five predefined incidents (unique, infinite, no-solution, capacity
+  breach and hostel core saturation), RREF-based investigation, template report
+  generation and localStorage report history.
+- Dashboard, status bar, scenario metadata and all 13 verified saved results.
 
-All 12 scenarios work with no internet. Live features are additive and opt-in.
+All 13 scenarios work with no internet. Live features are additive and opt-in.
 
 ## Optional live integrations
 

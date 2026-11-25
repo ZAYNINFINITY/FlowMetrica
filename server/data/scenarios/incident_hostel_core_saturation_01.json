@@ -1,0 +1,58 @@
+{
+  "id": "incident_hostel_core_saturation_01",
+  "module": "module3",
+  "title": "INC-527 · Hostel Core Saturation",
+  "summary": "A unique 150 Mbps split exposes a 5 Mbps overload on the hostel's primary distribution link.",
+  "severity": "medium",
+  "complexity": "intermediate",
+  "tags": ["unique solution", "capacity breach", "hostel network"],
+  "description": "During the evening peak the gateway logged 150 Mbps across two hostel distribution links. Pairwise sensors report that link A carries 20 Mbps more than its downstream aggregation, link B carries 30 Mbps more, and the aggregation link fed by A is pinned at 55 Mbps. The four equations are independent, so the split is unique and reveals a small but real capacity breach on link A.",
+  "incidentId": "INC-527",
+  "detectedAt": "2026-11-24T19:40:00Z",
+  "investigationSteps": [
+    "Assign one variable to each monitored distribution and aggregation link.",
+    "Translate the gateway total, the two sensor differences and the pinned core reading into equations.",
+    "Reduce the augmented matrix and confirm full column rank.",
+    "Compare the solved flows with the documented link capacities."
+  ],
+  "variables": [
+    { "symbol": "x₁", "meaning": "Traffic on distribution link A (Mbps)" },
+    { "symbol": "x₂", "meaning": "Traffic on distribution link B (Mbps)" },
+    { "symbol": "x₃", "meaning": "Traffic from link A into core A (Mbps)" },
+    { "symbol": "x₄", "meaning": "Traffic from link B into core B (Mbps)" }
+  ],
+  "equations": ["x₁ + x₂ = 150", "x₁ − x₃ = 20", "x₂ − x₄ = 30", "x₃ = 55"],
+  "topology": {
+    "nodes": [
+      { "id": "GW", "label": "GW · Gateway", "x": 70, "y": 160 },
+      { "id": "A", "label": "Link A", "x": 290, "y": 70 },
+      { "id": "B", "label": "Link B", "x": 290, "y": 250 },
+      { "id": "C", "label": "Core A", "x": 540, "y": 70 },
+      { "id": "D", "label": "Core B", "x": 540, "y": 250 }
+    ],
+    "edges": [
+      { "id": "e1", "from": "GW", "to": "A", "label": "x₁", "status": "normal" },
+      { "id": "e2", "from": "GW", "to": "B", "label": "x₂", "status": "normal" },
+      { "id": "e3", "from": "A", "to": "C", "label": "x₃", "status": "normal" },
+      { "id": "e4", "from": "B", "to": "D", "label": "x₄", "status": "normal" }
+    ]
+  },
+  "execution": {
+    "operation": "investigate_incident",
+    "input": {
+      "matrix": [[1, 1, 0, 0], [1, 0, -1, 0], [0, 1, 0, -1], [0, 0, 1, 0]],
+      "vector": [150, 20, 30, 55]
+    }
+  },
+  "verification": { "expectedClassification": "unique", "expectedSolution": [75, 75, 55, 45] },
+  "templateFindings": [
+    "Four independent measurements pin down all four link flows, so the model has full column rank and a unique answer.",
+    "RREF gives the split x₁ = 75, x₂ = 75, x₃ = 55 and x₄ = 45 Mbps.",
+    "Link A is rated for 70 Mbps but is carrying 75 Mbps, an overload of 5 Mbps."
+  ],
+  "suggestedActions": [
+    "Move at least 5 Mbps from link A to the backup path served by link B.",
+    "Verify the link A rating in the asset register before raising the alert threshold.",
+    "Re-run the model after the routing change and archive the new distribution."
+  ]
+}

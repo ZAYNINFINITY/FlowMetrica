@@ -26,11 +26,12 @@ function topologiesOf(scenario) {
   return [scenario.topology, ...stages.map((stage) => stage.topology)].filter(Boolean);
 }
 
-test('catalogue has four predefined scenarios per module', () => {
+test('catalogue has the expected predefined scenarios per module', () => {
   const store = createScenarioStore(scenarioDir);
-  assert.equal(store.count, 12);
+  assert.equal(store.count, 13);
+  const expectedCounts = { module1: 4, module2: 4, module3: 5 };
   MODULES.forEach((module) => {
-    assert.equal(store.list(module).length, 4, `${module} must offer four cases`);
+    assert.equal(store.list(module).length, expectedCounts[module], `${module} case count changed`);
   });
 });
 
