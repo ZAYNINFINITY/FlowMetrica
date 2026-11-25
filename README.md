@@ -30,6 +30,11 @@ Open `http://localhost:5173` in dev, or `http://localhost:3001` after a build.
 
 All 13 scenarios work with no internet. Live features are additive and opt-in.
 
+AI-assisted scenario drafting happens outside the app: ChatGPT writes the staged
+JSON (`docs/SCENARIO_PROMPT.md`), MATLAB verifies and exports the result, and the
+app serves the saved fixture. The UI therefore has no in-app AI, OpenRouter or
+live-MATLAB controls.
+
 ## Optional live integrations
 
 | Feature | Requirement | Honest behaviour when unavailable |
@@ -56,7 +61,7 @@ MATLAB_REST_TIMEOUT_MS 15000   (optional)
 | Value | Meaning |
 |---|---|
 | `reference_verified_fixture` | Current default. Computed by the independent reference implementation and cross-checked against expected values. **Not** a MATLAB result. |
-| `matlab_fixture` | Genuine MATLAB export. Currently `INC-318 · Edge Capacity Breach` was computed in MATLAB Online R2026b and copied back into its fixture. Still a saved result, not a live call. |
+| `matlab_fixture` | Genuine MATLAB export. `INC-318 · Edge Capacity Breach` and `INC-527 · Hostel Core Saturation` were computed in MATLAB Online R2026b and copied back into their fixtures. Still saved results, not live calls. |
 | `live_matlab_execution` | A real REST call to a configured desktop MATLAB service. Never claimed without execution. |
 | `live_network_measurement` | Real Ookla Mbps fed into the shared math solver on the server. |
 | `simulated_data` | Teaching model, not a measurement. |

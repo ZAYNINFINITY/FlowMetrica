@@ -1,95 +1,60 @@
-import { Cpu, Menu, Settings, Sparkles, Wifi, WifiOff } from 'lucide-react';
+import { Menu, Settings, Wifi, WifiOff } from 'lucide-react';
 
 import StatusPill from '../common/StatusPill.jsx';
 
-function serviceState(service) {
-  if (!service) return { state: 'checking', tone: 'unknown', detail: 'Waiting for the local service status.' };
-  return service.available
-    ? { state: 'available', tone: 'ok', detail: service.reason }
-    : { state: 'unavailable', tone: 'off', detail: service.reason };
-}
-
-function StatusGroup({ online, health }) {
-  const matlab = serviceState(health?.services?.matlabLive);
-  const openRouter = serviceState(health?.services?.openRouter);
-
+function StatusGroup({ online }) {
   return (
-    <>
-      <StatusPill
-        icon={online ? Wifi : WifiOff}
-        label="Internet"
-        state={online ? 'online' : 'offline'}
-        tone={online ? 'ok' : 'warn'}
-        detail={
-          online
-            ? 'A network connection is present. Predefined scenarios do not depend on it.'
-            : 'No internet connection. Predefined scenarios and saved reports still work.'
-        }
-      />
-      <StatusPill
-        icon={Cpu}
-        label="MATLAB"
-        state={matlab.state}
-        tone={matlab.tone}
-        detail={matlab.detail}
-      />
-      <StatusPill
-        icon={Sparkles}
-        label="OpenRouter"
-        state={openRouter.state}
-        tone={openRouter.tone}
-        detail={openRouter.detail}
-      />
-    </>
+    <StatusPill
+      icon={online ? Wifi : WifiOff}
+      label="Internet"
+      state={online ? 'online' : 'offline'}
+      tone={online ? 'ok' : 'warn'}
+      detail={
+        online
+          ? 'A network connection is present. Predefined scenarios do not depend on it.'
+          : 'No internet connection. Predefined scenarios and saved reports still work.'
+      }
+    />
   );
 }
 
-/** Mobile status disclosure so three services never squeeze the title. */
-function MobileStatus({ online, health }) {
-  const matlab = serviceState(health?.services?.matlabLive);
-  const openRouter = serviceState(health?.services?.openRouter);
-  const stateWord = (service) => {
-    if (service.state === 'checking') return 'Checking';
-    return service.state === 'available' ? 'Available' : 'Unavailable';
-  };
-
-  const rows = [
-    { label: 'Internet', icon: online ? Wifi : WifiOff, state: online ? 'Online' : 'Offline', detail: online ? 'Connection present.' : 'Offline. Predefined scenarios still work.' },
-    { label: 'MATLAB', icon: Cpu, state: stateWord(matlab), detail: matlab.detail },
-    { label: 'OpenRouter', icon: Sparkles, state: stateWord(openRouter), detail: openRouter.detail },
-  ];
-
+/** Mobile status disclosure keeps the single status pill readable on small screens. */
+function MobileStatus({ online }) {
   return (
     <details className="relative md:hidden">
       <summary className="flex cursor-pointer list-none items-center gap-1.5 rounded-md border border-line bg-sunken px-2 py-1 text-[11px] text-muted focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/70 [&::-webkit-details-marker]:hidden">
         <span className="font-medium text-ink">Status</span>
         <span aria-hidden="true" className="font-mono text-[10px]">
-          ···
+          {online ? 'ON' : 'OFF'}
         </span>
       </summary>
       <div className="absolute right-0 top-full z-50 mt-2 w-72 rounded-lg border border-line bg-panel p-3 shadow-pop">
         <p className="mb-2 text-[10px] font-semibold uppercase tracking-[0.16em] text-muted">
-          Service status
+          Connection
         </p>
-        <ul className="space-y-2.5">
-          {rows.map((row) => (
-            <li key={row.label} className="flex gap-2.5">
-              <row.icon aria-hidden="true" className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted" />
-              <div className="min-w-0">
-                <p className="text-[12px] font-medium text-ink">
-                  {row.label} <span className="font-mono text-[10px] uppercase text-muted">{row.state}</span>
-                </p>
-                <p className="mt-0.5 text-[11px] leading-snug text-muted">{row.detail}</p>
-              </div>
-            </li>
-          ))}
-        </ul>
+        <div className="flex gap-2.5">
+          {online ? (
+            <Wifi aria-hidden="true" className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted" />
+          ) : (
+            <WifiOff aria-hidden="true" className="mt-0.5 h-3.5 w-3.5 shrink-0 text-muted" />
+          )}
+          <div className="min-w-0">
+            <p className="text-[12px] font-medium text-ink">
+              Internet <span className="font-mono text-[10px] uppercase text-muted">{online ? 'online' : 'offline'}</span>
+            </p>
+            <p className="mt-0.5 text-[11px] leading-snug text-muted">
+              {online
+                ? 'Connection present. Predefined scenarios still work.'
+                : 'Offline. Predefined scenarios and saved reports still work.'}
+            </p>
+          </div>
+        </div>
       </div>
     </details>
   );
 }
 
-export default function Topbar({ title, breadcrumb = [], online, health, onOpenMobile }) {
+export default function Topbar({ title, breadcrumb = [], online, onOpenMobile }) {
   return (
     <header className="sticky top-0 z-30 border-b border-line bg-base/85 backdrop-blur">
       <div className="flex h-14 items-center gap-3 px-3 sm:px-6">
@@ -118,9 +83,9 @@ export default function Topbar({ title, breadcrumb = [], online, health, onOpenM
 
         <div className="flex items-center gap-1.5">
           <div className="hidden items-center gap-1.5 md:flex">
-            <StatusGroup online={online} health={health} />
+            <StatusGroup online={online} />
           </div>
-          <MobileStatus online={online} health={health} />
+          <MobileStatus online={online} />
           <a
             href="#/settings"
             aria-label="Settings"

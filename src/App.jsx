@@ -163,7 +163,6 @@ export default function App() {
             title={current.title}
             breadcrumb={current.crumb}
             online={online}
-            health={health}
             onOpenMobile={() => setMobileOpen(true)}
           />
 

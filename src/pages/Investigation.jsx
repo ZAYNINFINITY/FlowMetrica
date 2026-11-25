@@ -1,23 +1,13 @@
 import { useEffect, useState } from 'react';
-import {
-  Bot,
-  CheckCircle2,
-  FileText,
-  Printer,
-  RotateCcw,
-  ScanSearch,
-  Sparkles,
-} from 'lucide-react';
+import { CheckCircle2, FileText, Printer, RotateCcw } from 'lucide-react';
 
 import EmptyState from '../components/common/EmptyState.jsx';
 import ErrorState from '../components/common/ErrorState.jsx';
 import MatrixViewer from '../components/common/MatrixViewer.jsx';
-import ModeCard from '../components/common/ModeCard.jsx';
 import PageHeader from '../components/common/PageHeader.jsx';
 import ScenarioCard from '../components/common/ScenarioCard.jsx';
 import SourceBadge from '../components/common/SourceBadge.jsx';
 import Tabs from '../components/common/Tabs.jsx';
-import UnavailablePanel from '../components/common/UnavailablePanel.jsx';
 import { CardGridSkeleton, WorkspaceSkeleton } from '../components/common/Skeleton.jsx';
 import { useToast } from '../components/common/Toast.jsx';
 import ReportDocument from '../components/ReportDocument.jsx';
@@ -37,7 +27,6 @@ const TABS = [
   { id: 'overview', label: 'Incident Overview' },
   { id: 'model', label: 'Mathematical Model' },
   { id: 'results', label: 'Execution Results' },
-  { id: 'ai', label: 'AI Interpretation' },
   { id: 'report', label: 'Investigation Report' },
 ];
 
@@ -64,12 +53,11 @@ function buildReport(scenario, outcome) {
   };
 }
 
-export default function Investigation({ details, health }) {
+export default function Investigation({ details }) {
   const { scenarios, selectedId, setSelectedId, scenario, outcome, loading, error, reload } =
     useScenario('module3');
   const { reports, saveReport } = useReports();
   const notify = useToast();
-  const [mode, setMode] = useState('predefined');
   const [activeTab, setActiveTab] = useState('overview');
   const [activeReportId, setActiveReportId] = useState(null);
 
@@ -78,7 +66,6 @@ export default function Investigation({ details, health }) {
     reports.find((report) => report.id === activeReportId) ??
     reports.find((report) => report.incidentId === scenario?.incidentId) ??
     null;
-  const aiReason = health?.services?.openRouter?.reason;
 
   useEffect(() => {
     setActiveReportId(null);
@@ -128,47 +115,7 @@ export default function Investigation({ details, health }) {
         }
       />
 
-      <section aria-label="Investigation modes" className="grid gap-3 md:grid-cols-2">
-        <ModeCard
-          icon={ScanSearch}
-          title="Predefined incident investigation"
-          description="Work through saved incidents with fixed steps, verified values and a locally assembled report."
-          status={mode === 'predefined' ? 'Active mode' : 'Available'}
-          active={mode === 'predefined'}
-          onClick={() => setMode('predefined')}
-          meta="Offline · no AI service"
-        />
-        <ModeCard
-          icon={Sparkles}
-          title="Custom AI-assisted investigation"
-          description="Describe a new incident and let a model propose variables, equations and assumptions."
-          status="Unavailable in MVP"
-          statusTone="unavailable"
-          active={mode === 'custom'}
-          onClick={() => setMode('custom')}
-          meta="Requires an OpenRouter integration"
-        />
-      </section>
-
-      {mode === 'custom' ? (
-        <UnavailablePanel
-          title="Custom AI-assisted investigation is not part of this MVP"
-          description="A custom investigation would need a language model to propose a model from free text, and every proposal would still require human review. None of that is implemented, so no textarea or generate button is shown."
-          reason={aiReason}
-          bullets={[
-            'Predefined incidents with fixed steps',
-            'Verified matrices and execution results',
-            'Template reports stored in this browser',
-          ]}
-          action={
-            <button type="button" onClick={() => setMode('predefined')} className="btn-secondary">
-              Back to predefined incidents
-            </button>
-          }
-        />
-      ) : (
-        <>
-          <section aria-labelledby="incidents-heading" className="space-y-3">
+      <section aria-labelledby="incidents-heading" className="space-y-3">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <h2 id="incidents-heading" className="section-title">
                 Incident cases
@@ -422,19 +369,6 @@ export default function Investigation({ details, health }) {
                     </div>
                   )}
 
-                  {activeTab === 'ai' && (
-                    <UnavailablePanel
-                      title="AI interpretation is not available offline"
-                      description="This tab is reserved for a future OpenRouter integration. It stays empty on purpose: no model output is fabricated, and no incident text is sent anywhere."
-                      reason={aiReason}
-                      bullets={[
-                        'Verified execution results',
-                        'Template findings for predefined incidents',
-                        'Locally assembled reports',
-                      ]}
-                    />
-                  )}
-
                   {activeTab === 'report' && (
                     <div className="space-y-4">
                       <div className="flex flex-wrap items-center justify-between gap-2">
@@ -476,16 +410,9 @@ export default function Investigation({ details, health }) {
                   )}
                 </div>
 
-                <p className="mt-4 border-t border-line pt-3 text-[11px] leading-relaxed text-muted">
-                  <Bot aria-hidden="true" className="mr-1 inline h-3.5 w-3.5 text-muted" />
-                  No AI service is used anywhere in this module. Reports are labelled Template-Based
-                  Report and stored only in this browser.
-                </p>
               </section>
             </div>
           )}
-        </>
-      )}
     </div>
   );
 }

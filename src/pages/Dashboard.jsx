@@ -1,13 +1,11 @@
 import {
   ArrowRight,
-  Cpu,
   Database,
   FileText,
   FolderSearch,
   Network,
   ScanSearch,
   ShieldAlert,
-  Sparkles,
   Wifi,
   WifiOff,
 } from 'lucide-react';
@@ -105,9 +103,6 @@ export default function Dashboard({ scenarios, details, reports, health, loading
   const latestReport = reports[0] ?? null;
   const savedCount = health?.services?.savedResults?.count;
 
-  const matlab = health?.services?.matlabLive;
-  const openRouter = health?.services?.openRouter;
-
   return (
     <div className="space-y-6">
       <section className="relative overflow-hidden rounded-2xl border border-line bg-gradient-to-br from-raised/70 via-panel to-sunken">
@@ -168,24 +163,6 @@ export default function Dashboard({ scenarios, details, reports, health, loading
                 state={online ? 'online' : 'offline'}
                 tone={online ? 'ok' : 'warn'}
                 detail={online ? undefined : 'Predefined scenarios still work offline.'}
-              />
-              <ServiceRow
-                icon={Cpu}
-                label="MATLAB"
-                state={matlab?.available ? 'live' : 'unavailable'}
-                tone={matlab?.available ? 'ok' : 'off'}
-                detail={
-                  matlab?.available
-                    ? 'A live MATLAB bridge is configured.'
-                    : 'Predefined results are reference-verified saved values, not live MATLAB output.'
-                }
-              />
-              <ServiceRow
-                icon={Sparkles}
-                label="OpenRouter"
-                state={openRouter?.available ? 'available' : 'unavailable'}
-                tone={openRouter?.available ? 'ok' : 'off'}
-                detail={openRouter?.reason ?? 'AI-assisted investigation is outside this MVP.'}
               />
               <ServiceRow
                 icon={Database}
