@@ -119,5 +119,54 @@ test('insecure configured URL is rejected before any call', () => {
     env: { ...credentials, MATLAB_REST_URL: 'http://localhost:9920/matlab/feval/v1/FlowMetrica' },
   });
   assert.equal(bridge.status().configured, false);
-  assert.match(bridge.status().reason, /https:\/\//i);
+  assert.match(bridge.status().reason, /must use HTTPS/i);
+});
+
+test('in-app credentials configure the bridge without exposing the token', async () => {
+  let seen = null;
+  const bridge = createMatlabBridge({
+    env: {},
+    transport: async (request) => { seen = request; return { lhs: [matlabResult] }; },
+  });
+
+  assert.equal(bridge.status().configured, false);
+  const status = bridge.configure({
+    url: 'https://127.0.0.1:9920/matlab/feval/v1/FlowMetrica',
+    token: 'in-app-passkey',
+  });
+
+  assert.equal(status.configured, true);
+  assert.ok(!JSON.stringify(status).includes('in-app-passkey'));
+  await bridge.callFunction('solve_network_flow', [[[1]], [1]]);
+  assert.equal(seen.token, 'in-app-passkey');
+  assert.ok(!JSON.stringify(bridge.status()).includes('in-app-passkey'));
+});
+
+test('clear removes credentials and requires a fresh connection', async () => {
+  const bridge = createMatlabBridge({
+    env: credentials,
+    transport: transportReturning({ lhs: [matlabResult] }),
+  });
+  await bridge.callFunction('solve_network_flow', [[[1]], [1]]);
+  assert.equal(bridge.status().available, true);
+
+  bridge.clear();
+  assert.equal(bridge.status().configured, false);
+  assert.equal(bridge.status().verifiedAt, null);
+  await assert.rejects(() => bridge.callFunction('solve_network_flow', [[[1]], [1]]), {
+    code: 'MATLAB_NOT_CONFIGURED',
+  });
+});
+
+test('public hosts and credentials embedded in the URL are refused', () => {
+  const bridge = createMatlabBridge({ env: {} });
+  assert.throws(
+    () => bridge.configure({ url: 'https://matlab.example.com/api', token: 'x' }),
+    { code: 'MATLAB_BAD_CONFIG', message: /private network host/i },
+  );
+  assert.throws(
+    () => bridge.configure({ url: 'https://user:pass@localhost:9920/api', token: 'x' }),
+    { code: 'MATLAB_BAD_CONFIG', message: /credentials in the MATLAB REST URL/i },
+  );
+  assert.equal(bridge.status().configured, false);
 });

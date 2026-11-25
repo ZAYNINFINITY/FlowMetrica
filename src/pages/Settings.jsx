@@ -28,7 +28,7 @@ const GUARANTEES = [
   { label: 'Offline-first scenarios', detail: 'Every predefined scenario runs without a connection or login.' },
   { label: 'One execution interface', detail: 'All modules call POST /api/execute; the browser never solves a system.' },
   { label: 'Verified provenance labels', detail: 'Saved fixtures and simulated data are labelled exactly as they are.' },
-  { label: 'No stored credentials', detail: 'MATLAB export is a manual step outside this app.' },
+  { label: 'No stored credentials', detail: 'MATLAB tokens stay in server memory and are never written to disk.' },
 ];
 
 function Switch({ checked, onChange, label, description, disabled = false }) {
@@ -81,16 +81,19 @@ export default function Settings({ preferences, onChangePreferences, health, onl
   const [confirmClear, setConfirmClear] = useState(false);
   const [matlabSetup, setMatlabSetup] = useState(null);
   const [matlabBusy, setMatlabBusy] = useState(false);
+  const [matlabForm, setMatlabForm] = useState({ url: '', token: '', certificatePath: '' });
 
   const services = health?.services;
 
-  // The bridge state lives on the server; never assume a toggle can be honoured.
+  // Bridge state lives on the server; poll so a desktop MATLAB started later is detected.
   useEffect(() => {
     let active = true;
-    request('/api/matlab/setup')
+    const refresh = () => request('/api/matlab/setup')
       .then((payload) => { if (active) setMatlabSetup(payload); })
       .catch(() => { if (active) setMatlabSetup(null); });
-    return () => { active = false; };
+    refresh();
+    const timer = window.setInterval(refresh, 10_000);
+    return () => { active = false; window.clearInterval(timer); };
   }, []);
 
   const handleMatlabToggle = async (enabled) => {
@@ -107,6 +110,47 @@ export default function Settings({ preferences, onChangePreferences, health, onl
       });
     } catch (cause) {
       notify({ title: 'MATLAB could not be switched', description: cause.message, tone: 'error' });
+    } finally {
+      setMatlabBusy(false);
+    }
+  };
+
+  const handleMatlabConnect = async (event) => {
+    event.preventDefault();
+    setMatlabBusy(true);
+    try {
+      const connected = await request('/api/matlab/configure', {
+        method: 'POST',
+        body: JSON.stringify(matlabForm),
+      });
+      setMatlabSetup((current) => ({ ...current, ...connected }));
+      // Clear the secret from React state as soon as the server has it.
+      setMatlabForm({ url: '', token: '', certificatePath: '' });
+      const enabled = await request('/api/matlab/enable', {
+        method: 'POST',
+        body: JSON.stringify({ enabled: true }),
+      });
+      setMatlabSetup((current) => ({ ...current, ...enabled }));
+      notify({
+        title: 'Live MATLAB connected',
+        description: 'Predefined scenarios now call your desktop MATLAB.',
+        tone: 'success',
+      });
+    } catch (cause) {
+      notify({ title: 'MATLAB could not connect', description: cause.message, tone: 'error' });
+    } finally {
+      setMatlabBusy(false);
+    }
+  };
+
+  const handleMatlabDisconnect = async () => {
+    setMatlabBusy(true);
+    try {
+      const cleared = await request('/api/matlab/clear', { method: 'POST', body: '{}' });
+      setMatlabSetup((current) => ({ ...current, ...cleared }));
+      notify({ title: 'MATLAB disconnected', description: 'Saved results are active again.', tone: 'info' });
+    } catch (cause) {
+      notify({ title: 'MATLAB could not be cleared', description: cause.message, tone: 'error' });
     } finally {
       setMatlabBusy(false);
     }
@@ -290,19 +334,70 @@ export default function Settings({ preferences, onChangePreferences, health, onl
               description={
                 matlabSetup?.bridge?.configured
                   ? 'When on, every module calls MATLAB through POST /api/execute. When off, saved MATLAB results are used.'
-                  : 'Locked until a desktop MATLAB REST Function Service is configured.'
+                  : 'Locked until a desktop MATLAB REST Function Service is connected.'
               }
             />
           </div>
 
+          <form onSubmit={handleMatlabConnect} className="mt-3 space-y-2 rounded-lg border border-line bg-sunken/50 p-3.5">
+            <p className="meta-label">Connect desktop MATLAB</p>
+            <div className="grid gap-2 md:grid-cols-2">
+              <label className="block">
+                <span className="mb-1 block text-[11px] text-muted">REST URL</span>
+                <input
+                  type="url"
+                  required
+                  value={matlabForm.url}
+                  onChange={(event) => setMatlabForm((current) => ({ ...current, url: event.target.value }))}
+                  placeholder="https://localhost:9920/matlab/feval/v1/FlowMetrica"
+                  className="w-full rounded-lg border border-line bg-raised px-3 py-2 font-mono text-[11.5px] text-ink outline-none placeholder:text-muted focus:border-accent/60"
+                />
+              </label>
+              <label className="block">
+                <span className="mb-1 block text-[11px] text-muted">Passkey / REST token</span>
+                <input
+                  type="password"
+                  required
+                  autoComplete="off"
+                  value={matlabForm.token}
+                  onChange={(event) => setMatlabForm((current) => ({ ...current, token: event.target.value }))}
+                  placeholder="Paste info.RESTPersonalAccessToken"
+                  className="w-full rounded-lg border border-line bg-raised px-3 py-2 font-mono text-[11.5px] text-ink outline-none placeholder:text-muted focus:border-accent/60"
+                />
+              </label>
+            </div>
+            <label className="block">
+              <span className="mb-1 block text-[11px] text-muted">CA certificate path (optional)</span>
+              <input
+                type="text"
+                value={matlabForm.certificatePath}
+                onChange={(event) => setMatlabForm((current) => ({ ...current, certificatePath: event.target.value }))}
+                placeholder="Server-side path from info.CertificateLocation"
+                className="w-full rounded-lg border border-line bg-raised px-3 py-2 font-mono text-[11.5px] text-ink outline-none placeholder:text-muted focus:border-accent/60"
+              />
+            </label>
+            <div className="flex flex-wrap gap-2 pt-1">
+              <button type="submit" disabled={matlabBusy} className="btn-primary btn-xs">
+                Connect & enable
+              </button>
+              <button type="button" onClick={handleMatlabDisconnect} disabled={matlabBusy} className="btn-secondary btn-xs">
+                Disconnect
+              </button>
+            </div>
+          </form>
+
+          <p className="mt-2 text-[11px] leading-relaxed text-muted">
+            Status: <span className="font-mono text-ink">{matlabSetup?.bridge?.configured ? 'bridge configured' : 'not configured'}</span>
+            {matlabSetup?.bridge?.verifiedAt ? ` · last verified ${formatDateTime(matlabSetup.bridge.verifiedAt)}` : ''}
+          </p>
           {!matlabSetup?.bridge?.configured && (
-            <p className="mt-2 text-[11px] leading-relaxed text-warn">
+            <p className="mt-1 text-[11px] leading-relaxed text-warn">
               {matlabSetup?.bridge?.reason ?? 'Checking the MATLAB bridge…'}
             </p>
           )}
           <p className="mt-3 rounded-lg border border-line bg-sunken/50 p-3 text-[11px] leading-relaxed text-muted">
-            MATLAB Online has no supported external execution API. This switch never stores credentials;
-            configuration is done by the desktop launcher.
+            MATLAB Online has no supported external execution API. The token stays in server memory,
+            is never echoed back, and is cleared on restart. Only localhost/private MATLAB services are accepted.
           </p>
         </section>
 

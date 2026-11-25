@@ -17,8 +17,37 @@ export function createMatlabRouter(matlabBridge, executionMode) {
     });
   });
 
+  // Credentials are held only in the bridge's memory. The response contains
+  // status flags only — never the URL token or certificate contents.
+  router.post('/configure', (request, response) => {
+    try {
+      const bridge = matlabBridge.configure({
+        url: request.body?.url,
+        token: request.body?.token,
+        certificatePath: request.body?.certificatePath,
+      });
+      // A credential change always requires a fresh explicit opt-in.
+      executionMode.setMatlabLive(false);
+      response.json({ status: 'success', bridge, execution: executionMode.get() });
+    } catch (error) {
+      response.status(400).json({
+        status: 'error',
+        error: {
+          code: error.code ?? 'MATLAB_BAD_CONFIG',
+          message: error.publicMessage ?? 'MATLAB configuration was rejected.',
+        },
+      });
+    }
+  });
+
+  router.post('/clear', (_request, response) => {
+    const bridge = matlabBridge.clear();
+    executionMode.setMatlabLive(false);
+    response.json({ status: 'success', bridge, execution: executionMode.get() });
+  });
+
   // A runtime opt-in: OFF is always safe, ON requires a configured bridge.
-  // Credentials are never accepted here — they belong to the server environment.
+  // Credentials are never accepted here — use /configure for those.
   router.post('/enable', (request, response) => {
     const enabled = request.body?.enabled;
     if (typeof enabled !== 'boolean') {

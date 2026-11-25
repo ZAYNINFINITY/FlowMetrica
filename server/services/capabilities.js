@@ -6,7 +6,7 @@
 export const APP_VERSION = '0.2.0-integrations';
 
 export const LIVE_MATLAB_REASON =
-  'MATLAB Online has no supported external execution API. Live MATLAB results require desktop MATLAB with a REST Function Service configured via MATLAB_REST_URL and MATLAB_REST_TOKEN.';
+  'MATLAB Online has no supported external execution API. Live MATLAB results require desktop MATLAB with a REST Function Service; connect it from Settings → Execution engine.';
 
 export const MEASUREMENT_REASON =
   'Live Ookla measurement is available when the server can reach speedtest.net. Predefined analysis works without it.';
@@ -17,8 +17,8 @@ export const OPENROUTER_REASON =
 export const MATLAB_SETUP_STEPS = [
   'Use desktop MATLAB with REST Function Service support (MATLAB Online cannot host this service).',
   'In MATLAB, run: addpath(genpath("matlab")) then info = start_rest_service().',
-  'Copy the three values MATLAB prints into server environment variables, then restart the Node server.',
-  'Never commit the token. A live result is claimed only after a successful REST call.',
+  'In FlowMetrica Settings → Execution engine, paste RequestUrl, token and CA path, then Connect.',
+  'The token stays in server memory only. A live result is claimed after a successful REST call.',
 ];
 
 export const MATLAB_SETUP_CODE = [
@@ -26,10 +26,10 @@ export const MATLAB_SETUP_CODE = [
   'addpath(genpath(fullfile(pwd, "matlab")))',
   'info = start_rest_service()',
   '',
-  '% Then set these in the environment that starts the Node server:',
-  '%   MATLAB_REST_URL   = info.RequestUrl',
-  '%   MATLAB_REST_TOKEN = info.RESTPersonalAccessToken',
-  '%   MATLAB_REST_CA    = info.CertificateLocation',
+  '% Then paste these into FlowMetrica Settings → Execution engine:',
+  '%   Request URL  = info.RequestUrl',
+  '%   Token        = info.RESTPersonalAccessToken',
+  '%   CA path      = info.CertificateLocation',
 ].join('\n');
 
 export const MATLAB_ONLINE_HANDOFF = [

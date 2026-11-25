@@ -6,7 +6,66 @@ import { LIVE_MATLAB_REASON } from './capabilities.js';
 const ALLOWED_FUNCTIONS = new Set(['solve_network_flow', 'analyze_anomaly', 'investigate_incident']);
 const DEFAULT_TIMEOUT_MS = 15_000;
 const MAX_RESPONSE_BYTES = 2 * 1024 * 1024;
+const MAX_TOKEN_LENGTH = 512;
 const CLASSIFICATIONS = new Set(['unique', 'infinite_solutions', 'no_solution']);
+
+/**
+ * A MATLAB REST service belongs on the developer's machine. Restricting the
+ * destination to loopback/private ranges keeps the browser-facing configure
+ * endpoint from becoming a general-purpose outbound request proxy.
+ */
+function isPrivateHost(hostname) {
+  const host = hostname.toLowerCase();
+  if (host === 'localhost' || host === '::1') return true;
+  const parts = host.match(/^(\d{1,3})\.(\d{1,3})\.(\d{1,3})\.(\d{1,3})$/);
+  if (!parts) return false;
+  const [first, second] = parts.slice(1, 3).map(Number);
+  if (first === 127 || first === 10) return true;
+  if (first === 192 && second === 168) return true;
+  return first === 172 && second >= 16 && second <= 31;
+}
+
+function buildConfig({ url, token, certificatePath, timeoutMs, loadCertificate }) {
+  const address = typeof url === 'string' ? url.trim().replace(/\/+$/, '') : '';
+  let parsed;
+  try {
+    parsed = new URL(address);
+  } catch {
+    throw createBridgeError('MATLAB_BAD_CONFIG', 'MATLAB REST URL must be a valid URL.');
+  }
+  if (parsed.protocol !== 'https:') {
+    throw createBridgeError('MATLAB_BAD_CONFIG', 'MATLAB REST URL must use HTTPS.');
+  }
+  if (!isPrivateHost(parsed.hostname)) {
+    throw createBridgeError('MATLAB_BAD_CONFIG', 'MATLAB REST URL must point to localhost or a private network host.');
+  }
+  if (parsed.username || parsed.password) {
+    throw createBridgeError('MATLAB_BAD_CONFIG', 'Do not put credentials in the MATLAB REST URL.');
+  }
+
+  const secret = typeof token === 'string' ? token.trim() : '';
+  if (!secret) throw createBridgeError('MATLAB_BAD_CONFIG', 'MATLAB REST token is required.');
+  if (secret.length > MAX_TOKEN_LENGTH) {
+    throw createBridgeError('MATLAB_BAD_CONFIG', 'MATLAB REST token is too long.');
+  }
+
+  const path = typeof certificatePath === 'string' ? certificatePath.trim() : '';
+  let certificate = null;
+  if (path) {
+    try {
+      certificate = loadCertificate(path);
+    } catch {
+      throw createBridgeError('MATLAB_BAD_CONFIG', 'MATLAB CA certificate could not be read.');
+    }
+  }
+
+  return {
+    url: address,
+    token: secret,
+    certificate,
+    timeoutMs: Number(timeoutMs) || DEFAULT_TIMEOUT_MS,
+  };
+}
 
 /** Errors carry a stable code so the API never leaks a raw network string. */
 export function createBridgeError(code, message) {
@@ -191,27 +250,47 @@ export function createMatlabBridge({
 } = {}) {
   let config = null;
   let configError = null;
+  const state = { verifiedAt: null };
 
+  // Environment variables remain a valid bootstrap path; the in-app connection
+  // updates the same in-memory config without touching the process environment.
   try {
-    const url = env.MATLAB_REST_URL?.trim();
-    const token = env.MATLAB_REST_TOKEN?.trim();
-    if (url && token) {
-      config = {
-        url: url.replace(/\/+$/, ''),
-        token,
-        certificate: env.MATLAB_REST_CA?.trim()
-          ? loadCertificate(env.MATLAB_REST_CA.trim())
-          : null,
-        timeoutMs: Number(env.MATLAB_REST_TIMEOUT_MS) || DEFAULT_TIMEOUT_MS,
-      };
-      if (!config.url.startsWith('https://')) throw new Error('MATLAB_REST_URL must start with https://.');
+    if (env.MATLAB_REST_URL?.trim() && env.MATLAB_REST_TOKEN?.trim()) {
+      config = buildConfig({
+        url: env.MATLAB_REST_URL,
+        token: env.MATLAB_REST_TOKEN,
+        certificatePath: env.MATLAB_REST_CA,
+        timeoutMs: env.MATLAB_REST_TIMEOUT_MS,
+        loadCertificate,
+      });
     }
   } catch (error) {
-    config = null;
-    configError = createBridgeError('MATLAB_BAD_CONFIG', error.message);
+    configError = error.code
+      ? error
+      : createBridgeError('MATLAB_BAD_CONFIG', 'MATLAB bridge configuration was rejected.');
   }
 
-  const state = { verifiedAt: null };
+  function configure(next) {
+    try {
+      config = buildConfig({ ...next, timeoutMs: env.MATLAB_REST_TIMEOUT_MS, loadCertificate });
+      configError = null;
+      state.verifiedAt = null;
+      return status();
+    } catch (error) {
+      config = null;
+      configError = error.code
+        ? error
+        : createBridgeError('MATLAB_BAD_CONFIG', 'MATLAB bridge configuration was rejected.');
+      throw configError;
+    }
+  }
+
+  function clear() {
+    config = null;
+    configError = null;
+    state.verifiedAt = null;
+    return status();
+  }
 
   function status() {
     if (configError) {
@@ -267,5 +346,5 @@ export function createMatlabBridge({
     return result;
   }
 
-  return { status, callFunction };
+  return { status, callFunction, configure, clear };
 }
