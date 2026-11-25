@@ -1,5 +1,7 @@
 ![FlowMetrica banner](docs/assets/banner.svg)
 
+Download banner: [SVG source](docs/assets/banner.svg) · [PNG, 1200×300](docs/assets/banner.png)
+
 # FlowMetrica
 
 **Offline-first educational network analysis lab.** Three modules turn a fixed network
