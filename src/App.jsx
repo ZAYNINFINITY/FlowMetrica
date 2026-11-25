@@ -142,6 +142,9 @@ export default function App() {
 
   useEffect(() => {
     document.title = `${current.title} · FlowMetrica`;
+    // Move focus out of the sidebar nav: it is a scroll container, so keeping
+    // focus on a nav link can swallow PageDown/Space and freeze page scrolling.
+    document.getElementById('main-content')?.focus({ preventScroll: true });
     window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
     setMobileOpen(false);
   }, [view, current.title]);
@@ -208,10 +211,12 @@ export default function App() {
           </main>
 
           <footer className="no-print border-t border-line px-4 py-2.5 text-[10.5px] text-muted sm:px-6 lg:px-8">
-            <div className="mx-auto flex w-full max-w-[1440px] flex-wrap items-center gap-x-4 gap-y-1">
-              <span className="font-mono">FlowMetrica v{health?.appVersion ?? '0.1.0-mvp'}</span>
-              <span>Results served by the local execution interface</span>
-              <span className="ml-auto font-mono">offline-first</span>
+            <div className="mx-auto flex w-full max-w-[1440px] flex-col gap-1 sm:flex-row sm:items-center sm:gap-x-4">
+              <div className="flex min-w-0 flex-wrap items-center gap-x-4 gap-y-1">
+                <span className="font-mono">FlowMetrica v{health?.appVersion ?? '0.1.0-mvp'}</span>
+                <span>Results served by the local execution interface</span>
+              </div>
+              <span className="shrink-0 whitespace-nowrap font-mono sm:ml-auto">offline-first</span>
             </div>
           </footer>
         </div>
