@@ -342,9 +342,11 @@ export default function Settings({ preferences, onChangePreferences, health, onl
           <form onSubmit={handleMatlabConnect} className="mt-3 space-y-2 rounded-lg border border-line bg-sunken/50 p-3.5">
             <p className="meta-label">Connect desktop MATLAB</p>
             <div className="grid gap-2 md:grid-cols-2">
-              <label className="block">
+              <label htmlFor="matlab-rest-url" className="block">
                 <span className="mb-1 block text-[11px] text-muted">REST URL</span>
                 <input
+                  id="matlab-rest-url"
+                  name="matlabRestUrl"
                   type="url"
                   required
                   value={matlabForm.url}
@@ -353,9 +355,11 @@ export default function Settings({ preferences, onChangePreferences, health, onl
                   className="w-full rounded-lg border border-line bg-raised px-3 py-2 font-mono text-[11.5px] text-ink outline-none placeholder:text-muted focus:border-accent/60"
                 />
               </label>
-              <label className="block">
+              <label htmlFor="matlab-token" className="block">
                 <span className="mb-1 block text-[11px] text-muted">Passkey / REST token</span>
                 <input
+                  id="matlab-token"
+                  name="matlabToken"
                   type="password"
                   required
                   autoComplete="off"
@@ -366,9 +370,11 @@ export default function Settings({ preferences, onChangePreferences, health, onl
                 />
               </label>
             </div>
-            <label className="block">
+            <label htmlFor="matlab-ca-path" className="block">
               <span className="mb-1 block text-[11px] text-muted">CA certificate path (optional)</span>
               <input
+                id="matlab-ca-path"
+                name="matlabCertificatePath"
                 type="text"
                 value={matlabForm.certificatePath}
                 onChange={(event) => setMatlabForm((current) => ({ ...current, certificatePath: event.target.value }))}
