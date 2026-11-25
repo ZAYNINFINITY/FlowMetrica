@@ -64,7 +64,30 @@ from `MATLAB_REST_CA`, no token logging, no filesystem writes by the bridge.
    badge shows **Saved MATLAB Result**. This is a genuine MATLAB result, but it is
    still a saved result, not a live measurement.
 
-### C. One-off handoff when MATLAB Drive cannot write into the local project
+## C. Add a new ChatGPT-authored incident
+
+Use this when ChatGPT (or a human) writes a new scenario but MATLAB must own the
+result. The exact ChatGPT prompt is in `docs/SCENARIO_PROMPT.md`.
+
+1. Save the scenario as `matlab/incoming/<scenario_id>.json`. It is staged, not
+   served yet — the app catalogue requires every served scenario to already have a
+   matching fixture.
+2. In MATLAB Online, from the project root:
+
+   ```matlab
+   addpath(genpath(pwd))
+   export_scenario('<scenario_id>')
+   ```
+
+3. MATLAB executes the scenario's `matrix`/`vector` through the matching entry
+   point, writes `server/data/fixtures/<scenario_id>.<operation>.json`, then
+   promotes the scenario into `server/data/scenarios/<scenario_id>.json`.
+4. Commit and push both files, pull locally, restart the Node server. The new incident
+   appears with **Saved MATLAB Result**, like the other saved incidents.
+
+Only the new scenario is touched. The other 11 fixtures keep their existing provenance.
+
+### D. One-off handoff when MATLAB Drive cannot write into the local project
 
 MATLAB Online writes into MATLAB Drive, not into the local project folder. To move one
 genuine result across, print JSON in the Command Window and paste it into the matching

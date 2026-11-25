@@ -75,7 +75,9 @@ server/services/         shared executor, validator, fixtures, matrix core,
                          MATLAB REST bridge, Ookla measurement store
 server/data/scenarios/   12 versioned scenario definitions (JSON, 4 per module)
 server/data/fixtures/    12 versioned result fixtures (JSON)
-matlab/                  MATLAB entry points, REST starter, export script
+matlab/                  MATLAB entry points, REST starter, export scripts
+                         matlab/incoming/ stages ChatGPT-authored scenarios until
+                         MATLAB has signed a matching fixture
 scripts/                 reference fixture generator
 docs/UI-UX-SPEC.md       design specification
 docs/INTEGRATIONS.md     live integration API contract
