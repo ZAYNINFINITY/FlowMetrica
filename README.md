@@ -4,7 +4,7 @@ Download banner: [PNG, 1600×400](docs/assets/banner.png) · [SVG source](docs/a
 
 # FlowMetrica
 
-**Live demo:** [flowmetrica-sooty.vercel.app](https://flowmetrica-sooty.vercel.app)
+**Live demo:** [flowmetrica-maths.vercel.app](https://flowmetrica-maths.vercel.app)
 
 **Offline-first educational network analysis lab.** Three modules turn a fixed network
 story into a linear system, show the row reduction behind the answer, and label exactly
@@ -158,7 +158,7 @@ predefined scenarios, saved results and reports work with no internet.
 ## Deploy
 
 The production build is deployed on Vercel at
-[flowmetrica-sooty.vercel.app](https://flowmetrica-sooty.vercel.app). `vercel.json` routes
+[flowmetrica-maths.vercel.app](https://flowmetrica-maths.vercel.app). `vercel.json` routes
 `/api/*` to a Node serverless function running the **same Express app** as local mode and
 serves `dist/` as static files. The 13 scenario and fixture JSON files are bundled into the
 function, so online and offline runs return identical saved results.
