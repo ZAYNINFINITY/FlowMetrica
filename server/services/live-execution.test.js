@@ -1,8 +1,16 @@
 import assert from 'node:assert/strict';
 import test from 'node:test';
 
+import { createExecutionMode } from './execution-mode.js';
 import { createExecutor } from './executor.js';
 import { validateExecutionRequest } from './validator.js';
+
+/** Opt-in helper: production defaults to OFF, tests opt in explicitly. */
+const enabledMode = () => {
+  const mode = createExecutionMode();
+  mode.setMatlabLive(true);
+  return mode;
+};
 
 const measurement = {
   id: 'measurement-001',
@@ -112,6 +120,7 @@ test('configured MATLAB bridge returns a genuinely live result', async () => {
     fixtureStore: { get: () => null },
     matlabBridge: bridge,
     measurementStore,
+    executionMode: enabledMode(),
   }).execute({
     module: 'module1',
     scenario_id: 'network_traffic_01',
@@ -140,6 +149,7 @@ test('a failed MATLAB call never silently substitutes a saved result', async () 
     fixtureStore: { get: () => { fixtureReads += 1; return { output: matlabOutput }; } },
     matlabBridge: bridge,
     measurementStore,
+    executionMode: enabledMode(),
   }).execute({
     module: 'module1',
     scenario_id: 'network_traffic_01',
@@ -149,5 +159,49 @@ test('a failed MATLAB call never silently substitutes a saved result', async () 
 
   assert.equal(outcome.status, 'error');
   assert.equal(outcome.error.code, 'MATLAB_TIMEOUT');
+  assert.equal(fixtureReads, 0);
+});
+
+test('live MATLAB stays off by default, so a configured bridge still uses the saved result', async () => {
+  let calls = 0;
+  const bridge = {
+    status: () => ({ configured: true, available: true, reason: 'connected' }),
+    callFunction: async () => { calls += 1; return matlabOutput; },
+  };
+  const mode = createExecutionMode();
+  const outcome = await createExecutor({
+    fixtureStore: { get: () => ({ output: matlabOutput, metadata: { executionEngine: 'MATLAB', matlabExportStatus: 'complete', verificationStatus: 'matlab_verified' } }) },
+    matlabBridge: bridge,
+    measurementStore,
+    executionMode: mode,
+  }).execute({
+    module: 'module1',
+    scenario_id: 'network_traffic_01',
+    operation: 'solve_network_flow',
+    input: { matrix: [[1, 1], [1, -1]], vector: [100, 20] },
+  });
+
+  assert.equal(outcome.status, 'success');
+  assert.equal(outcome.result_source, 'matlab_fixture');
+  assert.equal(outcome.matlab_live_enabled, false);
+  assert.equal(calls, 0);
+});
+
+test('enabled MATLAB with no bridge is a hard error, never a silent fixture fallback', async () => {
+  let fixtureReads = 0;
+  const outcome = await createExecutor({
+    fixtureStore: { get: () => { fixtureReads += 1; return { output: matlabOutput }; } },
+    matlabBridge: offlineBridge,
+    measurementStore,
+    executionMode: enabledMode(),
+  }).execute({
+    module: 'module1',
+    scenario_id: 'network_traffic_01',
+    operation: 'solve_network_flow',
+    input: { matrix: [[1, 1], [1, -1]], vector: [100, 20] },
+  });
+
+  assert.equal(outcome.status, 'error');
+  assert.equal(outcome.error.code, 'MATLAB_NOT_CONFIGURED');
   assert.equal(fixtureReads, 0);
 });

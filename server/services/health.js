@@ -8,7 +8,7 @@ import {
   OPENROUTER_REASON,
 } from './capabilities.js';
 
-export function getHealth({ fixtureStore, scenarioStore, matlabBridge, measurementStore }) {
+export function getHealth({ fixtureStore, scenarioStore, matlabBridge, measurementStore, executionMode }) {
   const matlab = matlabBridge?.status() ?? {
     configured: false,
     available: false,
@@ -23,6 +23,7 @@ export function getHealth({ fixtureStore, scenarioStore, matlabBridge, measureme
       matlabLive: {
         available: matlab.available,
         configured: matlab.configured,
+        enabled: executionMode?.get().matlabLiveEnabled ?? false,
         verifiedAt: matlab.verifiedAt,
         label: 'MATLAB live execution',
         reason: matlab.reason,

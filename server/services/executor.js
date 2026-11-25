@@ -1,4 +1,5 @@
 import { LIVE_MATLAB_REASON } from './capabilities.js';
+import { createExecutionMode } from './execution-mode.js';
 import { canonicalHash } from './fixtures.js';
 import { solveSystem } from './matrix.js';
 import { validateExecutionRequest } from './validator.js';
@@ -53,11 +54,23 @@ export function createExecutor({
   fixtureStore,
   matlabBridge = OFFLINE_BRIDGE,
   measurementStore = OFFLINE_MEASUREMENTS,
+  executionMode = createExecutionMode(),
 } = {}) {
   const bridgeStatus = matlabBridge.status();
 
   async function executeMATLAB(request) {
-    if (!bridgeStatus.configured) return { skipped: true, reason: bridgeStatus.reason };
+    // Read the mode on every call: the UI can switch it without a server restart.
+    const { matlabLiveEnabled } = executionMode.get();
+    if (!matlabLiveEnabled) {
+      return { skipped: true, reason: 'MATLAB live execution is switched off.' };
+    }
+    if (!bridgeStatus.configured) {
+      return {
+        blocked: true,
+        code: 'MATLAB_NOT_CONFIGURED',
+        message: bridgeStatus.reason,
+      };
+    }
 
     const args =
       request.operation === 'analyze_anomaly'
@@ -124,6 +137,7 @@ export function createExecutor({
       measurement,
       live_execution_available: bridgeStatus.available,
       matlab_bridge_configured: bridgeStatus.configured,
+      matlab_live_enabled: executionMode.get().matlabLiveEnabled,
     };
   }
 
@@ -139,6 +153,15 @@ export function createExecutor({
     if (request.operation === 'solve_live_measurement') return executeLiveMeasurement(request);
 
     const live = await executeMATLAB(request);
+    if (live.blocked) {
+      return {
+        status: 'error',
+        error: {
+          code: live.code,
+          message: `MATLAB live execution is enabled but unavailable: ${live.message} Saved results were not substituted.`,
+        },
+      };
+    }
     if (live.failed) {
       return {
         status: 'error',
@@ -161,6 +184,7 @@ export function createExecutor({
         verification_status: 'matlab_verified_live',
         live_execution_available: true,
         matlab_bridge_configured: true,
+        matlab_live_enabled: true,
       };
     }
 
@@ -208,6 +232,7 @@ export function createExecutor({
       live_execution_available: false,
       live_execution_reason: live.reason,
       matlab_bridge_configured: bridgeStatus.configured,
+      matlab_live_enabled: executionMode.get().matlabLiveEnabled,
     };
   }
 

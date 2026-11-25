@@ -4,6 +4,9 @@
   "private": true,
   "type": "module",
   "description": "Offline-first educational network analysis with a shared JSON execution interface.",
+  "engines": {
+    "node": "24.x"
+  },
   "scripts": {
     "dev": "concurrently -n api,web -c cyan,magenta \"npm:dev:api\" \"npm:dev:web\"",
     "dev:api": "node --watch server/index.js",

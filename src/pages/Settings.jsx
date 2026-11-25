@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Check,
+  Cpu,
   Database,
   Gauge,
   RotateCcw,
@@ -17,6 +18,7 @@ import ErrorState from '../components/common/ErrorState.jsx';
 import PageHeader from '../components/common/PageHeader.jsx';
 import { useToast } from '../components/common/Toast.jsx';
 import { useReports } from '../hooks/useReports.js';
+import { request } from '../lib/api.js';
 import { formatDateTime } from '../lib/format.js';
 import { DEFAULT_PREFERENCES } from '../lib/settings.js';
 
@@ -29,9 +31,9 @@ const GUARANTEES = [
   { label: 'No stored credentials', detail: 'MATLAB export is a manual step outside this app.' },
 ];
 
-function Switch({ checked, onChange, label, description }) {
+function Switch({ checked, onChange, label, description, disabled = false }) {
   return (
-    <label className="flex cursor-pointer items-start justify-between gap-4 rounded-lg border border-line bg-sunken/50 p-3.5">
+    <label className={`flex items-start justify-between gap-4 rounded-lg border border-line bg-sunken/50 p-3.5 ${disabled ? 'cursor-not-allowed opacity-70' : 'cursor-pointer'}`}>
       <span className="min-w-0">
         <span className="block text-[13px] font-medium text-ink">{label}</span>
         <span className="mt-0.5 block text-[11.5px] leading-relaxed text-muted">{description}</span>
@@ -41,6 +43,7 @@ function Switch({ checked, onChange, label, description }) {
           type="checkbox"
           checked={checked}
           onChange={(event) => onChange(event.target.checked)}
+          disabled={disabled}
           className="peer sr-only"
         />
         <span
@@ -76,8 +79,38 @@ export default function Settings({ preferences, onChangePreferences, health, onl
   const { reports, clearReports } = useReports();
   const notify = useToast();
   const [confirmClear, setConfirmClear] = useState(false);
+  const [matlabSetup, setMatlabSetup] = useState(null);
+  const [matlabBusy, setMatlabBusy] = useState(false);
 
   const services = health?.services;
+
+  // The bridge state lives on the server; never assume a toggle can be honoured.
+  useEffect(() => {
+    let active = true;
+    request('/api/matlab/setup')
+      .then((payload) => { if (active) setMatlabSetup(payload); })
+      .catch(() => { if (active) setMatlabSetup(null); });
+    return () => { active = false; };
+  }, []);
+
+  const handleMatlabToggle = async (enabled) => {
+    setMatlabBusy(true);
+    try {
+      const payload = await request('/api/matlab/enable', {
+        method: 'POST',
+        body: JSON.stringify({ enabled }),
+      });
+      setMatlabSetup((current) => ({ ...current, ...payload }));
+      notify({
+        title: enabled ? 'Live MATLAB enabled' : 'Live MATLAB switched off',
+        tone: 'success',
+      });
+    } catch (cause) {
+      notify({ title: 'MATLAB could not be switched', description: cause.message, tone: 'error' });
+    } finally {
+      setMatlabBusy(false);
+    }
+  };
 
   const handleClear = () => {
     try {
@@ -234,6 +267,43 @@ export default function Settings({ preferences, onChangePreferences, health, onl
               detail="Reference-verified fixtures served by the local execution interface."
             />
           </ul>
+        </section>
+
+        <section aria-labelledby="matlab-heading" className="surface p-5 lg:col-span-2">
+          <div className="flex items-center gap-2">
+            <Cpu aria-hidden="true" className="h-4 w-4 text-accent" />
+            <h2 id="matlab-heading" className="section-title">
+              Execution engine
+            </h2>
+          </div>
+          <p className="mt-1 prose-note">
+            Saved results are the safe default. Live MATLAB is opt-in and only works with a configured
+            desktop MATLAB REST service.
+          </p>
+
+          <div className="mt-4">
+            <Switch
+              checked={Boolean(matlabSetup?.execution?.matlabLiveEnabled)}
+              onChange={handleMatlabToggle}
+              disabled={!matlabSetup?.bridge?.configured || matlabBusy}
+              label="Use live MATLAB for analysis"
+              description={
+                matlabSetup?.bridge?.configured
+                  ? 'When on, every module calls MATLAB through POST /api/execute. When off, saved MATLAB results are used.'
+                  : 'Locked until a desktop MATLAB REST Function Service is configured.'
+              }
+            />
+          </div>
+
+          {!matlabSetup?.bridge?.configured && (
+            <p className="mt-2 text-[11px] leading-relaxed text-warn">
+              {matlabSetup?.bridge?.reason ?? 'Checking the MATLAB bridge…'}
+            </p>
+          )}
+          <p className="mt-3 rounded-lg border border-line bg-sunken/50 p-3 text-[11px] leading-relaxed text-muted">
+            MATLAB Online has no supported external execution API. This switch never stores credentials;
+            configuration is done by the desktop launcher.
+          </p>
         </section>
 
         <section aria-labelledby="about-heading" className="surface p-5 lg:col-span-2">
