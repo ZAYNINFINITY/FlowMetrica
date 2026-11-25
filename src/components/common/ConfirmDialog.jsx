@@ -80,7 +80,7 @@ export default function ConfirmDialog({
             <TriangleAlert aria-hidden="true" className="h-4 w-4" />
           </span>
           <div className="min-w-0 flex-1">
-            <h2 id={titleId} className="text-base font-semibold text-ink">
+            <h2 id={titleId} className="font-display text-base font-semibold text-ink">
               {title}
             </h2>
             <p id={descriptionId} className="mt-1 text-[13px] leading-relaxed text-muted">

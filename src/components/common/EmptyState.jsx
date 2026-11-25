@@ -10,7 +10,7 @@ export default function EmptyState({ icon: Icon, title, description, action, com
           <Icon aria-hidden="true" className="h-5 w-5" />
         </span>
       )}
-      <p className="text-sm font-semibold text-ink">{title}</p>
+      <p className="card-title">{title}</p>
       {description && <p className="mt-1 max-w-sm text-[13px] leading-relaxed text-muted">{description}</p>}
       {action && <div className="mt-4">{action}</div>}
     </div>

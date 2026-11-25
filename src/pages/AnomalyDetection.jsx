@@ -85,13 +85,13 @@ export default function AnomalyDetection({ details }) {
       {noteOpen ? (
         <div
           role="note"
-          className="flex flex-wrap items-start gap-3 rounded-xl border border-warn/30 bg-warn/[0.04] p-4"
+          className="flex flex-wrap items-start gap-3 rounded-xl border border-warn/30 bg-warn/5 p-4"
         >
           <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg border border-warn/30 bg-warn/10 text-warn">
             <FlaskConical aria-hidden="true" className="h-4 w-4" />
           </span>
           <div className="min-w-0 flex-1">
-            <p className="text-[13px] font-semibold text-ink">Recovery is a simulation, not a physical repair</p>
+            <p className="font-display text-[13px] font-semibold text-ink">Recovery is a simulation, not a physical repair</p>
             <p className="mt-0.5 max-w-3xl text-[12px] leading-relaxed text-muted">
               The corrected stage changes the mathematical model by adding a backup path. No router,
               cable or link is touched, and no live measurement is taken.
@@ -144,7 +144,7 @@ export default function AnomalyDetection({ details }) {
               />
             ))}
             <aside className="rounded-xl border border-line bg-sunken/50 p-4">
-              <h3 className="text-[12px] font-semibold uppercase tracking-[0.14em] text-muted">
+              <h3 className="meta-label">
                 Case scope
               </h3>
               <p className="mt-2 text-[12px] leading-relaxed text-muted">
@@ -212,7 +212,7 @@ export default function AnomalyDetection({ details }) {
                     <div className="flex items-center justify-between gap-2 border-b border-line px-3 py-2.5">
                       <div>
                         <p className="font-mono text-[10px] uppercase tracking-wide text-muted">{stage.order}</p>
-                        <h3 className={`text-[13px] font-semibold ${stage.tone}`}>{stage.title}</h3>
+                        <h3 className={`font-display text-[13px] font-semibold ${stage.tone}`}>{stage.title}</h3>
                       </div>
                       {stageResult && (
                         <span
@@ -241,13 +241,13 @@ export default function AnomalyDetection({ details }) {
                         {data.topology.nodes.length} nodes · {data.topology.edges.length} links
                       </p>
                       {stage.id === 'failed' && failedEdge && (
-                        <p className="inline-flex items-center gap-1.5 rounded border border-danger/30 bg-danger/[0.07] px-1.5 py-1 font-mono text-[10px] text-danger">
+                        <p className="inline-flex items-center gap-1.5 rounded border border-danger/30 bg-danger/10 px-1.5 py-1 font-mono text-[10px] text-danger">
                           <TriangleAlert aria-hidden="true" className="h-3 w-3" />
                           {failedEdge.from} → {failedEdge.to} ({failedEdge.id})
                         </p>
                       )}
                       {stage.id === 'corrected' && backupEdges.length > 0 && (
-                        <p className="inline-flex items-center gap-1.5 rounded border border-ok/30 bg-ok/[0.07] px-1.5 py-1 font-mono text-[10px] text-ok">
+                        <p className="inline-flex items-center gap-1.5 rounded border border-ok/30 bg-ok/10 px-1.5 py-1 font-mono text-[10px] text-ok">
                           <ArrowRight aria-hidden="true" className="h-3 w-3" />
                           backup {backupEdges.map((edge) => edge.id).join(', ')}
                         </p>
@@ -279,11 +279,11 @@ export default function AnomalyDetection({ details }) {
                   <article
                     key={stage.id}
                     className={`rounded-lg border p-4 ${
-                      inconsistent ? 'border-danger/35 bg-danger/[0.03]' : 'border-line bg-sunken/50'
+                      inconsistent ? 'border-danger/35 bg-danger/5' : 'border-line bg-sunken/50'
                     }`}
                   >
                     <div className="flex items-center justify-between gap-2">
-                      <h3 className="text-[12.5px] font-semibold text-ink">{meta?.title ?? stage.id}</h3>
+                      <h3 className="card-title">{meta?.title ?? stage.id}</h3>
                       <span
                         className={`rounded-full border px-2 py-0.5 text-[10px] font-semibold ${classificationTone(
                           stage.classification,

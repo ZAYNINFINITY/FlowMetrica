@@ -51,9 +51,11 @@ const MODULES = [
   },
 ];
 
-function FlowStep({ step, last }) {
+const REVEAL_STEPS = ['reveal-1', 'reveal-2', 'reveal-3', 'reveal-4'];
+
+function FlowStep({ step, last, delay }) {
   return (
-    <li className="relative min-w-0 border-l border-line pl-4">
+    <li className={`reveal ${delay} relative min-w-0 border-l border-line pl-4`}>
       <span className="font-mono text-xs text-accent">{step.number}</span>
       <p className="mt-1 font-display text-lg font-semibold tracking-tight text-ink">{step.value}</p>
       <p className="mt-1 text-xs leading-relaxed text-muted">{step.detail}</p>
@@ -83,17 +85,17 @@ export default function HowItWorks() {
       />
 
       <section className="surface relative overflow-hidden p-6 sm:p-8">
-        <p className="meta-label">The whole idea</p>
-        <h2 className="mt-3 max-w-3xl font-display text-display font-semibold text-balance text-ink">
+        <p className="reveal reveal-1 meta-label">The whole idea</p>
+        <h2 className="reveal reveal-2 mt-3 max-w-3xl font-display text-display font-semibold text-balance text-ink">
           Network questions become <span className="text-accent">linear systems</span>. FlowMetrica shows the algebra, the answer and where it came from.
         </h2>
-        <p className="mt-4 max-w-3xl text-lede text-pretty text-muted">
+        <p className="reveal reveal-3 mt-4 max-w-3xl text-lede text-pretty text-muted">
           No browser-side math, no invented live data. One shared execution interface returns every matrix, step, solution and provenance label.
         </p>
 
         <ol className="mt-8 grid gap-6 border-t border-line pt-6 md:grid-cols-2 lg:grid-cols-4">
           {FLOW.map((step, index) => (
-            <FlowStep key={step.number} step={step} last={index === FLOW.length - 1} />
+            <FlowStep key={step.number} step={step} last={index === FLOW.length - 1} delay={REVEAL_STEPS[index]} />
           ))}
         </ol>
       </section>

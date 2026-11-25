@@ -41,7 +41,7 @@ export default function ModuleCard({ index, title, description, href, icon: Icon
       </div>
 
       <div className="flex flex-1 flex-col p-5">
-        <h3 className="text-base font-semibold tracking-tight text-ink">{title}</h3>
+        <h3 className="font-display text-base font-semibold tracking-tight text-ink">{title}</h3>
         <p className="mt-1.5 text-[12.5px] leading-relaxed text-muted">{description}</p>
 
         {chips.length > 0 && (

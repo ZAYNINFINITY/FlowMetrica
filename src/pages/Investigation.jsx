@@ -343,8 +343,8 @@ export default function Investigation({ details }) {
                       <div
                         className={`rounded-lg border p-4 ${
                           result.classification === 'unique'
-                            ? 'border-accent/35 bg-accent/[0.06]'
-                            : 'border-warn/30 bg-warn/[0.05]'
+                            ? 'border-accent/35 bg-accent/10'
+                            : 'border-warn/30 bg-warn/5'
                         }`}
                       >
                         <p className="meta-label">

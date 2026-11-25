@@ -26,7 +26,7 @@ function ToastItem({ toast, onDismiss }) {
     >
       <Icon aria-hidden="true" className="mt-0.5 h-4 w-4 shrink-0" />
       <div className="min-w-0 flex-1">
-        <p className="text-[13px] font-semibold text-ink">{toast.title}</p>
+        <p className="font-display text-[13px] font-semibold text-ink">{toast.title}</p>
         {toast.description && (
           <p className="mt-0.5 text-[12px] leading-relaxed text-muted">{toast.description}</p>
         )}

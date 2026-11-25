@@ -179,7 +179,7 @@ export default function LiveMeasurementPanel({ service, healthLoaded, online, on
           <span className="chip border-warn/30 bg-warn/10 text-warn">Unavailable on this server</span>
         </div>
 
-        <div className="mt-4 rounded-lg border border-dashed border-warn/35 bg-warn/[0.04] p-4">
+        <div className="mt-4 rounded-lg border border-dashed border-warn/35 bg-warn/5 p-4">
           <p className="flex items-center gap-2 text-[13px] font-semibold text-ink">
             <CircleAlert aria-hidden="true" className="h-4 w-4 shrink-0 text-warn" />
             No speed test can run right now
@@ -249,7 +249,7 @@ export default function LiveMeasurementPanel({ service, healthLoaded, online, on
           )}
 
           {run.phase === 'running' && (
-            <div className="rounded-lg border border-accent/30 bg-accent/[0.05] p-4">
+            <div className="rounded-lg border border-accent/30 bg-accent/5 p-4">
               <p role="status" className="flex items-center gap-2 text-[12.5px] font-medium text-ink">
                 <RefreshCw aria-hidden="true" className="h-3.5 w-3.5 animate-spin motion-reduce:animate-none" />
                 Measuring your connection…
@@ -271,7 +271,7 @@ export default function LiveMeasurementPanel({ service, healthLoaded, online, on
           )}
 
           {run.phase === 'error' && (
-            <div role="alert" className="rounded-lg border border-danger/35 bg-danger/[0.05] p-4">
+            <div role="alert" className="rounded-lg border border-danger/35 bg-danger/5 p-4">
               <p className="flex items-center gap-2 text-[12.5px] font-semibold text-ink">
                 <CircleAlert aria-hidden="true" className="h-4 w-4 shrink-0 text-danger" />
                 Speed test failed
@@ -345,13 +345,13 @@ export default function LiveMeasurementPanel({ service, healthLoaded, online, on
 
         <div className="min-w-0">
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <h3 className="text-[12px] font-semibold uppercase tracking-[0.14em] text-muted">
+            <h3 className="meta-label">
               Mathematical analysis
             </h3>
             <span className="chip">Fixed 2×2 teaching model</span>
           </div>
 
-          <p className="mt-2 rounded-lg border border-analysis/25 bg-analysis/[0.05] p-3 text-[11.5px] leading-relaxed text-muted">
+          <p className="mt-2 rounded-lg border border-analysis/25 bg-analysis/5 p-3 text-[11.5px] leading-relaxed text-muted">
             Row 1 is the measured download total (x₁ + x₂ = download). Row 2 is the measured upload
             difference (x₁ &minus; x₂ = upload). This is a teaching model chosen for the demo, not a
             physical law and not a measurement of link capacities.
@@ -387,7 +387,7 @@ export default function LiveMeasurementPanel({ service, healthLoaded, online, on
             )}
 
             {analysis.phase === 'error' && (
-              <div role="alert" className="rounded-lg border border-danger/35 bg-danger/[0.05] p-4">
+              <div role="alert" className="rounded-lg border border-danger/35 bg-danger/5 p-4">
                 <p className="flex items-center gap-2 text-[12.5px] font-semibold text-ink">
                   <CircleAlert aria-hidden="true" className="h-4 w-4 shrink-0 text-danger" />
                   {analysis.code === 'MEASUREMENT_NOT_FOUND'
@@ -427,7 +427,7 @@ export default function LiveMeasurementPanel({ service, healthLoaded, online, on
                   </span>
                 </div>
 
-                <div className="rounded-lg border border-accent/35 bg-accent/[0.06] p-4">
+                <div className="rounded-lg border border-accent/35 bg-accent/10 p-4">
                   <p className="meta-label text-accent">Solution vector</p>
                   <p className="mt-1.5 font-mono text-[19px] font-medium tracking-tight text-ink">
                     x = {formatVector(result.solution)}
@@ -444,7 +444,7 @@ export default function LiveMeasurementPanel({ service, healthLoaded, online, on
                 </div>
 
                 {result.classification !== 'unique' && (
-                  <p className="rounded-lg border border-warn/30 bg-warn/[0.05] p-3 text-[11.5px] leading-relaxed text-muted">
+                  <p className="rounded-lg border border-warn/30 bg-warn/5 p-3 text-[11.5px] leading-relaxed text-muted">
                     {CLASSIFICATION_NOTES[result.classification]}
                     {result.parametricForm?.length > 0 && (
                       <span className="mt-2 block font-mono text-[11px] text-ink">

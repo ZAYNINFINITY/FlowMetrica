@@ -106,23 +106,19 @@ export default function Dashboard({ scenarios, details, reports, health, loading
   return (
     <div className="space-y-6">
       <section className="relative overflow-hidden rounded-2xl border border-line bg-gradient-to-br from-raised/70 via-panel to-sunken">
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute -right-24 -top-24 h-64 w-64 rounded-full bg-accent/[0.07] blur-3xl"
-        />
         <div className="relative grid gap-6 p-5 sm:p-7 lg:grid-cols-[1.55fr_1fr] lg:gap-8">
           <div className="min-w-0">
-            <p className="inline-flex items-center gap-2 rounded-full border border-accent/25 bg-accent/[0.07] px-2.5 py-1 text-[10.5px] font-semibold uppercase tracking-[0.16em] text-accent">
+            <p className="reveal reveal-1 inline-flex items-center gap-2 rounded-full border border-accent/25 bg-accent/10 px-2.5 py-1 text-[10.5px] font-semibold uppercase tracking-[0.16em] text-accent">
               <span aria-hidden="true" className="h-1 w-1 rounded-full bg-accent" />
               Network Intelligence Lab
             </p>
-            <h1 className="mt-3 font-display text-[32px] font-semibold leading-none tracking-tight text-ink sm:text-[38px]">
+            <h1 className="reveal reveal-2 mt-3 font-display text-[32px] font-semibold leading-none tracking-tight text-ink sm:text-[38px]">
               FlowMetrica
             </h1>
-            <p className="mt-2 text-[15px] font-medium text-ink/90">
+            <p className="reveal reveal-3 mt-2 text-[15px] font-medium text-ink/90">
               Network Intelligence &amp; Mathematical Analysis
             </p>
-            <p className="mt-2 max-w-[58ch] text-[13.5px] leading-relaxed text-muted">
+            <p className="reveal reveal-4 mt-2 max-w-[58ch] text-[13.5px] leading-relaxed text-muted">
               Explore network traffic, analyze anomalies, and investigate network incidents through
               mathematical modeling.{' '}
               <a href="#/overview" className="link-inline whitespace-nowrap">
@@ -130,7 +126,7 @@ export default function Dashboard({ scenarios, details, reports, health, loading
               </a>
             </p>
 
-            <div className="mt-5 flex flex-wrap items-center gap-2">
+            <div className="reveal reveal-5 mt-5 flex flex-wrap items-center gap-2">
               <a href="#/module1" className="btn-primary">
                 Open traffic analysis
                 <ArrowRight aria-hidden="true" className="h-4 w-4" />
@@ -141,7 +137,7 @@ export default function Dashboard({ scenarios, details, reports, health, loading
               </a>
             </div>
 
-            <ul className="mt-5 flex flex-wrap gap-x-5 gap-y-1.5 font-mono text-[11px] text-muted">
+            <ul className="reveal reveal-5 mt-5 flex flex-wrap gap-x-5 gap-y-1.5 font-mono text-[11px] text-muted">
               <li>
                 <span className="text-ink">{scenarios.length}</span> predefined scenarios
               </li>
@@ -152,9 +148,9 @@ export default function Dashboard({ scenarios, details, reports, health, loading
             </ul>
           </div>
 
-          <div className="rounded-xl border border-line bg-base/50 p-4">
+          <div className="reveal reveal-4 rounded-xl border border-line bg-base/50 p-4">
             <div className="flex items-center justify-between gap-2">
-              <h2 className="text-[12px] font-semibold uppercase tracking-[0.14em] text-muted">
+              <h2 className="meta-label">
                 Service status
               </h2>
               <span className="font-mono text-[10px] text-muted">local</span>

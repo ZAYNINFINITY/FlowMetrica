@@ -13,6 +13,8 @@ export default {
         raised: '#162337',
         line: '#243247',
         accent: '#22D3EE',
+        'accent-ink': '#04141A',
+        'accent-hover': '#67E8F9',
         analysis: '#6366F1',
         ok: '#22C55E',
         warn: '#F59E0B',
@@ -32,6 +34,8 @@ export default {
       },
       gridTemplateColumns: {
         split: 'minmax(0, 1.15fr) minmax(0, 0.85fr)',
+        workspace: 'minmax(0, 1.05fr) minmax(0, 1fr)',
+        'list-detail': '320px minmax(0, 1fr)',
       },
       boxShadow: {
         panel: 'inset 0 1px 0 0 rgba(241, 245, 249, 0.03), 0 24px 48px -36px rgba(0, 0, 0, 0.9)',

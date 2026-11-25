@@ -26,7 +26,7 @@ export default function MatrixViewer({
   return (
     <figure className="min-w-0 max-w-full">
       {caption && (
-        <figcaption className="mb-1.5 text-[11px] font-medium uppercase tracking-[0.14em] text-muted">
+        <figcaption className="meta-label mb-1.5">
           {caption}
         </figcaption>
       )}

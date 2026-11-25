@@ -94,7 +94,7 @@ export default function Settings({ preferences, onChangePreferences, health, onl
               Appearance &amp; motion
             </h2>
           </div>
-          <p className="mt-1 text-[12px] leading-relaxed text-muted">
+          <p className="mt-1 prose-note">
             Motion is decorative in FlowMetrica. Every result stays readable when animations are off.
           </p>
 
@@ -127,7 +127,7 @@ export default function Settings({ preferences, onChangePreferences, health, onl
               Stored data
             </h2>
           </div>
-          <p className="mt-1 text-[12px] leading-relaxed text-muted">
+          <p className="mt-1 prose-note">
             Template reports live in this browser under a single local storage key. Clearing them cannot
             be undone, and there is no cloud copy.
           </p>
@@ -163,7 +163,7 @@ export default function Settings({ preferences, onChangePreferences, health, onl
               Service status
             </h2>
           </div>
-          <p className="mt-1 text-[12px] leading-relaxed text-muted">
+          <p className="mt-1 prose-note">
             Availability is reported honestly. A service that is not connected is never simulated.
           </p>
 

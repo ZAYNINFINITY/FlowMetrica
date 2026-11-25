@@ -14,7 +14,7 @@ export default function ModeCard({
 }) {
   const tone =
     statusTone === 'unavailable'
-      ? 'border-dashed border-warn/35 bg-warn/[0.03] hover:border-warn/55'
+      ? 'border-dashed border-warn/35 bg-warn/5 hover:border-warn/55'
       : 'border-line bg-panel hover:border-accent/40';
 
   return (
@@ -23,7 +23,7 @@ export default function ModeCard({
       onClick={onClick}
       aria-pressed={active}
       className={`flex flex-col rounded-xl border p-4 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-accent/70 ${
-        active ? 'border-accent/60 bg-accent/[0.06] ring-1 ring-accent/20' : tone
+        active ? 'border-accent/60 bg-accent/10 ring-1 ring-accent/20' : tone
       }`}
     >
       <div className="flex items-start justify-between gap-3">
@@ -51,7 +51,7 @@ export default function ModeCard({
         </span>
       </div>
 
-      <span className="mt-3 text-[14px] font-semibold text-ink">{title}</span>
+      <span className="mt-3 card-title">{title}</span>
       <span className="mt-1 text-[12px] leading-relaxed text-muted">{description}</span>
       {meta && <span className="mt-3 font-mono text-[10px] uppercase tracking-wide text-muted/80">{meta}</span>}
     </button>

@@ -69,10 +69,10 @@ export default function SavedInvestigations() {
           />
         </div>
       ) : (
-        <div className="grid gap-4 lg:grid-cols-[320px_minmax(0,1fr)]">
+        <div className="grid gap-4 lg:grid-cols-list-detail">
           <section aria-labelledby="saved-list-heading" className="surface flex flex-col p-3">
             <div className="flex items-center justify-between gap-2 px-1 pb-2">
-              <h2 id="saved-list-heading" className="text-[12px] font-semibold uppercase tracking-[0.14em] text-muted">
+              <h2 id="saved-list-heading" className="meta-label">
                 Reports
               </h2>
               <span className="font-mono text-[10px] text-muted">{reports.length}</span>
@@ -84,7 +84,7 @@ export default function SavedInvestigations() {
                   <li
                     key={report.id}
                     className={`flex items-stretch gap-1 rounded-lg border transition-colors ${
-                      active ? 'border-accent/50 bg-accent/[0.06]' : 'border-line bg-sunken/50 hover:border-line/90'
+                      active ? 'border-accent/50 bg-accent/10' : 'border-line bg-sunken/50 hover:border-line/90'
                     }`}
                   >
                     <button

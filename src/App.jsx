@@ -149,7 +149,7 @@ export default function App() {
       <button
         type="button"
         onClick={() => document.getElementById('main-content')?.focus()}
-        className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-[90] focus:rounded-md focus:bg-accent focus:px-3 focus:py-2 focus:text-sm focus:font-semibold focus:text-[#04141a]"
+        className="sr-only focus:not-sr-only focus:fixed focus:left-3 focus:top-3 focus:z-[90] focus:rounded-md focus:bg-accent focus:px-3 focus:py-2 focus:text-sm focus:font-semibold focus:text-accent-ink"
       >
         Skip to content
       </button>
@@ -177,7 +177,7 @@ export default function App() {
             tabIndex={-1}
             className="flex-1 px-3 py-5 focus:outline-none sm:px-6 sm:py-6 lg:px-8"
           >
-            <div className="mx-auto w-full max-w-[1440px]">
+            <div key={view} className="animate-fade-in mx-auto w-full max-w-[1440px]">
               <Page
                 scenarios={scenarios}
                 details={details}

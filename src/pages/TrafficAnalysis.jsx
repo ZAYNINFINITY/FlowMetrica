@@ -51,9 +51,9 @@ function NodeInspector({ topology, nodeId, onClear }) {
   const links = topology.edges.filter((edge) => edge.from === node.id || edge.to === node.id);
 
   return (
-    <div className="min-h-[68px] rounded-lg border border-accent/25 bg-accent/[0.04] p-3">
+    <div className="min-h-[68px] rounded-lg border border-accent/25 bg-accent/5 p-3">
       <div className="flex flex-wrap items-center justify-between gap-2">
-        <p className="text-[12px] font-semibold text-ink">{node.label}</p>
+        <p className="font-display text-[12px] font-semibold text-ink">{node.label}</p>
         <button
           type="button"
           onClick={onClear}
@@ -215,7 +215,7 @@ export default function TrafficAnalysis({ details, health, online }) {
           )}
 
           {!loading && !error && scenario && result && (
-            <div className="grid gap-4 xl:grid-cols-[minmax(0,1.05fr)_minmax(0,1fr)]">
+            <div className="grid gap-4 xl:grid-cols-workspace">
               <section aria-labelledby="topology-heading" className="surface p-4 sm:p-5">
                 <div className="flex flex-wrap items-start justify-between gap-2">
                   <div className="min-w-0">
@@ -319,7 +319,7 @@ export default function TrafficAnalysis({ details, health, online }) {
                         </ul>
                       </div>
                       {scenario.concept && (
-                        <p className="rounded-lg border border-analysis/25 bg-analysis/[0.05] p-3 text-[12px] leading-relaxed text-muted">
+                        <p className="rounded-lg border border-analysis/25 bg-analysis/5 p-3 text-[12px] leading-relaxed text-muted">
                           {scenario.concept}
                         </p>
                       )}
@@ -377,7 +377,7 @@ export default function TrafficAnalysis({ details, health, online }) {
                     <div className="space-y-4">
                       {result.classification === 'unique' && Array.isArray(result.solution) ? (
                         <>
-                          <div className="rounded-lg border border-accent/35 bg-accent/[0.06] p-4">
+                          <div className="rounded-lg border border-accent/35 bg-accent/10 p-4">
                             <p className="meta-label text-accent">Final solution vector</p>
                             <p className="mt-1.5 font-mono text-[20px] font-medium tracking-tight text-ink">
                               {formatVector(result.solution)}
@@ -401,8 +401,8 @@ export default function TrafficAnalysis({ details, health, online }) {
                           </div>
                         </>
                       ) : result.classification === 'infinite_solutions' ? (
-                        <div className="rounded-lg border border-warn/30 bg-warn/[0.05] p-4">
-                          <p className="text-[13px] font-semibold text-warn">No single solution vector</p>
+                        <div className="rounded-lg border border-warn/30 bg-warn/5 p-4">
+                          <p className="font-display text-[13px] font-semibold text-warn">No single solution vector</p>
                           <p className="mt-1 text-[12px] leading-relaxed text-muted">
                             The system is underdetermined, so the solution is a family described by free
                             variables.
@@ -416,8 +416,8 @@ export default function TrafficAnalysis({ details, health, online }) {
                           )}
                         </div>
                       ) : (
-                        <div className="rounded-lg border border-danger/30 bg-danger/[0.05] p-4">
-                          <p className="text-[13px] font-semibold text-danger">No valid traffic assignment</p>
+                        <div className="rounded-lg border border-danger/30 bg-danger/5 p-4">
+                          <p className="font-display text-[13px] font-semibold text-danger">No valid traffic assignment</p>
                           <p className="mt-1 text-[12px] leading-relaxed text-muted">
                             {CLASSIFICATION_NOTES[result.classification]}
                           </p>

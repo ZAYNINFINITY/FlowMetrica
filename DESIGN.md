@@ -8,6 +8,6 @@
 - **Canonical place:** `#/overview` ("How it works") sidebar me; Dashboard par sirf ek chota "Start here" link.
 - **Type roles:** display = self-hosted Space Grotesk (headings only); body = Inter; metadata/equations/IDs = JetBrains Mono. Fluid display scale token ke through.
 - **Palette:** existing fixed tokens (`base`, `panel`, `raised`, `line`, `accent`, `ink`, `muted`); koi naya hex component me nahi.
-- **Motion:** sirf page-enter fade; `prefers-reduced-motion` aur `data-motion='reduced'` already honored hain.
+- **Motion:** CSS-only staggered reveal — eyebrow → title → lede → numbered flow (60–300ms) — plus a 200ms page fade. No JS animation library. `prefers-reduced-motion` aur `data-motion='reduced'` duration aur delay dono ko zero karte hain.
 - **Honesty guardrail:** koi "Live MATLAB" ya "AI service" claim nahi. MATLAB = saved fixture; AI = external ChatGPT→MATLAB handoff.
 - **Success check:** 360/768/1280 par ek focal flow, clear reading order, zero console errors, zero nonfunctional controls.

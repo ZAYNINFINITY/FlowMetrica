@@ -90,7 +90,7 @@ body::before {
   }
 
   .btn-primary {
-    @apply btn bg-accent font-semibold text-[#04141a] hover:bg-[#67e8f9] active:translate-y-px;
+    @apply btn bg-accent font-semibold text-accent-ink hover:bg-accent-hover active:translate-y-px;
   }
 
   .btn-secondary {
@@ -136,6 +136,18 @@ body::before {
   .link-inline {
     @apply font-medium text-accent underline-offset-4 hover:underline;
   }
+
+  /* Entrance motion is staged so the eye follows the reading order.
+     The reduced-motion guards below reset both duration and delay. */
+  .reveal {
+    @apply animate-fade-up;
+  }
+
+  .reveal-1 { animation-delay: 60ms; }
+  .reveal-2 { animation-delay: 120ms; }
+  .reveal-3 { animation-delay: 180ms; }
+  .reveal-4 { animation-delay: 240ms; }
+  .reveal-5 { animation-delay: 300ms; }
 }
 
 /* ---------- React Flow theme ---------- */
@@ -198,6 +210,7 @@ body::before {
   *::before,
   *::after {
     animation-duration: 0.01ms !important;
+    animation-delay: 0ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.01ms !important;
     scroll-behavior: auto !important;
@@ -208,6 +221,7 @@ html[data-motion='reduced'] *,
 html[data-motion='reduced'] *::before,
 html[data-motion='reduced'] *::after {
   animation-duration: 0.01ms !important;
+  animation-delay: 0ms !important;
   animation-iteration-count: 1 !important;
   transition-duration: 0.01ms !important;
   scroll-behavior: auto !important;

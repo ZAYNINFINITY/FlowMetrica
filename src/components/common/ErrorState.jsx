@@ -17,7 +17,7 @@ export default function ErrorState({
           <CircleAlert aria-hidden="true" className="h-4 w-4" />
         </span>
         <div className="min-w-0 flex-1">
-          <p className="text-sm font-semibold text-ink">{title}</p>
+          <p className="card-title">{title}</p>
           {message && <p className="mt-1 text-[13px] leading-relaxed text-muted">{message}</p>}
           {onRetry && (
             <button type="button" onClick={onRetry} className="btn-secondary btn-xs mt-3">
