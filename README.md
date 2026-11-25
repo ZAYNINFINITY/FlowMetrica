@@ -4,11 +4,13 @@ Download banner: [PNG, 1600×400](docs/assets/banner.png) · [SVG source](docs/a
 
 # FlowMetrica
 
+**Live demo:** [flowmetrica-sooty.vercel.app](https://flowmetrica-sooty.vercel.app)
+
 **Offline-first educational network analysis lab.** Three modules turn a fixed network
 story into a linear system, show the row reduction behind the answer, and label exactly
 where that answer came from. Nothing is computed in the browser and no account is needed.
 
-[How it works](#how-it-works) · [Screenshots](#screenshots) · [Architecture](#architecture) · [Provenance](#result-provenance) · [Run locally](#run-locally) · [Pitch deck](docs/PRESENTATION.md) · [Roman Urdu pitch (PDF)](docs/FlowMetrica-Pitch-RomanUrdu.pdf)
+[How it works](#how-it-works) · [Screenshots](#screenshots) · [Architecture](#architecture) · [Provenance](#result-provenance) · [Run locally](#run-locally) · [Deploy](#deploy) · [Desktop control panel](#desktop-control-panel) · [Pitch deck](docs/PRESENTATION.md) · [Roman Urdu pitch (PDF)](docs/FlowMetrica-Pitch-RomanUrdu.pdf)
 
 ---
 
@@ -153,11 +155,30 @@ npm start            # production-style single origin
 Open `http://localhost:5173` in dev, or `http://localhost:3001` after a build. All 13
 predefined scenarios, saved results and reports work with no internet.
 
-## Tests
+## Deploy
 
-`npm test` runs **38 tests** covering linear algebra, input purity, row operations,
+The production build is deployed on Vercel at
+[flowmetrica-sooty.vercel.app](https://flowmetrica-sooty.vercel.app). `vercel.json` routes
+`/api/*` to a Node serverless function running the **same Express app** as local mode and
+serves `dist/` as static files. The 13 scenario and fixture JSON files are bundled into the
+function, so online and offline runs return identical saved results.
+
+Live MATLAB stays OFF on the deployed instance by default. MATLAB Online has no supported
+external execution API, and a desktop MATLAB REST service is normally not reachable from a
+serverless function. Online mode therefore uses saved results and live Ookla measurement;
+local mode can opt into live MATLAB with the desktop control panel.
+
+`npm test` runs **40 tests** covering linear algebra, input purity, row operations,
 catalogue integrity, provenance, MATLAB REST decoding, measurement normalisation,
 concurrency, expiry, cache headers and live-execution failure paths.
+
+## Desktop control panel
+
+Double-click `FlowMetrica-Control.bat` on Windows for a small WinForms GUI that can
+start, stop and restart the local server, open the app, run tests, build, and toggle live
+MATLAB. It clears **only** FlowMetrica's own processes on ports 3001/5173. MATLAB REST URL,
+token and CA path are kept in the GUI process environment only — masked in the UI, never
+written to disk or logs. Use `FlowMetrica-Control.bat -SelfTest` for a headless check.
 
 ## Deliberately out of scope
 
