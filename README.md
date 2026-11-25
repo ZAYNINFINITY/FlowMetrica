@@ -1,6 +1,6 @@
-![FlowMetrica banner](docs/assets/banner.svg)
+![FlowMetrica banner](docs/assets/banner.png)
 
-Download banner: [SVG source](docs/assets/banner.svg) · [PNG, 1200×300](docs/assets/banner.png)
+Download banner: [PNG, 1600×400](docs/assets/banner.png) · [SVG source](docs/assets/banner.svg)
 
 # FlowMetrica
 
