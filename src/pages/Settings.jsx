@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import {
+  BookOpen,
   Check,
   Cpu,
   Database,
@@ -75,7 +76,7 @@ function ServiceRow({ icon: Icon, label, state, tone, detail }) {
   );
 }
 
-export default function Settings({ preferences, onChangePreferences, health, online }) {
+export default function Settings({ preferences, onChangePreferences, onReopenGuide, health, online }) {
   const { reports, clearReports } = useReports();
   const notify = useToast();
   const [confirmClear, setConfirmClear] = useState(false);
@@ -184,7 +185,7 @@ export default function Settings({ preferences, onChangePreferences, health, onl
             </h2>
           </div>
           <p className="mt-1 prose-note">
-            Two local choices. Change them any time; nothing is sent anywhere.
+            Two local switches and a replayable intro. Nothing is sent anywhere.
           </p>
 
           <div className="mt-4 space-y-2">
@@ -202,17 +203,23 @@ export default function Settings({ preferences, onChangePreferences, health, onl
             />
           </div>
 
-          <button
-            type="button"
-            onClick={() => {
-              onChangePreferences(DEFAULT_PREFERENCES);
-              notify({ title: 'Preferences reset', tone: 'info' });
-            }}
-            className="btn-secondary btn-xs mt-3"
-          >
-            <RotateCcw aria-hidden="true" className="h-3.5 w-3.5" />
-            Reset preferences
-          </button>
+          <div className="mt-3 flex flex-wrap gap-2">
+            <button
+              type="button"
+              onClick={() => {
+                onChangePreferences(DEFAULT_PREFERENCES);
+                notify({ title: 'Preferences reset', tone: 'info' });
+              }}
+              className="btn-secondary btn-xs"
+            >
+              <RotateCcw aria-hidden="true" className="h-3.5 w-3.5" />
+              Reset preferences
+            </button>
+            <button type="button" onClick={onReopenGuide} className="btn-secondary btn-xs">
+              <BookOpen aria-hidden="true" className="h-3.5 w-3.5" />
+              Replay welcome guide
+            </button>
+          </div>
         </section>
 
         <section aria-labelledby="guarantees-heading" className="surface p-5">

@@ -137,8 +137,8 @@ export default function Dashboard({ scenarios, details, reports, health, loading
               variants={rise}
               className="mt-2 max-w-[58ch] text-[13.5px] leading-relaxed text-muted"
             >
-              Explore network traffic, analyze anomalies, and investigate network incidents through
-              mathematical modeling.{' '}
+              An educational lab that turns network stories into linear systems and shows the algebra
+              behind the answer.{' '}
               <a href="#/overview" className="link-inline whitespace-nowrap">
                 See how it works →
               </a>
@@ -199,6 +199,55 @@ export default function Dashboard({ scenarios, details, reports, health, loading
         </div>
       </motion.section>
 
+      <section aria-labelledby="path-heading" className="surface p-4 sm:p-5">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <div>
+            <h2 id="path-heading" className="meta-label">
+              How the modules connect
+            </h2>
+            <p className="mt-1 text-[12px] text-muted">
+              One network story, followed through three steps.
+            </p>
+          </div>
+          <span className="chip">Represent · Check · Report</span>
+        </div>
+        <ol className="mt-3 grid gap-2 sm:grid-cols-3">
+          {[
+            {
+              href: '#/module1',
+              step: '01',
+              title: 'Represent',
+              text: 'Traffic Analysis writes the network as equations.',
+            },
+            {
+              href: '#/module2',
+              step: '02',
+              title: 'Check',
+              text: 'Anomaly Detection tests whether the equations still hold.',
+            },
+            {
+              href: '#/module3',
+              step: '03',
+              title: 'Report',
+              text: 'Investigation explains a case and saves a template report.',
+            },
+          ].map((item) => (
+            <li key={item.step}>
+              <a
+                href={item.href}
+                className="group block h-full rounded-lg border border-line bg-sunken/50 p-3 transition-colors hover:border-accent/40 hover:bg-raised/50"
+              >
+                <span className="font-mono text-[10px] text-accent">{item.step}</span>
+                <p className="mt-1 font-display text-[13px] font-semibold text-ink group-hover:text-accent">
+                  {item.title}
+                </p>
+                <p className="mt-1 text-[11px] leading-snug text-muted">{item.text}</p>
+              </a>
+            </li>
+          ))}
+        </ol>
+      </section>
+
       {error && (
         <ErrorState
           title="The local service did not answer"
@@ -215,7 +264,7 @@ export default function Dashboard({ scenarios, details, reports, health, loading
           </h2>
           <p className="hidden text-[11px] text-muted sm:block">Three interfaces, one execution interface</p>
         </div>
-        <div className="grid gap-4 lg:grid-cols-3">
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
           {MODULE_META.map((module) => {
             const moduleScenarios = byModule(module.id);
             const firstId = moduleScenarios[0]?.id;
@@ -265,7 +314,7 @@ export default function Dashboard({ scenarios, details, reports, health, loading
         </div>
       </section>
 
-      <div className="grid gap-4 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
         <section aria-labelledby="scenarios-heading" className="surface p-5 lg:col-span-2">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <h2 id="scenarios-heading" className="section-title">

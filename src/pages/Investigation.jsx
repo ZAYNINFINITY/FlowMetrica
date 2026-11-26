@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { CheckCircle2, FileText, Printer, RotateCcw } from 'lucide-react';
 
+import ConceptHint from '../components/common/ConceptHint.jsx';
 import EmptyState from '../components/common/EmptyState.jsx';
 import ErrorState from '../components/common/ErrorState.jsx';
 import MatrixViewer from '../components/common/MatrixViewer.jsx';
@@ -158,7 +159,7 @@ export default function Investigation({ details }) {
           )}
 
           {!loading && !error && scenario && result && (
-            <div className="grid gap-4 xl:grid-cols-[minmax(0,1.02fr)_minmax(0,1fr)]">
+            <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1.02fr)_minmax(0,1fr)]">
               <section aria-labelledby="incident-brief" className="surface p-4 sm:p-5">
                 <div className="flex flex-wrap items-start justify-between gap-2">
                   <div className="min-w-0">
@@ -232,7 +233,31 @@ export default function Investigation({ details }) {
                   </div>
                 </div>
 
-                <div className="mt-4">
+                <div className="mt-4 space-y-3">
+                  <div className="rounded-lg border border-analysis/25 bg-analysis/5 p-3 text-[11.5px] leading-relaxed text-muted">
+                    <p>
+                      <span className="font-medium text-ink">What this proves:</span> the system
+                      either fixes every link flow, leaves some choices open, or cannot be satisfied
+                      at all.
+                    </p>
+                    <p className="mt-1">
+                      The{' '}
+                      <ConceptHint term="classification">
+                        Unique, infinitely many, or no valid solution.
+                      </ConceptHint>{' '}
+                      comes from{' '}
+                      <ConceptHint term="rank">
+                        The number of independent equations in the model.
+                      </ConceptHint>{' '}
+                      and{' '}
+                      <ConceptHint term="free variables">
+                        Unknowns not pinned down by the equations.
+                      </ConceptHint>
+                      . It does not diagnose a real network; findings and actions are fixed template
+                      text.
+                    </p>
+                  </div>
+
                   <Tabs tabs={TABS} active={activeTab} onChange={setActiveTab} idPrefix="m3" label="Investigation result sections" />
                 </div>
 

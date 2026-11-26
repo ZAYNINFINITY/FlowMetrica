@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { ArrowRight, FlaskConical, RotateCcw, ShieldAlert, TriangleAlert } from 'lucide-react';
 
+import ConceptHint from '../components/common/ConceptHint.jsx';
 import EmptyState from '../components/common/EmptyState.jsx';
 import ErrorState from '../components/common/ErrorState.jsx';
 import MatrixViewer from '../components/common/MatrixViewer.jsx';
@@ -121,7 +122,9 @@ export default function AnomalyDetection({ details }) {
           <h2 id="cases-heading" className="section-title">
             Anomaly cases
           </h2>
-          <span className="chip">{scenarios.length} case · offline</span>
+          <span className="chip">
+            {scenarios.length} {scenarios.length === 1 ? 'case' : 'cases'} · offline
+          </span>
         </div>
 
         {loading && scenarios.length === 0 && <CardGridSkeleton count={1} />}
@@ -148,8 +151,9 @@ export default function AnomalyDetection({ details }) {
                 Case scope
               </h3>
               <p className="mt-2 text-[12px] leading-relaxed text-muted">
-                This MVP ships one anomaly case: a core link failure with a modelled backup route.
-                Other anomaly families are not included, and no placeholder cases are shown.
+                This library ships four anomaly cases: link failure, redundant sensor, inconsistent
+                flow and capacity breach. Each compares a normal state, a simulated faulty state and
+                a corrected mathematical model.
               </p>
               <ul className="mt-3 space-y-1.5 text-[11.5px] text-muted">
                 <li className="flex gap-2">
@@ -191,6 +195,30 @@ export default function AnomalyDetection({ details }) {
             </div>
           </section>
 
+          <section className="surface p-4 sm:p-5">
+            <p className="meta-label">How to read this module</p>
+            <p className="mt-2 text-[12.5px] leading-relaxed text-muted">
+              Every stage is the same kind of system.{' '}
+              <ConceptHint term="Elimination">
+                The row-by-row steps that simplify the equations.
+              </ConceptHint>{' '}
+              produces the{' '}
+              <ConceptHint term="RREF">
+                The simplest equivalent form of those equations.
+              </ConceptHint>
+              . A row that reduces to 0 = 1 means the readings are{' '}
+              <ConceptHint term="inconsistent">
+                No traffic assignment can satisfy every rule at once.
+              </ConceptHint>
+              .{' '}
+              <ConceptHint term="Rank">
+                The number of independent equations in that stage.
+              </ConceptHint>{' '}
+              tells how constrained the model is. The corrected stage only adds a backup path; it
+              does not repair a real router.
+            </p>
+          </section>
+
           <section aria-labelledby="stages-heading" className="space-y-3">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <h2 id="stages-heading" className="section-title">
@@ -199,7 +227,7 @@ export default function AnomalyDetection({ details }) {
               <span className="chip">Normal → Anomaly → Corrected</span>
             </div>
 
-            <div className="grid gap-3 lg:grid-cols-3">
+            <div className="grid grid-cols-1 gap-3 lg:grid-cols-3">
               {STAGES.map((stage) => {
                 const data = scenario[stage.id];
                 const stageResult = stageById[stage.id];

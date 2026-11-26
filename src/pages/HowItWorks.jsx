@@ -1,6 +1,7 @@
 import { ArrowRight, CheckCircle2 } from 'lucide-react';
 import { motion } from 'motion/react';
 
+import ConceptHint from '../components/common/ConceptHint.jsx';
 import PageHeader from '../components/common/PageHeader.jsx';
 import SourceBadge from '../components/common/SourceBadge.jsx';
 import { pressable, rise, stagger } from '../lib/motion.js';
@@ -141,6 +142,29 @@ export default function HowItWorks() {
         </aside>
       </section>
 
+      <section aria-labelledby="module-chain-heading" className="surface p-6">
+        <p className="meta-label">The three modules, in order</p>
+        <h2 id="module-chain-heading" className="mt-2 font-display text-2xl font-semibold tracking-tight text-ink">
+          Represent → Check → Report
+        </h2>
+        <ol className="mt-4 grid gap-3 md:grid-cols-3">
+          {[
+            ['01', 'Represent', 'Traffic Analysis turns the network and its demand into variables and equations.'],
+            ['02', 'Check', 'Anomaly Detection changes the model to see whether those equations still hold.'],
+            ['03', 'Report', 'Investigation classifies the case and saves a template report in this browser.'],
+          ].map(([number, title, text]) => (
+            <li key={number} className="rounded-lg border border-line bg-sunken/50 p-4">
+              <span className="font-mono text-[10px] text-accent">{number}</span>
+              <p className="mt-1 font-display text-[14px] font-semibold text-ink">{title}</p>
+              <p className="mt-1 text-[12px] leading-relaxed text-muted">{text}</p>
+            </li>
+          ))}
+        </ol>
+        <p className="mt-4 text-[12px] leading-relaxed text-muted">
+          Each step uses the same execution interface. The browser never solves a system.
+        </p>
+      </section>
+
       <section className="surface p-6">
         <p className="meta-label">02 · Linear algebra</p>
         <h2 className="mt-2 font-display text-2xl font-semibold tracking-tight text-ink">
@@ -168,7 +192,11 @@ export default function HowItWorks() {
             <div>
               <dt className="font-mono text-xs uppercase tracking-wide text-accent">A</dt>
               <dd className="mt-1 text-sm leading-relaxed text-muted">
-                Coefficient matrix. Each row is one conservation constraint: what enters a junction must leave it.
+                Coefficient matrix. Each row is one{' '}
+                <ConceptHint term="conservation">
+                  A rule that what enters a junction must also leave it.
+                </ConceptHint>{' '}
+                rule.
               </dd>
             </div>
             <div>
@@ -184,9 +212,21 @@ export default function HowItWorks() {
               </dd>
             </div>
             <div>
-              <dt className="font-mono text-xs uppercase tracking-wide text-accent">RREF</dt>
+              <dt className="font-mono text-xs uppercase tracking-wide text-accent">
+                <ConceptHint term="RREF">
+                  Reduced Row Echelon Form: the simplest equivalent form of the equations, found by elimination.
+                </ConceptHint>
+              </dt>
               <dd className="mt-1 text-sm leading-relaxed text-muted">
-                Gaussian elimination gives the step list. Rank counts independent equations; pivot columns show which variables are determined.
+                Gaussian elimination gives the step list.{' '}
+                <ConceptHint term="Rank">
+                  The number of independent equations in the system.
+                </ConceptHint>{' '}
+                counts independent equations;{' '}
+                <ConceptHint term="Pivot columns">
+                  Columns that are fixed by those independent equations.
+                </ConceptHint>{' '}
+                show which variables are determined.
               </dd>
             </div>
           </dl>

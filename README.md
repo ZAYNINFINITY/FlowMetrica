@@ -168,7 +168,7 @@ external execution API, and a desktop MATLAB REST service is normally not reacha
 serverless function. Online mode therefore uses saved results and live Ookla measurement;
 local mode can opt into live MATLAB with the desktop control panel.
 
-`npm test` runs **40 tests** covering linear algebra, input purity, row operations,
+`npm test` runs **43 tests** covering linear algebra, input purity, row operations,
 catalogue integrity, provenance, MATLAB REST decoding, measurement normalisation,
 concurrency, expiry, cache headers and live-execution failure paths.
 

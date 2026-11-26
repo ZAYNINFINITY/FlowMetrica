@@ -69,7 +69,7 @@ export default function SavedInvestigations() {
           />
         </div>
       ) : (
-        <div className="grid gap-4 lg:grid-cols-list-detail">
+        <div className="grid grid-cols-1 gap-4 lg:grid-cols-list-detail">
           <section aria-labelledby="saved-list-heading" className="surface flex flex-col p-3">
             <div className="flex items-center justify-between gap-2 px-1 pb-2">
               <h2 id="saved-list-heading" className="meta-label">

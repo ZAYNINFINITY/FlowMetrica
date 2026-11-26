@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { ArrowLeftRight, Gauge, Layers, RotateCcw } from 'lucide-react';
 
+import ConceptHint from '../components/common/ConceptHint.jsx';
 import EmptyState from '../components/common/EmptyState.jsx';
 import ErrorState from '../components/common/ErrorState.jsx';
 import MatrixViewer from '../components/common/MatrixViewer.jsx';
@@ -88,7 +89,7 @@ export default function TrafficAnalysis({ details, health, online }) {
   const { scenarios, selectedId, setSelectedId, scenario, outcome, loading, error, reload } =
     useScenario('module1');
   const [mode, setMode] = useState('predefined');
-  const [activeTab, setActiveTab] = useState('matrix');
+  const [activeTab, setActiveTab] = useState('input');
   const [selectedNodeId, setSelectedNodeId] = useState(null);
 
   const result = outcome?.status === 'success' ? outcome.result : null;
@@ -98,7 +99,7 @@ export default function TrafficAnalysis({ details, health, online }) {
 
   const openScenario = (id) => {
     setSelectedNodeId(null);
-    setActiveTab('matrix');
+    setActiveTab('input');
     if (id === selectedId) reload();
     else setSelectedId(id);
   };
@@ -160,6 +161,13 @@ export default function TrafficAnalysis({ details, health, online }) {
         />
       </section>
 
+      {measurementService?.available && (
+        <p className="text-[11px] leading-relaxed text-muted">
+          The speed test measures this connection only. The 2×2 model below is a fixed teaching
+          example, not a diagnosis of your network.
+        </p>
+      )}
+
       {mode === 'live' ? (
         <LiveMeasurementPanel
           service={measurementService}
@@ -215,7 +223,7 @@ export default function TrafficAnalysis({ details, health, online }) {
           )}
 
           {!loading && !error && scenario && result && (
-            <div className="grid gap-4 xl:grid-cols-workspace">
+            <div className="grid grid-cols-1 gap-4 xl:grid-cols-workspace">
               <section aria-labelledby="topology-heading" className="surface p-4 sm:p-5">
                 <div className="flex flex-wrap items-start justify-between gap-2">
                   <div className="min-w-0">
@@ -287,7 +295,41 @@ export default function TrafficAnalysis({ details, health, online }) {
                   </div>
                 </div>
 
-                <div className="mt-4">
+                <div className="mt-4 space-y-3">
+                  <p className="rounded-lg border border-analysis/25 bg-analysis/5 p-3 text-[11.5px] leading-relaxed text-muted">
+                    <span className="font-medium text-ink">How to read this:</span> start with the
+                    variables and equations. The tabs then turn those same rules into a matrix,
+                    elimination steps, RREF and the final answer.
+                  </p>
+
+                  <dl className="grid gap-2 rounded-lg border border-line bg-sunken/50 p-3 text-[11px] sm:grid-cols-3">
+                    <div>
+                      <dt className="meta-label">Variables</dt>
+                      <dd className="mt-1 leading-relaxed text-muted">
+                        x holds the unknown Mbps on each link in the{' '}
+                        <ConceptHint term="topology">
+                          The node-and-link drawing of this teaching network.
+                        </ConceptHint>
+                        .
+                      </dd>
+                    </div>
+                    <div>
+                      <dt className="meta-label">Model</dt>
+                      <dd className="mt-1 leading-relaxed text-muted">
+                        <ConceptHint term="A·x = b">
+                          One compact line for all the equations at once.
+                        </ConceptHint>{' '}
+                        — each row is a rule the flows must satisfy.
+                      </dd>
+                    </div>
+                    <div>
+                      <dt className="meta-label">Output</dt>
+                      <dd className="mt-1 leading-relaxed text-muted">
+                        The solution shows the split, or why no single split exists.
+                      </dd>
+                    </div>
+                  </dl>
+
                   <Tabs tabs={TABS} active={activeTab} onChange={setActiveTab} idPrefix="m1" label="Traffic analysis results" />
                 </div>
 
@@ -329,8 +371,15 @@ export default function TrafficAnalysis({ details, health, online }) {
                   {activeTab === 'matrix' && (
                     <div className="space-y-5">
                       <p className="prose-note">
-                        Each row is one constraint from the equations above. The right-hand column holds
-                        the constants.
+                        Each row is one{' '}
+                        <ConceptHint term="constraint">
+                          A rule, such as what enters a junction must leave it.
+                        </ConceptHint>
+                        . The{' '}
+                        <ConceptHint term="augmented matrix">
+                          The coefficient matrix with the constants added as one extra column.
+                        </ConceptHint>{' '}
+                        keeps those constants beside the equations.
                       </p>
                       <MatrixViewer matrix={matrices.coefficient} caption="Coefficient matrix A" />
                       <MatrixViewer

@@ -4,6 +4,7 @@ import { AnimatePresence, MotionConfig, motion } from 'motion/react';
 import Sidebar from './components/layout/Sidebar.jsx';
 import Topbar from './components/layout/Topbar.jsx';
 import { ToastProvider } from './components/common/Toast.jsx';
+import WelcomeGuide from './components/common/WelcomeGuide.jsx';
 import { useReports } from './hooks/useReports.js';
 import { getHealth, getScenario, getScenarios } from './lib/api.js';
 import { loadPreferences, savePreferences } from './lib/settings.js';
@@ -60,6 +61,7 @@ export default function App() {
   const [error, setError] = useState(null);
   const [online, setOnline] = useState(() => navigator.onLine);
   const [preferences, setPreferences] = useState(loadPreferences);
+  const [guideOpen, setGuideOpen] = useState(() => !preferences.tourSeen);
   const [mobileOpen, setMobileOpen] = useState(false);
   const { reports } = useReports();
 
@@ -136,6 +138,17 @@ export default function App() {
     });
   }, []);
 
+  // Both buttons dismiss the guide and remember the choice; Settings can replay it.
+  const closeGuide = useCallback(() => {
+    updatePreferences({ tourSeen: true });
+    setGuideOpen(false);
+  }, [updatePreferences]);
+
+  const reopenGuide = useCallback(() => {
+    updatePreferences({ tourSeen: false });
+    setGuideOpen(true);
+  }, [updatePreferences]);
+
   useEffect(() => {
     document.documentElement.dataset.motion = preferences.reduceMotion ? 'reduced' : 'full';
   }, [preferences.reduceMotion]);
@@ -204,6 +217,7 @@ export default function App() {
                     reports={reports}
                     preferences={preferences}
                     onChangePreferences={updatePreferences}
+                    onReopenGuide={reopenGuide}
                   />
                 </motion.div>
               </AnimatePresence>
@@ -221,6 +235,12 @@ export default function App() {
           </footer>
         </div>
       </div>
+
+      <WelcomeGuide
+        open={guideOpen}
+        reduceMotion={preferences.reduceMotion}
+        onClose={closeGuide}
+      />
     </ToastProvider>
   );
 }

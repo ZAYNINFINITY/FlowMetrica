@@ -1,8 +1,10 @@
+import { useId, useState } from 'react';
 import {
   Activity,
   Cpu,
   FileText,
   FlaskConical,
+  Info,
   Network,
   ShieldCheck,
   Sparkles,
@@ -64,6 +66,8 @@ const SOURCE_LABELS = {
 };
 
 export default function SourceBadge({ source, className = '' }) {
+  const [noteOpen, setNoteOpen] = useState(false);
+  const noteId = useId();
   const item = SOURCE_LABELS[source] ?? {
     label: 'Result source unknown',
     Icon: FlaskConical,
@@ -74,7 +78,7 @@ export default function SourceBadge({ source, className = '' }) {
 
   return (
     <span
-      className={`inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-semibold ${item.tone} ${className}`}
+      className={`relative inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-semibold ${item.tone} ${className}`}
       title={item.note}
     >
       <Icon aria-hidden="true" className="h-3.5 w-3.5" />
@@ -82,6 +86,25 @@ export default function SourceBadge({ source, className = '' }) {
         <span className="sr-only">Result provenance: </span>
         {item.label}
       </span>
+      <button
+        type="button"
+        aria-label={`Why this label: ${item.note}`}
+        aria-expanded={noteOpen}
+        aria-controls={noteId}
+        onClick={() => setNoteOpen((current) => !current)}
+        className="-mr-1 rounded-full p-0.5 opacity-70 transition-opacity hover:opacity-100 focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-current"
+      >
+        <Info aria-hidden="true" className="h-3 w-3" />
+      </button>
+      {noteOpen && (
+        <span
+          id={noteId}
+          role="note"
+          className="absolute left-0 top-full z-40 mt-1 w-max max-w-[260px] whitespace-normal rounded-lg border border-line bg-raised p-2 text-left text-[11px] font-normal normal-case leading-snug text-muted shadow-panel"
+        >
+          {item.note}
+        </span>
+      )}
     </span>
   );
 }
