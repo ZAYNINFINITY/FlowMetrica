@@ -261,6 +261,20 @@ export default function Investigation({ details, preferences }) {
                     </p>
                   </div>
 
+                  {scenario.capacity && (
+                    <div className="rounded-lg border border-warn/25 bg-warn/5 p-3 text-[11.5px] leading-relaxed text-muted">
+                      <p className="font-medium text-ink">Capacity check · separate from the model</p>
+                      <p className="mt-1">
+                        Observed aggregate{' '}
+                        <span className="font-mono text-ink">{scenario.capacity.observedAggregateMbps} Mbps</span>{' '}
+                        against assumed capacity{' '}
+                        <span className="font-mono text-ink">{scenario.capacity.assumedMbps} Mbps</span> — excess{' '}
+                        <span className="font-mono text-ink">{scenario.capacity.excessMbps} Mbps</span>.
+                        {scenario.capacity.note && ` ${scenario.capacity.note}`}
+                      </p>
+                    </div>
+                  )}
+
                   <Tabs tabs={TABS} active={activeTab} onChange={setActiveTab} idPrefix="m3" label="Investigation result sections" />
                 </div>
 

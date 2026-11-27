@@ -190,7 +190,7 @@ the verified JSON stays in browser storage and is re-checked by the serverless f
 analysis run. The MATLAB Online worker uses Upstash for its queue, so no job or upload is
 written to the function's disk.
 
-`npm test` runs **60 tests** covering linear algebra, input purity, row operations,
+`npm test` runs **64 tests** covering linear algebra, input purity, row operations,
 catalogue integrity, provenance, MATLAB REST decoding, export verification, worker queue
 verification, Upstash REST parsing, measurement normalisation, concurrency, expiry, cache
 headers and live-execution failure paths.

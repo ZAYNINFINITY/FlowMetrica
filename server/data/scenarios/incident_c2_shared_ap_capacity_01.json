@@ -1,0 +1,80 @@
+{
+  "id": "incident_c2_shared_ap_capacity_01",
+  "module": "module3",
+  "title": "INC-401 · C2 Building Shared AP Capacity",
+  "summary": "Six third-floor labs share one assumed 100 Mbps access point; the 120 Mbps aggregate is mathematically consistent but underdetermined.",
+  "severity": "high",
+  "complexity": "intermediate",
+  "tags": ["underdetermined", "infinite solutions", "capacity overload", "shared access point"],
+  "description": "On the 3rd floor of C2 Building, Labs 1–6 share a single access point with an assumed capacity of 100 Mbps. Pairwise readings give x₁ + x₂ = 35, x₃ + x₄ = 40 and x₅ + x₆ = 45 Mbps, while the observed aggregate demand is 120 Mbps. The fourth equation is the sum of the first three, so the model is consistent but rank-deficient: it cannot identify an individual lab's demand.",
+  "incidentId": "INC-401",
+  "detectedAt": "2026-11-26T09:20:00Z",
+  "investigationSteps": [
+    "Assign one unknown x₁…x₆ to each lab's demand on the shared AP, in Mbps.",
+    "Convert the three pairwise readings and the aggregate reading into four equations.",
+    "Reduce the augmented matrix and inspect rank, pivot columns and free parameters.",
+    "Compare the aggregate demand with the assumed AP capacity separately from the algebra."
+  ],
+  "variables": [
+    { "symbol": "x₁", "meaning": "Lab 1 demand on the shared AP (Mbps)" },
+    { "symbol": "x₂", "meaning": "Lab 2 demand on the shared AP (Mbps)" },
+    { "symbol": "x₃", "meaning": "Lab 3 demand on the shared AP (Mbps)" },
+    { "symbol": "x₄", "meaning": "Lab 4 demand on the shared AP (Mbps)" },
+    { "symbol": "x₅", "meaning": "Lab 5 demand on the shared AP (Mbps)" },
+    { "symbol": "x₆", "meaning": "Lab 6 demand on the shared AP (Mbps)" }
+  ],
+  "equations": [
+    "x₁ + x₂ = 35",
+    "x₃ + x₄ = 40",
+    "x₅ + x₆ = 45",
+    "x₁ + x₂ + x₃ + x₄ + x₅ + x₆ = 120"
+  ],
+  "topology": {
+    "nodes": [
+      { "id": "AP", "label": "AP · Shared Access Point", "x": 60, "y": 180 },
+      { "id": "L1", "label": "Lab 1 · 3rd Floor", "x": 470, "y": 30 },
+      { "id": "L2", "label": "Lab 2 · 3rd Floor", "x": 470, "y": 80 },
+      { "id": "L3", "label": "Lab 3 · 3rd Floor", "x": 470, "y": 130 },
+      { "id": "L4", "label": "Lab 4 · 3rd Floor", "x": 470, "y": 180 },
+      { "id": "L5", "label": "Lab 5 · 3rd Floor", "x": 470, "y": 230 },
+      { "id": "L6", "label": "Lab 6 · 3rd Floor", "x": 470, "y": 280 }
+    ],
+    "edges": [
+      { "id": "e1", "from": "AP", "to": "L1", "label": "x₁", "status": "normal" },
+      { "id": "e2", "from": "AP", "to": "L2", "label": "x₂", "status": "normal" },
+      { "id": "e3", "from": "AP", "to": "L3", "label": "x₃", "status": "normal" },
+      { "id": "e4", "from": "AP", "to": "L4", "label": "x₄", "status": "normal" },
+      { "id": "e5", "from": "AP", "to": "L5", "label": "x₅", "status": "normal" },
+      { "id": "e6", "from": "AP", "to": "L6", "label": "x₆", "status": "normal" }
+    ]
+  },
+  "execution": {
+    "operation": "investigate_incident",
+    "input": {
+      "matrix": [
+        [1, 1, 0, 0, 0, 0],
+        [0, 0, 1, 1, 0, 0],
+        [0, 0, 0, 0, 1, 1],
+        [1, 1, 1, 1, 1, 1]
+      ],
+      "vector": [35, 40, 45, 120]
+    }
+  },
+  "verification": { "expectedClassification": "infinite_solutions" },
+  "capacity": {
+    "assumedMbps": 100,
+    "observedAggregateMbps": 120,
+    "excessMbps": 20,
+    "note": "Capacity comparison is a planning observation, not a row of the linear system. It does not prove a physical network fault."
+  },
+  "templateFindings": [
+    "The fourth equation is exactly the sum of the first three, so it adds no independent constraint. RREF has rank 3 for 6 unknowns and three free parameters, giving infinitely many valid lab-by-lab splits.",
+    "Consistency means the four readings agree algebraically. It does not identify any individual lab demand and does not prove that the access point is faulty.",
+    "Separately from the algebra, 120 Mbps observed aggregate demand exceeds the assumed 100 Mbps AP capacity by 20 Mbps. That is a capacity-planning observation, not a mathematical contradiction."
+  ],
+  "suggestedActions": [
+    "Verify the 100 Mbps rating in the asset register before treating the 20 Mbps excess as confirmed.",
+    "Add independent per-lab measurements, such as a difference sensor, to identify individual x₁…x₆ values.",
+    "Re-run the model with those measurements and review AP placement or load balancing if the excess persists."
+  ]
+}
