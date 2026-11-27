@@ -46,13 +46,19 @@ function flowmetrica_worker(apiBase, token, maxLoops)
                     submitted = submitted + 1;
                     fprintf('Submitted result for %s\n', job.id);
                 catch cause
-                    body = struct('jobId', job.id, 'error', message(cause));
+                    body = struct('jobId', job.id, 'error', cause.message);
                     webwrite([apiBase '/result'], jsonencode(body), opts);
-                    fprintf('Reported MATLAB error for %s: %s\n', job.id, message(cause));
+                    fprintf('Reported MATLAB error for %s: %s\n', job.id, cause.message);
                 end
             end
         catch cause
-            fprintf('Worker request failed: %s\n', message(cause));
+            % An expired worker token is permanent; stop instead of polling for
+            % another 30 minutes with the same rejected credential.
+            if contains(cause.message, '401')
+                fprintf('Worker token expired. Start a new worker in Settings and paste the new command.\n');
+                break;
+            end
+            fprintf('Worker request failed: %s\n', cause.message);
         end
         pause(2);
     end
