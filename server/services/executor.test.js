@@ -98,3 +98,61 @@ test('validator requires matching matrix and vector dimensions', () => {
   assert.equal(result.ok, false);
   assert.ok(result.errors.some((message) => message.includes('one row for each')));
 });
+
+test('uses a verified MATLAB Online worker result with worker provenance', async () => {
+  const matlabWorker = {
+    available: true,
+    getVerifiedResult: async (token, jobId) => ({
+      status: 'success',
+      jobId,
+      output: validOutput,
+      job: { id: jobId },
+    }),
+  };
+  const outcome = await createExecutor({ fixtureStore: makeStore(null), matlabWorker }).execute({
+    ...validRequest,
+    workerToken: 'worker_token_1234567890',
+    workerJobId: '11111111-1111-4111-8111-111111111111',
+  });
+
+  assert.equal(outcome.status, 'success');
+  assert.equal(outcome.result_source, 'matlab_online_worker');
+  assert.equal(outcome.verification_status, 'matlab_verified_worker');
+  assert.equal(outcome.live_execution_available, false);
+  assert.match(outcome.provenance_note, /MATLAB Online/);
+});
+
+test('does not claim a pending worker result as success', async () => {
+  const matlabWorker = {
+    available: true,
+    getVerifiedResult: async () => ({ status: 'processing' }),
+  };
+  const outcome = await createExecutor({ fixtureStore: makeStore(null), matlabWorker }).execute({
+    ...validRequest,
+    workerToken: 'worker_token_1234567890',
+    workerJobId: '11111111-1111-4111-8111-111111111111',
+  });
+
+  assert.equal(outcome.status, 'worker_pending');
+  assert.equal(outcome.state, 'processing');
+  assert.equal(outcome.result, undefined);
+});
+
+test('surfaces a rejected worker job as an error instead of polling forever', async () => {
+  const matlabWorker = {
+    available: true,
+    getVerifiedResult: async () => ({
+      status: 'failed',
+      error: 'The MATLAB worker answer disagrees with the reference solver.',
+    }),
+  };
+  const outcome = await createExecutor({ fixtureStore: makeStore(null), matlabWorker }).execute({
+    ...validRequest,
+    workerToken: 'worker_token_1234567890',
+    workerJobId: '11111111-1111-4111-8111-111111111111',
+  });
+
+  assert.equal(outcome.status, 'error');
+  assert.equal(outcome.error.code, 'MATLAB_WORKER_FAILED');
+  assert.match(outcome.error.message, /reference solver/);
+});

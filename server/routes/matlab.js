@@ -1,8 +1,13 @@
 import { Router } from 'express';
 
-import { MATLAB_ONLINE_HANDOFF, MATLAB_SETUP_CODE, MATLAB_SETUP_STEPS } from '../services/capabilities.js';
+import {
+  MATLAB_ONLINE_HANDOFF,
+  MATLAB_ONLINE_WORKER_HANDOFF,
+  MATLAB_SETUP_CODE,
+  MATLAB_SETUP_STEPS,
+} from '../services/capabilities.js';
 
-export function createMatlabRouter(matlabBridge, executionMode, matlabImport) {
+export function createMatlabRouter(matlabBridge, executionMode, matlabImport, matlabWorker = null) {
   const router = Router();
 
   // Static guidance only — this endpoint never echoes a token or certificate.
@@ -11,9 +16,11 @@ export function createMatlabRouter(matlabBridge, executionMode, matlabImport) {
       status: 'success',
       bridge: matlabBridge.status(),
       execution: executionMode.get(),
+      worker: matlabWorker?.status() ?? { available: false, reason: 'MATLAB Online worker is not configured.' },
       instructions: MATLAB_SETUP_STEPS,
       setupCode: MATLAB_SETUP_CODE,
       matlabOnlineHandoff: MATLAB_ONLINE_HANDOFF,
+      workerHandoff: MATLAB_ONLINE_WORKER_HANDOFF,
     });
   });
 

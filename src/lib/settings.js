@@ -6,6 +6,7 @@ export const DEFAULT_PREFERENCES = {
   reduceMotion: false,
   sidebarCollapsed: false,
   tourSeen: false,
+  useMatlabWorker: false,
 };
 
 export function loadPreferences() {
@@ -16,6 +17,7 @@ export function loadPreferences() {
       reduceMotion: parsed.reduceMotion === true,
       sidebarCollapsed: parsed.sidebarCollapsed === true,
       tourSeen: parsed.tourSeen === true,
+      useMatlabWorker: parsed.useMatlabWorker === true,
     };
   } catch {
     return DEFAULT_PREFERENCES;

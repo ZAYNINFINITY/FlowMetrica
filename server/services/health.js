@@ -3,12 +3,20 @@ import {
   LIVE_MATLAB_REASON,
   MEASUREMENT_REASON,
   MATLAB_ONLINE_HANDOFF,
+  MATLAB_ONLINE_WORKER_HANDOFF,
   MATLAB_SETUP_CODE,
   MATLAB_SETUP_STEPS,
   OPENROUTER_REASON,
 } from './capabilities.js';
 
-export function getHealth({ fixtureStore, scenarioStore, matlabBridge, measurementStore, executionMode }) {
+export function getHealth({
+  fixtureStore,
+  scenarioStore,
+  matlabBridge,
+  measurementStore,
+  executionMode,
+  matlabWorker = null,
+}) {
   const matlab = matlabBridge?.status() ?? {
     configured: false,
     available: false,
@@ -34,6 +42,10 @@ export function getHealth({ fixtureStore, scenarioStore, matlabBridge, measureme
         problems: fixtureStore.problems,
       },
       scenarios: { available: scenarioStore.count > 0, count: scenarioStore.count },
+      matlabWorker: matlabWorker?.status() ?? {
+        available: false,
+        reason: 'MATLAB Online worker is not configured.',
+      },
       networkMeasurement: {
         available: measurementAvailable,
         label: 'Live measurement',
@@ -46,6 +58,7 @@ export function getHealth({ fixtureStore, scenarioStore, matlabBridge, measureme
         steps: MATLAB_SETUP_STEPS,
         code: MATLAB_SETUP_CODE,
         matlabOnlineHandoff: MATLAB_ONLINE_HANDOFF,
+        workerHandoff: MATLAB_ONLINE_WORKER_HANDOFF,
       },
     },
   };

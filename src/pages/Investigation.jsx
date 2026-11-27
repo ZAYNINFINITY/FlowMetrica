@@ -54,9 +54,9 @@ function buildReport(scenario, outcome) {
   };
 }
 
-export default function Investigation({ details }) {
-  const { scenarios, selectedId, setSelectedId, scenario, outcome, loading, error, reload } =
-    useScenario('module3');
+export default function Investigation({ details, preferences }) {
+  const { scenarios, selectedId, setSelectedId, scenario, outcome, loading, error, workerStatus, reload } =
+    useScenario('module3', preferences?.useMatlabWorker === true);
   const { reports, saveReport } = useReports();
   const notify = useToast();
   const [activeTab, setActiveTab] = useState('overview');
@@ -109,10 +109,13 @@ export default function Investigation({ details }) {
           </>
         }
         actions={
-          <button type="button" onClick={reload} className="btn-secondary btn-xs" disabled={loading}>
-            <RotateCcw aria-hidden="true" className="h-3.5 w-3.5" />
-            Re-run investigation
-          </button>
+          <>
+            {workerStatus && <span className="chip">{workerStatus}</span>}
+            <button type="button" onClick={reload} className="btn-secondary btn-xs" disabled={loading}>
+              <RotateCcw aria-hidden="true" className="h-3.5 w-3.5" />
+              Re-run investigation
+            </button>
+          </>
         }
       />
 
@@ -222,7 +225,7 @@ export default function Investigation({ details }) {
                     <p className="mt-0.5 text-[12px] text-muted">Evidence, model and report in one place.</p>
                   </div>
                   <div className="flex flex-col items-end gap-1.5">
-                    <SourceBadge source={outcome.result_source} note={outcome.matlab_export_note} />
+                    <SourceBadge source={outcome.result_source} note={outcome.provenance_note ?? outcome.matlab_export_note} />
                     <span
                       className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold ${classificationTone(
                         result.classification,

@@ -7,6 +7,7 @@ labelled the same way.
 |---|---|---|
 | **Live REST bridge** | Desktop MATLAB executes a function during an API request | `Live MATLAB Result` |
 | **Online export** | MATLAB Online runs `export_fixtures`, app loads saved JSON | `Saved MATLAB Result` |
+| **Online worker** | MATLAB Online polls the FlowMetrica API and computes current jobs | `MATLAB Online Worker Result` |
 
 MATLAB Online (including the free 20 hours/month account) does **not** expose a
 supported general-purpose execution API. The app never automates a browser session
@@ -68,7 +69,35 @@ from `MATLAB_REST_CA`, no token logging, no filesystem writes by the bridge.
    live measurement. The same flow works on localhost and on Vercel; nothing is written
    to the server's disk. Use **Clear imports** to return to the bundled fixtures.
 
-## C. Add a new ChatGPT-authored incident
+## C. MATLAB Online worker (custom API queue)
+
+This is still **not** a live external call into MATLAB Online. MATLAB Online makes the
+outbound request itself, using its own `webread`/`webwrite`.
+
+1. Set `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` in the server environment
+   (Vercel project settings for production). Without them, production honestly reports
+   `MATLAB_WORKER_UNAVAILABLE`; local `npm start` falls back to an in-memory queue.
+2. Open FlowMetrica → Settings → **MATLAB Online worker** → **Start worker**. Copy the
+   generated one-line command. The token is short-lived (15 minutes) and is never stored
+   on the server in clear text.
+3. In MATLAB Online, upload this project folder and paste the command in the Command Window:
+
+   ```matlab
+   addpath(genpath(pwd))
+   flowmetrica_worker('<apiBase>', '<token>')
+   ```
+
+4. In any module, choose a scenario with **Use MATLAB Online worker for analysis** enabled.
+   The worker claims the job, calls the existing `solve_network_flow`, `analyze_anomaly` or
+   `investigate_incident` entry point, and posts the result back.
+5. The server verifies shape, scenario input and reference math before `/api/execute` returns
+   the answer. The badge says **MATLAB Online Worker Result** with an explicit note. It is
+   never **Live MATLAB Result**. Press Ctrl-C in MATLAB to stop the worker.
+
+Only predefined scenario inputs are accepted; the worker cannot run arbitrary code from the
+browser. Upstash keys never leave the server.
+
+## D. Add a new ChatGPT-authored incident
 
 Use this when ChatGPT (or a human) writes a new scenario but MATLAB must own the
 result. The exact ChatGPT prompt is in `docs/SCENARIO_PROMPT.md`.
@@ -91,7 +120,7 @@ result. The exact ChatGPT prompt is in `docs/SCENARIO_PROMPT.md`.
 
 Only the new scenario is touched. The other 11 fixtures keep their existing provenance.
 
-### D. One-off handoff when MATLAB Drive cannot write into the local project
+### E. One-off handoff when MATLAB Drive cannot write into the local project
 
 MATLAB Online writes into MATLAB Drive, not into the local project folder. For a complete
 fixture, use the Settings import flow in section B. To hand off a one-off `output` object,

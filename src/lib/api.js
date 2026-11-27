@@ -57,3 +57,28 @@ export const verifyMatlabExport = (fixture) =>
     method: 'POST',
     body: JSON.stringify({ fixture }),
   });
+
+const bearerHeaders = (token) => ({ Authorization: `Bearer ${token}` });
+
+/** Creates a short-lived token and the MATLAB Online command that uses it. */
+export const createMatlabWorkerSession = (apiBase) =>
+  request('/api/matlab/worker/session', {
+    method: 'POST',
+    body: JSON.stringify({ apiBase }),
+  });
+
+export const getMatlabWorkerSession = (token) =>
+  request('/api/matlab/worker/session', { headers: bearerHeaders(token) });
+
+/** Enqueues one predefined scenario for the MATLAB Online worker. */
+export const enqueueMatlabWorkerJob = (payload, token) =>
+  request('/api/matlab/worker/job', {
+    method: 'POST',
+    headers: bearerHeaders(token),
+    body: JSON.stringify(payload),
+  });
+
+export const pollMatlabWorkerJob = (jobId, token) =>
+  request(`/api/matlab/worker/poll?jobId=${encodeURIComponent(jobId)}`, {
+    headers: bearerHeaders(token),
+  });

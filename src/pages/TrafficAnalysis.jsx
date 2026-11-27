@@ -85,9 +85,9 @@ function NodeInspector({ topology, nodeId, onClear }) {
   );
 }
 
-export default function TrafficAnalysis({ details, health, online }) {
-  const { scenarios, selectedId, setSelectedId, scenario, outcome, loading, error, reload } =
-    useScenario('module1');
+export default function TrafficAnalysis({ details, health, online, preferences }) {
+  const { scenarios, selectedId, setSelectedId, scenario, outcome, loading, error, workerStatus, reload } =
+    useScenario('module1', preferences?.useMatlabWorker === true);
   const [mode, setMode] = useState('predefined');
   const [activeTab, setActiveTab] = useState('input');
   const [selectedNodeId, setSelectedNodeId] = useState(null);
@@ -119,10 +119,13 @@ export default function TrafficAnalysis({ details, health, online }) {
         }
         actions={
           mode === 'predefined' ? (
-            <button type="button" onClick={reload} className="btn-secondary btn-xs" disabled={loading}>
-              <RotateCcw aria-hidden="true" className="h-3.5 w-3.5" />
-              Re-run analysis
-            </button>
+            <>
+              {workerStatus && <span className="chip">{workerStatus}</span>}
+              <button type="button" onClick={reload} className="btn-secondary btn-xs" disabled={loading}>
+                <RotateCcw aria-hidden="true" className="h-3.5 w-3.5" />
+                Re-run analysis
+              </button>
+            </>
           ) : undefined
         }
       />
@@ -284,7 +287,7 @@ export default function TrafficAnalysis({ details, health, online }) {
                     <p className="mt-0.5 text-[12px] text-muted">A·x = b solved by Gaussian elimination.</p>
                   </div>
                   <div className="flex flex-col items-end gap-1.5">
-                    <SourceBadge source={outcome.result_source} note={outcome.matlab_export_note} />
+                    <SourceBadge source={outcome.result_source} note={outcome.provenance_note ?? outcome.matlab_export_note} />
                     <span
                       className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold ${classificationTone(
                         result.classification,
@@ -479,7 +482,7 @@ export default function TrafficAnalysis({ details, health, online }) {
                           arithmetic is performed in this browser.
                         </p>
                         <div className="mt-2">
-                          <SourceBadge source={outcome.result_source} note={outcome.matlab_export_note} />
+                          <SourceBadge source={outcome.result_source} note={outcome.provenance_note ?? outcome.matlab_export_note} />
                         </div>
                       </div>
                     </div>

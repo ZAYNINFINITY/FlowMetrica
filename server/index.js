@@ -6,6 +6,7 @@ import { noStore } from './middleware/no-store.js';
 import { createExecuteRouter } from './routes/execute.js';
 import { createHealthRouter } from './routes/health.js';
 import { createMatlabRouter } from './routes/matlab.js';
+import { createMatlabWorkerRouter } from './routes/matlab-worker.js';
 import { createMeasurementRouter } from './routes/measurement.js';
 import { createScenariosRouter } from './routes/scenarios.js';
 import { createExecutionMode } from './services/execution-mode.js';
@@ -14,17 +15,24 @@ import { createFixtureStore } from './services/fixtures.js';
 import { getHealth } from './services/health.js';
 import { createMatlabBridge } from './services/matlab-bridge.js';
 import { createMatlabImportVerifier } from './services/matlab-import.js';
+import { createMatlabWorkerFromEnv } from './services/matlab-worker.js';
 import { createMeasurementStore, createOoklaRunner } from './services/measurement.js';
 import { createScenarioStore } from './services/scenarios.js';
 
 const currentDir = path.dirname(fileURLToPath(import.meta.url));
 const dataDir = path.join(currentDir, 'data');
 const rootDir = path.resolve(currentDir, '..');
+const isServerless = process.env.VERCEL === '1';
 
 const fixtureStore = createFixtureStore(path.join(dataDir, 'fixtures'));
 const scenarioStore = createScenarioStore(path.join(dataDir, 'scenarios'));
 const matlabBridge = createMatlabBridge({ env: process.env });
 const matlabImport = createMatlabImportVerifier({ scenarioStore });
+const matlabWorker = createMatlabWorkerFromEnv({
+  env: process.env,
+  scenarioStore,
+  isServerless,
+});
 
 // Loading the optional measurement library must never block the offline core.
 let ooklaRunner = null;
@@ -41,11 +49,11 @@ const executor = createExecutor({
   measurementStore,
   executionMode,
   matlabImport,
+  matlabWorker,
 });
 
 const app = express();
 const port = Number(process.env.PORT ?? 3001);
-const isServerless = process.env.VERCEL === '1';
 
 // Conditional GETs must not turn live API state into a 304. Static files keep their
 // own cache headers through express.static, so only JSON responses are affected.
@@ -53,12 +61,14 @@ app.set('etag', false);
 app.use('/api', noStore);
 app.use(express.json({ limit: '64kb' }));
 app.use('/api/health', createHealthRouter(() =>
-  getHealth({ fixtureStore, scenarioStore, matlabBridge, measurementStore, executionMode }),
+  getHealth({ fixtureStore, scenarioStore, matlabBridge, measurementStore, executionMode, matlabWorker }),
 ));
 app.use('/api/scenarios', createScenariosRouter(scenarioStore));
 app.use('/api/execute', createExecuteRouter(executor));
 app.use('/api/measure', createMeasurementRouter(measurementStore));
-app.use('/api/matlab', createMatlabRouter(matlabBridge, executionMode, matlabImport));
+// Mount before /api/matlab so worker paths are not swallowed by the setup router.
+app.use('/api/matlab/worker', createMatlabWorkerRouter(matlabWorker));
+app.use('/api/matlab', createMatlabRouter(matlabBridge, executionMode, matlabImport, matlabWorker));
 
 // On Vercel the platform serves dist/ directly; importing this module must not
 // try to read a build folder that lives outside the function bundle.
@@ -90,6 +100,7 @@ if (isMain && !isServerless) {
     console.log(`[FlowMetrica] API listening on http://localhost:${port}`);
     console.log(`[FlowMetrica] ${scenarioStore.count} scenarios, ${fixtureStore.size} saved results`);
     console.log(`[FlowMetrica] MATLAB bridge: ${matlab.configured ? (matlab.available ? 'live' : 'configured') : 'offline'}`);
+    console.log(`[FlowMetrica] MATLAB Online worker: ${matlabWorker.status().available ? matlabWorker.status().backend : 'unavailable'}`);
     console.log(`[FlowMetrica] Ookla measurement: ${ooklaRunner ? 'ready' : 'unavailable'}`);
     fixtureStore.problems.forEach((problem) => {
       console.warn(`[fixtures] rejected ${problem.file}: ${problem.reason}`);

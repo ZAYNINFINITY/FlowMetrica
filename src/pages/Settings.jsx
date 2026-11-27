@@ -2,13 +2,16 @@ import { useEffect, useState } from 'react';
 import {
   BookOpen,
   Check,
+  Copy,
   Cpu,
   Database,
   FileUp,
   Gauge,
+  Play,
   RotateCcw,
   ShieldCheck,
   SlidersHorizontal,
+  Timer,
   Trash2,
   Wifi,
   WifiOff,
@@ -20,13 +23,24 @@ import ErrorState from '../components/common/ErrorState.jsx';
 import PageHeader from '../components/common/PageHeader.jsx';
 import { useToast } from '../components/common/Toast.jsx';
 import { useReports } from '../hooks/useReports.js';
-import { request, verifyMatlabExport } from '../lib/api.js';
+import {
+  createMatlabWorkerSession,
+  getMatlabWorkerSession,
+  request,
+  verifyMatlabExport,
+} from '../lib/api.js';
 import { formatDateTime } from '../lib/format.js';
 import {
   clearMatlabImports,
   listMatlabImports,
   saveMatlabImport,
 } from '../lib/matlab-imports.js';
+import {
+  clearWorkerSession,
+  isWorkerSessionActive,
+  readWorkerSession,
+  saveWorkerSession,
+} from '../lib/matlab-worker-session.js';
 import { DEFAULT_PREFERENCES } from '../lib/settings.js';
 
 // Architectural guarantees, not user preferences: shown as always-on facts so
@@ -91,6 +105,8 @@ export default function Settings({ preferences, onChangePreferences, onReopenGui
   const [matlabForm, setMatlabForm] = useState({ url: '', token: '', certificatePath: '' });
   const [matlabImports, setMatlabImports] = useState([]);
   const [importBusy, setImportBusy] = useState(false);
+  const [workerSession, setWorkerSession] = useState(() => readWorkerSession());
+  const [workerBusy, setWorkerBusy] = useState(false);
 
   const services = health?.services;
 
@@ -216,6 +232,67 @@ export default function Settings({ preferences, onChangePreferences, onReopenGui
     notify({
       title: 'Imported MATLAB exports cleared',
       description: 'The original saved results are active again.',
+      tone: 'info',
+    });
+  };
+
+  const workerApiBase = () => `${window.location.origin}/api/matlab/worker`;
+
+  const handleStartMatlabWorker = async () => {
+    setWorkerBusy(true);
+    try {
+      const apiBase = workerApiBase();
+      const created = await createMatlabWorkerSession(apiBase);
+      const stored = saveWorkerSession({ ...created, apiBase });
+      setWorkerSession(stored);
+      onChangePreferences({ useMatlabWorker: true });
+      notify({
+        title: 'MATLAB Online worker started',
+        description: 'Paste the command in MATLAB Online, then choose any scenario to run it there.',
+        tone: 'success',
+      });
+    } catch (cause) {
+      notify({ title: 'MATLAB Online worker could not start', description: cause.message, tone: 'error' });
+    } finally {
+      setWorkerBusy(false);
+    }
+  };
+
+  const handleCheckMatlabWorker = async () => {
+    if (!workerSession?.token) return;
+    setWorkerBusy(true);
+    try {
+      const checked = await getMatlabWorkerSession(workerSession.token);
+      setWorkerSession((current) => (current ? { ...current, expiresAt: checked.expiresAt } : null));
+      notify({ title: 'Worker token active', description: `Expires ${formatDateTime(checked.expiresAt)}`, tone: 'success' });
+    } catch (cause) {
+      notify({ title: 'Worker token inactive', description: cause.message, tone: 'error' });
+    } finally {
+      setWorkerBusy(false);
+    }
+  };
+
+  const handleCopyWorkerCommand = async () => {
+    if (!workerSession?.command) return;
+    try {
+      await navigator.clipboard.writeText(workerSession.command);
+      notify({ title: 'MATLAB command copied', tone: 'success' });
+    } catch {
+      notify({
+        title: 'Copy the command manually',
+        description: 'Select the command text and press Ctrl+C.',
+        tone: 'info',
+      });
+    }
+  };
+
+  const handleStopMatlabWorker = () => {
+    clearWorkerSession();
+    setWorkerSession(null);
+    onChangePreferences({ useMatlabWorker: false });
+    notify({
+      title: 'MATLAB Online worker stopped',
+      description: 'Analysis is back to saved results.',
       tone: 'info',
     });
   };
@@ -475,6 +552,94 @@ export default function Settings({ preferences, onChangePreferences, onReopenGui
             MATLAB Online has no supported external execution API. The token stays in server memory,
             is never echoed back, and is cleared on restart. Only localhost/private MATLAB services are accepted.
           </p>
+        </section>
+
+        <section aria-labelledby="matlab-worker-heading" className="surface p-5 lg:col-span-2">
+          <div className="flex items-center gap-2">
+            <Play aria-hidden="true" className="h-4 w-4 text-accent" />
+            <h2 id="matlab-worker-heading" className="section-title">
+              MATLAB Online worker
+            </h2>
+          </div>
+          <p className="mt-1 prose-note">
+            Start a short-lived worker, paste one command into MATLAB Online, then run scenarios from any
+            module. MATLAB computes them there; the server verifies the answer before showing it.
+          </p>
+
+          <ol className="mt-3 grid gap-2 text-[11.5px] leading-relaxed text-muted md:grid-cols-2">
+            {(matlabSetup?.workerHandoff ?? []).map((step, index) => (
+              <li key={step} className="rounded-lg border border-line bg-sunken/50 p-3">
+                <span className="mr-1 font-mono text-accent">{index + 1}.</span>
+                {step}
+              </li>
+            ))}
+          </ol>
+
+          <p className="mt-3 text-[11px] leading-relaxed text-muted">
+            Queue:{' '}
+            <span className="font-mono text-ink">
+              {matlabSetup?.worker?.backend ?? 'checking…'}
+            </span>
+            {!matlabSetup?.worker?.available && (
+              <span className="mt-1 block text-warn">
+                {matlabSetup?.worker?.reason ?? 'Checking the MATLAB Online worker…'}
+              </span>
+            )}
+          </p>
+
+          <div className="mt-3 flex flex-wrap items-center gap-2 rounded-lg border border-line bg-sunken/50 p-3.5">
+            <button
+              type="button"
+              onClick={handleStartMatlabWorker}
+              disabled={!matlabSetup?.worker?.available || workerBusy}
+              className="btn-primary btn-xs"
+            >
+              <Play aria-hidden="true" className="h-3.5 w-3.5" />
+              {workerBusy ? 'Starting…' : 'Start worker'}
+            </button>
+            {workerSession && (
+              <>
+                <button type="button" onClick={handleCheckMatlabWorker} disabled={workerBusy} className="btn-secondary btn-xs">
+                  <Timer aria-hidden="true" className="h-3.5 w-3.5" />
+                  Check
+                </button>
+                <button type="button" onClick={handleStopMatlabWorker} disabled={workerBusy} className="btn-secondary btn-xs">
+                  <Trash2 aria-hidden="true" className="h-3.5 w-3.5" />
+                  Stop worker
+                </button>
+                <span className={`font-mono text-[11px] ${isWorkerSessionActive(workerSession) ? 'text-ok' : 'text-warn'}`}>
+                  {isWorkerSessionActive(workerSession)
+                    ? `active until ${formatDateTime(workerSession.expiresAt)}`
+                    : 'token expired'}
+                </span>
+              </>
+            )}
+          </div>
+
+          {workerSession?.command && (
+            <div className="mt-2 rounded-lg border border-line bg-base p-3">
+              <div className="flex flex-wrap items-start justify-between gap-2">
+                <p className="meta-label">Paste in MATLAB Online Command Window</p>
+                <button type="button" onClick={handleCopyWorkerCommand} className="btn-ghost btn-xs">
+                  <Copy aria-hidden="true" className="h-3.5 w-3.5" />
+                  Copy
+                </button>
+              </div>
+              <code className="mt-2 block break-all font-mono text-[11px] leading-relaxed text-ink">
+                {workerSession.command}
+              </code>
+            </div>
+          )}
+
+          <div className="mt-3">
+            <Switch
+              checked={preferences?.useMatlabWorker === true}
+              onChange={(enabled) => onChangePreferences({ useMatlabWorker: enabled })}
+              disabled={!matlabSetup?.worker?.available || !isWorkerSessionActive(workerSession)}
+              label="Use MATLAB Online worker for analysis"
+              description="When on, module scenarios are computed by the MATLAB worker you started. The badge says MATLAB Online Worker Result, never Live MATLAB Result."
+            />
+          </div>
         </section>
 
         <section aria-labelledby="matlab-import-heading" className="surface p-5 lg:col-span-2">

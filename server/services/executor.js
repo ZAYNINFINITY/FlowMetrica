@@ -3,9 +3,10 @@ import { createExecutionMode } from './execution-mode.js';
 import { inputsMatch } from './compare.js';
 import { canonicalHash } from './fixtures.js';
 import { solveSystem } from './matrix.js';
+import { validateResult } from './result-validation.js';
 import { validateExecutionRequest } from './validator.js';
 
-const CLASSIFICATIONS = new Set(['unique', 'infinite_solutions', 'no_solution']);
+export { validateResult } from './result-validation.js';
 
 const OFFLINE_BRIDGE = {
   status: () => ({ configured: false, available: false, reason: LIVE_MATLAB_REASON }),
@@ -15,36 +16,6 @@ const OFFLINE_BRIDGE = {
 };
 
 const OFFLINE_MEASUREMENTS = { isAvailable: () => false, get: () => null };
-
-function isValidSystemResult(result) {
-  if (!result || typeof result !== 'object') return false;
-  if (!CLASSIFICATIONS.has(result.classification)) return false;
-  if (!Array.isArray(result.rref) || result.rref.length === 0) return false;
-  if (!result.rref.every((row) => Array.isArray(row) && row.length === result.rref[0].length)) return false;
-  if (!Number.isInteger(result.rank) || result.rank < 0) return false;
-  if (result.classification === 'unique' && !Array.isArray(result.solution)) return false;
-  return true;
-}
-
-export function validateResult(result, operation) {
-  if (!result || typeof result !== 'object') return { ok: false, errors: ['Result is empty.'] };
-
-  if (operation === 'analyze_anomaly') {
-    if (!Array.isArray(result.stages) || result.stages.length === 0) {
-      return { ok: false, errors: ['Result must contain analysed stages.'] };
-    }
-    const bad = result.stages.filter((stage) => !isValidSystemResult(stage));
-    return {
-      ok: bad.length === 0,
-      errors: bad.length ? ['One or more anomaly stages are malformed.'] : [],
-    };
-  }
-
-  return {
-    ok: isValidSystemResult(result),
-    errors: isValidSystemResult(result) ? [] : ['Result failed mathematical shape validation.'],
-  };
-}
 
 /**
  * The ONLY entry point used by all three modules.
@@ -57,6 +28,7 @@ export function createExecutor({
   measurementStore = OFFLINE_MEASUREMENTS,
   executionMode = createExecutionMode(),
   matlabImport = null,
+  matlabWorker = null,
 } = {}) {
   const bridgeStatus = matlabBridge.status();
 
@@ -143,6 +115,67 @@ export function createExecutor({
     };
   }
 
+  /**
+   * A worker request is an explicit opt-in, so it takes precedence over the
+   * desktop live bridge. The server re-verifies the result before labelling it.
+   */
+  async function executeWorker(request) {
+    if (!matlabWorker?.available) {
+      return {
+        status: 'error',
+        error: {
+          code: 'MATLAB_WORKER_UNAVAILABLE',
+          message: matlabWorker?.reason ?? 'The MATLAB Online worker is not configured.',
+        },
+      };
+    }
+    try {
+      const verified = await matlabWorker.getVerifiedResult(request.workerToken, request.workerJobId);
+      if (verified.status === 'failed') {
+        return {
+          status: 'error',
+          error: {
+            code: 'MATLAB_WORKER_FAILED',
+            message: verified.error ?? 'The MATLAB worker could not solve this scenario.',
+          },
+        };
+      }
+      if (verified.status !== 'success') {
+        return {
+          status: 'worker_pending',
+          jobId: request.workerJobId,
+          state: verified.status,
+          pollAfterMs: 1500,
+        };
+      }
+      return {
+        status: 'success',
+        module: request.module,
+        scenario_id: request.scenario_id,
+        operation: request.operation,
+        input_hash: canonicalHash(request.input),
+        result: verified.output,
+        result_source: 'matlab_online_worker',
+        execution_engine: 'MATLAB',
+        verification_status: 'matlab_verified_worker',
+        matlab_worker_job_id: verified.jobId,
+        live_execution_available: false,
+        matlab_bridge_configured: bridgeStatus.configured,
+        matlab_live_enabled: executionMode.get().matlabLiveEnabled,
+        provenance_note:
+          'Computed in MATLAB Online by the worker you started; the server re-checked it against the reference solver.',
+      };
+    } catch (error) {
+      return {
+        status: 'error',
+        error: {
+          code: error.code ?? 'MATLAB_WORKER_FAILED',
+          message: error.publicMessage ?? error.message ?? 'The MATLAB Online worker result could not be verified.',
+        },
+      };
+    }
+  }
+
   async function execute(request) {
     const validation = validateExecutionRequest(request);
     if (!validation.ok) {
@@ -153,6 +186,7 @@ export function createExecutor({
     }
 
     if (request.operation === 'solve_live_measurement') return executeLiveMeasurement(request);
+    if (request.workerJobId) return executeWorker(request);
 
     const live = await executeMATLAB(request);
     if (live.blocked) {

@@ -38,3 +38,10 @@ export const MATLAB_ONLINE_HANDOFF = [
   'Download the exported JSON files and import them below; each one is verified before use.',
   'Imported results are labelled "Saved MATLAB Result". MATLAB Online does not provide live execution.',
 ];
+
+export const MATLAB_ONLINE_WORKER_HANDOFF = [
+  'Start a worker below to get a 15-minute token and a one-line MATLAB command.',
+  'In the same MATLAB Online session, upload this project folder and paste that command in the Command Window.',
+  'Choose a scenario in any module; the worker computes it in MATLAB Online and the server re-verifies the answer.',
+  'Worker results are labelled "MATLAB Online Worker Result" — never "Live MATLAB Result".',
+];

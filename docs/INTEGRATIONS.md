@@ -76,9 +76,11 @@ Unknown/expired id → `503 MEASUREMENT_NOT_FOUND`.
 {
   "status": "success",
   "bridge": { "configured": false, "available": false, "reason": "...", "verifiedAt": null },
+  "worker": { "available": true, "backend": "upstash", "reason": "Shared Upstash Redis queue." },
   "instructions": ["4 setup steps"],
   "setupCode": "% MATLAB commands + env var names",
-  "matlabOnlineHandoff": ["4 export steps"]
+  "matlabOnlineHandoff": ["4 export steps"],
+  "workerHandoff": ["4 worker steps"]
 }
 ```
 
@@ -103,7 +105,29 @@ with `/api/execute`. The executor re-verifies the override, requires scenario/in
 returns `result_source: matlab_fixture` with `imported_matlab_export: true`. It never returns
 `live_matlab_execution` for an import. Clearing imports restores the bundled fixtures.
 
-## 5. `GET /api/health` — status flags
+## 5. `/api/matlab/worker/*` — MATLAB Online worker queue
+
+All worker calls authenticate with the short-lived token returned by `POST /session`.
+Upstash credentials stay server-side. Missing env vars produce `503 MATLAB_WORKER_UNAVAILABLE`.
+
+| Method | Path | Purpose |
+|---|---|---|
+| `POST` | `/session` | Returns `{ token, command, sessionId, expiresAt }`; token is shown once. |
+| `GET` | `/session` | Checks that the token is still active. |
+| `POST` | `/job` | Browser enqueues one predefined scenario; returns `{ jobId, pollAfterMs }`. |
+| `GET` | `/next` | MATLAB Online claims one job via `webread`. |
+| `POST` | `/result` | MATLAB Online posts `{ jobId, output }` or `{ jobId, error }` via `webwrite`. |
+| `GET` | `/poll?jobId=...` | Browser checks `queued`/`processing`/`complete`/`failed`. |
+
+The server accepts only a current scenario input and re-checks every submitted answer against
+the reference solver. A rejected answer is never shown as a result. The browser then calls
+`POST /api/execute` with `{ ...executionRequest, workerJobId, workerToken }` and receives
+`result_source: matlab_online_worker`, `verification_status: matlab_verified_worker`, and a
+`provenance_note`. While the job is queued or processing, `/api/execute` answers HTTP 200 with
+`status: worker_pending` so the browser keeps polling; a rejected job answers HTTP 400 with
+`MATLAB_WORKER_FAILED`. It is never `live_matlab_execution`.
+
+## 6. `GET /api/health` — status flags
 
 ```json
 {
@@ -114,6 +138,7 @@ returns `result_source: matlab_fixture` with `imported_matlab_export: true`. It 
       "verifiedAt": null,
       "reason": "..."
     },
+    "matlabWorker": { "available": true, "backend": "upstash", "reason": "Shared Upstash Redis queue." },
     "networkMeasurement": { "available": true, "label": "Live measurement", "reason": "..." },
     "scenarios": { "count": 13 },
     "savedResults": { "count": 13, "problems": [] }
@@ -122,6 +147,7 @@ returns `result_source: matlab_fixture` with `imported_matlab_export: true`. It 
 ```
 
 - `matlabLive.available` becomes true only after a successful REST call.
+- `matlabWorker.available` reflects server-side Upstash configuration, not whether MATLAB is running.
 - `networkMeasurement.available` reflects whether the Ookla runner loaded.
 
 ### Current fixture state
@@ -133,12 +159,13 @@ is not a live call. The other 11 scenarios remain `reference_verified_fixture`.
 
 ## Provenance labels the UI may show
 
-`Live MATLAB Result`, `Saved MATLAB Result`, `Saved Result · Reference-Verified`,
-`Live Network Measurement`, `Simulated Network Scenario`, `AI-Proposed Model`,
-`Template-Based Report`.
+`Live MATLAB Result`, `Saved MATLAB Result`, `MATLAB Online Worker Result`,
+`Saved Result · Reference-Verified`, `Live Network Measurement`,
+`Simulated Network Scenario`, `AI-Proposed Model`, `Template-Based Report`.
 
-Never show a live label for a saved fixture. Never add OpenRouter or fake live
-measurement controls. Unavailable states must stay explicit.
+Never show a live label for a saved fixture or a MATLAB Online worker result. Never add
+OpenRouter, browser automation of MATLAB Online, or fake live measurement controls.
+Unavailable states must stay explicit.
 
 ## Suggested Module 1 flow
 

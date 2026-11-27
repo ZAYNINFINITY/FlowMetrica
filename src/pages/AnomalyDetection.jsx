@@ -42,9 +42,9 @@ const STAGES = [
   },
 ];
 
-export default function AnomalyDetection({ details }) {
-  const { scenarios, selectedId, setSelectedId, scenario, outcome, loading, error, reload } =
-    useScenario('module2');
+export default function AnomalyDetection({ details, preferences }) {
+  const { scenarios, selectedId, setSelectedId, scenario, outcome, loading, error, workerStatus, reload } =
+    useScenario('module2', preferences?.useMatlabWorker === true);
   const [noteOpen, setNoteOpen] = useState(true);
   const result = outcome?.status === 'success' ? outcome.result : null;
   const stages = result?.stages ?? [];
@@ -76,10 +76,13 @@ export default function AnomalyDetection({ details }) {
           </>
         }
         actions={
-          <button type="button" onClick={reload} className="btn-secondary btn-xs" disabled={loading}>
-            <RotateCcw aria-hidden="true" className="h-3.5 w-3.5" />
-            Re-run analysis
-          </button>
+          <>
+            {workerStatus && <span className="chip">{workerStatus}</span>}
+            <button type="button" onClick={reload} className="btn-secondary btn-xs" disabled={loading}>
+              <RotateCcw aria-hidden="true" className="h-3.5 w-3.5" />
+              Re-run analysis
+            </button>
+          </>
         }
       />
 
@@ -189,7 +192,7 @@ export default function AnomalyDetection({ details }) {
                 <p className="mt-1 max-w-3xl text-[12.5px] leading-relaxed text-muted">{scenario.summary}</p>
               </div>
               <div className="flex flex-wrap gap-1.5">
-                <SourceBadge source={outcome.result_source} note={outcome.matlab_export_note} />
+                <SourceBadge source={outcome.result_source} note={outcome.provenance_note ?? outcome.matlab_export_note} />
                 <SourceBadge source="simulated_data" />
               </div>
             </div>

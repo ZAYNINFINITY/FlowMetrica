@@ -86,15 +86,22 @@ unavailable.
 | `reference_verified_fixture` | Default. Computed by the independent reference implementation and cross-checked against expected values. **Not** a MATLAB result. |
 | `matlab_fixture` | Genuine MATLAB export. `INC-318 · Edge Capacity Breach` and `INC-527 · Hostel Core Saturation` were computed in MATLAB Online R2026b and copied back into their fixtures. Still saved results, never live calls. |
 | `live_matlab_execution` | A real REST call to a configured desktop MATLAB service. Never claimed without execution. |
+| `matlab_online_worker` | A MATLAB Online worker computed the current scenario after polling the API. Re-verified by the server; not a desktop live call. |
 | `live_network_measurement` | Real Ookla Mbps fed into the shared math solver on the server. |
 | `simulated_data` | Teaching model, not a measurement. |
 | `template_generated` | Report assembled locally from verified values. |
 
 MATLAB Online has no supported general-purpose execution API, so the app does not automate
-a browser session. MATLAB is used manually to export fixtures; `POST /api/matlab/verify-export`
-checks metadata, scenario input and the reference answer, then the browser stores only the
-verified copy. `/api/execute` re-verifies it on every saved-result run. The badge says
-**Saved MATLAB Result**, never **Live MATLAB Result**.
+a browser session. It offers two honest MATLAB Online paths:
+
+1. **Export/import** — MATLAB runs `export_fixtures`; `POST /api/matlab/verify-export` checks
+   metadata, scenario input and the reference answer, then the browser stores only the
+   verified copy. `/api/execute` re-verifies it on every run. Badge: **Saved MATLAB Result**.
+2. **Worker queue** — the browser creates a 15-minute token, MATLAB Online runs
+   `flowmetrica_worker` and polls the API with `webread`/`webwrite`, and the server verifies
+   the returned answer before `/api/execute` may show it. Badge: **MATLAB Online Worker Result**.
+
+Neither path is ever labelled **Live MATLAB Result**. Only a successful desktop REST call earns that label.
 
 AI-assisted scenario drafting also happens outside the app: ChatGPT writes staged JSON
 (`docs/SCENARIO_PROMPT.md`), MATLAB exports a matching fixture, and only then does the
@@ -108,6 +115,7 @@ controls.
 | Ookla speed test | Internet access to speedtest.net | `MEASUREMENT_UNAVAILABLE`; no invented numbers |
 | MATLAB live calls | Desktop MATLAB REST Function Service + env vars | Saved results still work; configured failures return an explicit error |
 | MATLAB Online verification | Free MathWorks account (20 hr/month) | Manual export + in-app verify/import; labelled honestly, never live |
+| MATLAB Online worker | Upstash Redis env vars + free MathWorks account | `MATLAB_WORKER_UNAVAILABLE`; saved results still work |
 
 See `matlab/EXPORT_GUIDE.md` for the export workflow and `docs/INTEGRATIONS.md` for the
 integration contract. MATLAB bridge variables (never commit them):
@@ -117,7 +125,14 @@ MATLAB_REST_URL        https://localhost:9920/matlab/feval/v1/FlowMetrica
 MATLAB_REST_TOKEN      <printed by start_rest_service>
 MATLAB_REST_CA         <certificate path printed by start_rest_service>
 MATLAB_REST_TIMEOUT_MS 15000   (optional)
+
+UPSTASH_REDIS_REST_URL         https://<db>.upstash.io
+UPSTASH_REDIS_REST_TOKEN       <REST token from Upstash>
 ```
+
+`UPSTASH_*` variables are only needed for the MATLAB Online worker. Local `npm start`
+uses an in-memory queue when they are absent; Vercel requires them and reports
+`MATLAB_WORKER_UNAVAILABLE` otherwise. Copy `.env.example` as a reference, never commit real values.
 
 ## Architecture
 
@@ -129,12 +144,14 @@ docs/                    UI spec, integration contract, scenario prompt,
                          presentation, Roman Urdu pitch, screenshots
 server/routes/           /api/health, /api/scenarios, /api/execute,
                          /api/measure, /api/matlab/setup,
-                         /api/matlab/verify-export
+                         /api/matlab/verify-export, /api/matlab/worker/*
 server/services/         shared executor, validator, fixtures, matrix core,
-                         MATLAB REST bridge, measurement store
+                         MATLAB REST bridge, export verifier, worker queue,
+                         Upstash REST client, measurement store
 server/data/scenarios/   13 versioned scenario definitions (4 / 4 / 5)
 server/data/fixtures/    13 versioned result fixtures (JSON)
-matlab/                  MATLAB entry points, REST starter, export scripts
+matlab/                  MATLAB entry points, REST starter, export scripts,
+                         MATLAB Online worker
 scripts/                 reference fixture generator
 DESIGN.md                visual brief, type roles, design tokens
 ```
@@ -167,14 +184,16 @@ serves `dist/` as static files. The 13 scenario and fixture JSON files are bundl
 function, so online and offline runs return identical saved results.
 
 Live MATLAB stays OFF on the deployed instance by default. MATLAB Online has no supported
-external execution API, and a desktop MATLAB REST service is normally not reachable from a
+inbound execution API, and a desktop MATLAB REST service is normally not reachable from a
 serverless function. Both local and online modes can verify MATLAB Online exports in Settings;
 the verified JSON stays in browser storage and is re-checked by the serverless function on each
-analysis run. No upload is written to the function's disk.
+analysis run. The MATLAB Online worker uses Upstash for its queue, so no job or upload is
+written to the function's disk.
 
-`npm test` runs **48 tests** covering linear algebra, input purity, row operations,
-catalogue integrity, provenance, MATLAB REST decoding, MATLAB export verification,
-measurement normalisation, concurrency, expiry, cache headers and live-execution failure paths.
+`npm test` runs **60 tests** covering linear algebra, input purity, row operations,
+catalogue integrity, provenance, MATLAB REST decoding, export verification, worker queue
+verification, Upstash REST parsing, measurement normalisation, concurrency, expiry, cache
+headers and live-execution failure paths.
 
 ## Desktop control panel
 

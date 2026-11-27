@@ -1,7 +1,7 @@
 import { deepEqual, near } from './compare.js';
-import { validateResult } from './executor.js';
 import { assertFixtureShape, canonicalHash } from './fixtures.js';
 import { solveSystem } from './matrix.js';
+import { validateResult } from './result-validation.js';
 
 /**
  * MATLAB Online can export fixtures, but it cannot execute code for the app.
@@ -40,7 +40,7 @@ function expectedOutput(operation, input) {
   return solveSystem(input.matrix, input.vector);
 }
 
-function outputMatchesReference(operation, input, output) {
+export function outputMatchesReference(operation, input, output) {
   const expected = expectedOutput(operation, input);
   if (!expected) return false;
 
