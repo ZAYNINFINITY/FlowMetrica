@@ -222,7 +222,7 @@ export default function Investigation({ details }) {
                     <p className="mt-0.5 text-[12px] text-muted">Evidence, model and report in one place.</p>
                   </div>
                   <div className="flex flex-col items-end gap-1.5">
-                    <SourceBadge source={outcome.result_source} />
+                    <SourceBadge source={outcome.result_source} note={outcome.matlab_export_note} />
                     <span
                       className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold ${classificationTone(
                         result.classification,

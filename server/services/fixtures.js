@@ -9,7 +9,7 @@ export function canonicalHash(value) {
 
 const fixtureKey = (scenarioId, operation, hash) => `${scenarioId}:${operation}:${hash}`;
 
-function assertFixtureShape(fixture) {
+export function assertFixtureShape(fixture) {
   if (!fixture || typeof fixture !== 'object') throw new Error('Fixture is not an object.');
   for (const field of ['fixtureVersion', 'scenarioId', 'operation', 'functionName', 'input', 'output', 'metadata']) {
     if (fixture[field] === undefined) throw new Error(`Missing required field "${field}".`);

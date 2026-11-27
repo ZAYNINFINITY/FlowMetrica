@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 
 import { execute, getScenario, getScenarios } from '../lib/api.js';
+import { getMatlabImport } from '../lib/matlab-imports.js';
 
 /**
  * Shared scenario loader/executor for all three modules.
@@ -42,11 +43,16 @@ export function useScenario(module) {
         if (!active) return;
         setScenario(detail.scenario);
 
+        const fixtureOverride = getMatlabImport(
+          detail.scenario.id,
+          detail.scenario.execution.operation,
+        );
         const result = await execute({
           module,
           scenario_id: detail.scenario.id,
           operation: detail.scenario.execution.operation,
           input: detail.scenario.execution.input,
+          ...(fixtureOverride ? { fixtureOverride } : {}),
         });
         if (active) setOutcome(result);
       } catch (cause) {

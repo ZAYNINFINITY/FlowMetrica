@@ -59,10 +59,14 @@ from `MATLAB_REST_CA`, no token logging, no filesystem writes by the bridge.
    ```
 
 3. The script reads `server/data/scenarios/*.json`, calls the matching entry point,
-   and overwrites `server/data/fixtures/*.json`.
-4. Restart the Node server. `result_source` becomes `matlab_fixture`, and the UI
-   badge shows **Saved MATLAB Result**. This is a genuine MATLAB result, but it is
-   still a saved result, not a live measurement.
+   and writes one JSON fixture per scenario into `server/data/fixtures/`.
+4. Download those JSON files, open FlowMetrica → Settings → **MATLAB Online export**,
+   choose the files and import them. Each file is verified against the current scenario
+   input and the reference solver before it is stored in this browser.
+5. Re-run a scenario: the badge shows **Saved MATLAB Result** with the note
+   “Verified MATLAB Online export imported by you”. It is still a saved result, never a
+   live measurement. The same flow works on localhost and on Vercel; nothing is written
+   to the server's disk. Use **Clear imports** to return to the bundled fixtures.
 
 ## C. Add a new ChatGPT-authored incident
 
@@ -89,9 +93,9 @@ Only the new scenario is touched. The other 11 fixtures keep their existing prov
 
 ### D. One-off handoff when MATLAB Drive cannot write into the local project
 
-MATLAB Online writes into MATLAB Drive, not into the local project folder. To move one
-genuine result across, print JSON in the Command Window and paste it into the matching
-local fixture:
+MATLAB Online writes into MATLAB Drive, not into the local project folder. For a complete
+fixture, use the Settings import flow in section B. To hand off a one-off `output` object,
+print JSON in the Command Window and paste it into the matching local fixture:
 
 ```matlab
 A = [1 1 1; 1 -1 0; 0 1 -1];

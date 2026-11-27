@@ -50,3 +50,10 @@ export const measureNetwork = () => request('/api/measure', { method: 'POST', bo
 
 /** Static MATLAB setup guidance. The payload never contains a token. */
 export const getMatlabSetup = () => request('/api/matlab/setup');
+
+/** Verify one exported fixture without persisting it on the server. */
+export const verifyMatlabExport = (fixture) =>
+  request('/api/matlab/verify-export', {
+    method: 'POST',
+    body: JSON.stringify({ fixture }),
+  });

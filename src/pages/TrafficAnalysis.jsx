@@ -284,7 +284,7 @@ export default function TrafficAnalysis({ details, health, online }) {
                     <p className="mt-0.5 text-[12px] text-muted">A·x = b solved by Gaussian elimination.</p>
                   </div>
                   <div className="flex flex-col items-end gap-1.5">
-                    <SourceBadge source={outcome.result_source} />
+                    <SourceBadge source={outcome.result_source} note={outcome.matlab_export_note} />
                     <span
                       className={`rounded-full border px-2.5 py-1 text-[11px] font-semibold ${classificationTone(
                         result.classification,
@@ -479,7 +479,7 @@ export default function TrafficAnalysis({ details, health, online }) {
                           arithmetic is performed in this browser.
                         </p>
                         <div className="mt-2">
-                          <SourceBadge source={outcome.result_source} />
+                          <SourceBadge source={outcome.result_source} note={outcome.matlab_export_note} />
                         </div>
                       </div>
                     </div>

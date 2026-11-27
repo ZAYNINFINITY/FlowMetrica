@@ -1,5 +1,6 @@
 import { LIVE_MATLAB_REASON } from './capabilities.js';
 import { createExecutionMode } from './execution-mode.js';
+import { inputsMatch } from './compare.js';
 import { canonicalHash } from './fixtures.js';
 import { solveSystem } from './matrix.js';
 import { validateExecutionRequest } from './validator.js';
@@ -55,6 +56,7 @@ export function createExecutor({
   matlabBridge = OFFLINE_BRIDGE,
   measurementStore = OFFLINE_MEASUREMENTS,
   executionMode = createExecutionMode(),
+  matlabImport = null,
 } = {}) {
   const bridgeStatus = matlabBridge.status();
 
@@ -188,7 +190,50 @@ export function createExecutor({
       };
     }
 
-    const fixture = fixtureStore.get(request.scenario_id, request.operation, request.input);
+    // A MATLAB Online export is verified on every call, not trusted because the
+    // browser says so. A rejected override never falls back silently.
+    let fixture = null;
+    let importedExport = false;
+    if (request.fixtureOverride) {
+      if (!matlabImport) {
+        return {
+          status: 'error',
+          error: {
+            code: 'MATLAB_EXPORT_UNSUPPORTED',
+            message: 'MATLAB export import is not available on this server.',
+          },
+        };
+      }
+      const checkedOverride = matlabImport.verify(request.fixtureOverride);
+      if (!checkedOverride.ok) {
+        return {
+          status: 'error',
+          error: {
+            code: 'MATLAB_EXPORT_REJECTED',
+            message: `The imported MATLAB export was rejected: ${checkedOverride.error}`,
+          },
+        };
+      }
+      const candidate = checkedOverride.fixture;
+      const mismatch =
+        candidate.scenarioId !== request.scenario_id ||
+        candidate.operation !== request.operation ||
+        !inputsMatch(candidate.input, request.input);
+      if (mismatch) {
+        return {
+          status: 'error',
+          error: {
+            code: 'MATLAB_EXPORT_REJECTED',
+            message: 'The imported MATLAB export does not match this scenario and input.',
+          },
+        };
+      }
+      fixture = candidate;
+      importedExport = true;
+    } else {
+      fixture = fixtureStore.get(request.scenario_id, request.operation, request.input);
+    }
+
     if (!fixture) {
       return {
         status: 'unavailable',
@@ -233,6 +278,10 @@ export function createExecutor({
       live_execution_reason: live.reason,
       matlab_bridge_configured: bridgeStatus.configured,
       matlab_live_enabled: executionMode.get().matlabLiveEnabled,
+      imported_matlab_export: importedExport,
+      ...(importedExport
+        ? { matlab_export_note: 'Verified MATLAB Online export imported by you.' }
+        : {}),
     };
   }
 

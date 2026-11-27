@@ -2,7 +2,7 @@ import { Router } from 'express';
 
 import { MATLAB_ONLINE_HANDOFF, MATLAB_SETUP_CODE, MATLAB_SETUP_STEPS } from '../services/capabilities.js';
 
-export function createMatlabRouter(matlabBridge, executionMode) {
+export function createMatlabRouter(matlabBridge, executionMode, matlabImport) {
   const router = Router();
 
   // Static guidance only — this endpoint never echoes a token or certificate.
@@ -14,6 +14,35 @@ export function createMatlabRouter(matlabBridge, executionMode) {
       instructions: MATLAB_SETUP_STEPS,
       setupCode: MATLAB_SETUP_CODE,
       matlabOnlineHandoff: MATLAB_ONLINE_HANDOFF,
+    });
+  });
+
+  // MATLAB Online exports are saved results, never live calls. Verification is
+  // stateless so the same flow works on Vercel, where disk writes do not persist.
+  router.post('/verify-export', (request, response) => {
+    if (!matlabImport) {
+      response.status(503).json({
+        status: 'error',
+        error: {
+          code: 'MATLAB_IMPORT_UNAVAILABLE',
+          message: 'MATLAB export verification is not available on this server.',
+        },
+      });
+      return;
+    }
+    const checked = matlabImport.verify(request.body?.fixture);
+    if (!checked.ok) {
+      response.status(400).json({
+        status: 'error',
+        error: { code: 'MATLAB_EXPORT_REJECTED', message: checked.error },
+      });
+      return;
+    }
+    response.json({
+      status: 'success',
+      verified: true,
+      fixture: checked.fixture,
+      inputHash: checked.inputHash,
     });
   });
 

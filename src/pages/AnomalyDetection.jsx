@@ -189,7 +189,7 @@ export default function AnomalyDetection({ details }) {
                 <p className="mt-1 max-w-3xl text-[12.5px] leading-relaxed text-muted">{scenario.summary}</p>
               </div>
               <div className="flex flex-wrap gap-1.5">
-                <SourceBadge source={outcome.result_source} />
+                <SourceBadge source={outcome.result_source} note={outcome.matlab_export_note} />
                 <SourceBadge source="simulated_data" />
               </div>
             </div>

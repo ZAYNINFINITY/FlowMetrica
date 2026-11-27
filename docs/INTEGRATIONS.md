@@ -84,7 +84,26 @@ Unknown/expired id → `503 MEASUREMENT_NOT_FOUND`.
 
 This endpoint never echoes a token or certificate. It is safe to render raw.
 
-## 4. `GET /api/health` — status flags
+## 4. `POST /api/matlab/verify-export` — saved-result import
+
+Request body: `{ "fixture": <exported fixture JSON> }`. No token, no file write, no MATLAB
+execution. The server rejects any export that is not marked as a completed MATLAB result,
+does not match a current scenario input, or disagrees with the reference solver.
+
+Success `200`:
+
+```json
+{ "status": "success", "verified": true, "fixture": { "...": "verified fixture" }, "inputHash": "abc123" }
+```
+
+Failure `400`: `{ "status": "error", "error": { "code": "MATLAB_EXPORT_REJECTED", "message": "..." } }`.
+
+The browser stores the verified fixture in `localStorage` and sends it as `fixtureOverride`
+with `/api/execute`. The executor re-verifies the override, requires scenario/input match, and
+returns `result_source: matlab_fixture` with `imported_matlab_export: true`. It never returns
+`live_matlab_execution` for an import. Clearing imports restores the bundled fixtures.
+
+## 5. `GET /api/health` — status flags
 
 ```json
 {
@@ -96,8 +115,8 @@ This endpoint never echoes a token or certificate. It is safe to render raw.
       "reason": "..."
     },
     "networkMeasurement": { "available": true, "label": "Live measurement", "reason": "..." },
-    "scenarios": { "count": 12 },
-    "savedResults": { "count": 12, "problems": [] }
+    "scenarios": { "count": 13 },
+    "savedResults": { "count": 13, "problems": [] }
   }
 }
 ```

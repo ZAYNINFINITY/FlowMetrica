@@ -4,6 +4,7 @@ import {
   Check,
   Cpu,
   Database,
+  FileUp,
   Gauge,
   RotateCcw,
   ShieldCheck,
@@ -19,8 +20,13 @@ import ErrorState from '../components/common/ErrorState.jsx';
 import PageHeader from '../components/common/PageHeader.jsx';
 import { useToast } from '../components/common/Toast.jsx';
 import { useReports } from '../hooks/useReports.js';
-import { request } from '../lib/api.js';
+import { request, verifyMatlabExport } from '../lib/api.js';
 import { formatDateTime } from '../lib/format.js';
+import {
+  clearMatlabImports,
+  listMatlabImports,
+  saveMatlabImport,
+} from '../lib/matlab-imports.js';
 import { DEFAULT_PREFERENCES } from '../lib/settings.js';
 
 // Architectural guarantees, not user preferences: shown as always-on facts so
@@ -83,6 +89,8 @@ export default function Settings({ preferences, onChangePreferences, onReopenGui
   const [matlabSetup, setMatlabSetup] = useState(null);
   const [matlabBusy, setMatlabBusy] = useState(false);
   const [matlabForm, setMatlabForm] = useState({ url: '', token: '', certificatePath: '' });
+  const [matlabImports, setMatlabImports] = useState([]);
+  const [importBusy, setImportBusy] = useState(false);
 
   const services = health?.services;
 
@@ -95,6 +103,10 @@ export default function Settings({ preferences, onChangePreferences, onReopenGui
     refresh();
     const timer = window.setInterval(refresh, 10_000);
     return () => { active = false; window.clearInterval(timer); };
+  }, []);
+
+  useEffect(() => {
+    setMatlabImports(listMatlabImports());
   }, []);
 
   const handleMatlabToggle = async (enabled) => {
@@ -155,6 +167,57 @@ export default function Settings({ preferences, onChangePreferences, onReopenGui
     } finally {
       setMatlabBusy(false);
     }
+  };
+
+  const handleImportExports = async (event) => {
+    const files = Array.from(event.target.files ?? []);
+    event.target.value = '';
+    if (files.length === 0) return;
+
+    setImportBusy(true);
+    let verifiedCount = 0;
+    const failures = [];
+    try {
+      for (const file of files) {
+        try {
+          const parsed = JSON.parse(await file.text());
+          const checked = await verifyMatlabExport(parsed);
+          if (!saveMatlabImport(checked.fixture)) {
+            throw new Error('The verified export had an unexpected shape.');
+          }
+          verifiedCount += 1;
+        } catch (cause) {
+          failures.push(`${file.name}: ${cause.message}`);
+        }
+      }
+      setMatlabImports(listMatlabImports());
+      if (verifiedCount > 0) {
+        notify({
+          title: `${verifiedCount} MATLAB export${verifiedCount === 1 ? '' : 's'} imported`,
+          description: 'Verified exports now override the matching saved results; live execution is still off.',
+          tone: 'success',
+        });
+      }
+      if (failures.length > 0) {
+        notify({
+          title: `${failures.length} export${failures.length === 1 ? '' : 's'} rejected`,
+          description: failures.slice(0, 3).join(' · '),
+          tone: 'error',
+        });
+      }
+    } finally {
+      setImportBusy(false);
+    }
+  };
+
+  const handleClearImports = () => {
+    clearMatlabImports();
+    setMatlabImports([]);
+    notify({
+      title: 'Imported MATLAB exports cleared',
+      description: 'The original saved results are active again.',
+      tone: 'info',
+    });
   };
 
   const handleClear = () => {
@@ -411,6 +474,70 @@ export default function Settings({ preferences, onChangePreferences, onReopenGui
           <p className="mt-3 rounded-lg border border-line bg-sunken/50 p-3 text-[11px] leading-relaxed text-muted">
             MATLAB Online has no supported external execution API. The token stays in server memory,
             is never echoed back, and is cleared on restart. Only localhost/private MATLAB services are accepted.
+          </p>
+        </section>
+
+        <section aria-labelledby="matlab-import-heading" className="surface p-5 lg:col-span-2">
+          <div className="flex items-center gap-2">
+            <FileUp aria-hidden="true" className="h-4 w-4 text-ok" />
+            <h2 id="matlab-import-heading" className="section-title">
+              MATLAB Online export
+            </h2>
+          </div>
+          <p className="mt-1 prose-note">
+            Use MATLAB Online to compute and export saved fixtures, then verify them here. Imports are
+            labelled <strong>Saved MATLAB Result</strong> and never become a live result.
+          </p>
+
+          <ol className="mt-3 grid gap-2 text-[11.5px] leading-relaxed text-muted md:grid-cols-2">
+            {(matlabSetup?.matlabOnlineHandoff ?? []).map((step, index) => (
+              <li key={step} className="rounded-lg border border-line bg-sunken/50 p-3">
+                <span className="mr-1 font-mono text-accent">{index + 1}.</span>
+                {step}
+              </li>
+            ))}
+          </ol>
+
+          <div className="mt-3 flex flex-wrap items-center gap-2 rounded-lg border border-line bg-sunken/50 p-3.5">
+            <label className="btn-primary btn-xs cursor-pointer">
+              <FileUp aria-hidden="true" className="h-3.5 w-3.5" />
+              {importBusy ? 'Verifying…' : 'Choose exported JSON files'}
+              <input
+                type="file"
+                accept="application/json,.json"
+                multiple
+                onChange={handleImportExports}
+                disabled={importBusy}
+                className="sr-only"
+              />
+            </label>
+            <button
+              type="button"
+              onClick={handleClearImports}
+              disabled={matlabImports.length === 0 || importBusy}
+              className="btn-secondary btn-xs"
+            >
+              <Trash2 aria-hidden="true" className="h-3.5 w-3.5" />
+              Clear imports
+            </button>
+            <span className="font-mono text-[11px] text-muted">{matlabImports.length} verified import(s)</span>
+          </div>
+
+          {matlabImports.length > 0 && (
+            <ul className="mt-2 divide-y divide-line/60 rounded-lg border border-line">
+              {matlabImports.map((entry) => (
+                <li key={`${entry.scenarioId}:${entry.operation}`} className="flex flex-wrap items-center justify-between gap-2 px-3 py-2 text-[11.5px]">
+                  <span className="font-mono text-ink">{entry.scenarioId}</span>
+                  <span className="text-muted">{entry.operation} · {formatDateTime(entry.importedAt)}</span>
+                </li>
+              ))}
+            </ul>
+          )}
+
+          <p className="mt-2 text-[11px] leading-relaxed text-muted">
+            Verification checks the MATLAB metadata, scenario input and computed answer before storing
+            anything in this browser. The server never writes uploads to disk, and re-verifies each
+            import on every analysis run.
           </p>
         </section>
 

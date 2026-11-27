@@ -13,6 +13,7 @@ import { createExecutor } from './services/executor.js';
 import { createFixtureStore } from './services/fixtures.js';
 import { getHealth } from './services/health.js';
 import { createMatlabBridge } from './services/matlab-bridge.js';
+import { createMatlabImportVerifier } from './services/matlab-import.js';
 import { createMeasurementStore, createOoklaRunner } from './services/measurement.js';
 import { createScenarioStore } from './services/scenarios.js';
 
@@ -23,6 +24,7 @@ const rootDir = path.resolve(currentDir, '..');
 const fixtureStore = createFixtureStore(path.join(dataDir, 'fixtures'));
 const scenarioStore = createScenarioStore(path.join(dataDir, 'scenarios'));
 const matlabBridge = createMatlabBridge({ env: process.env });
+const matlabImport = createMatlabImportVerifier({ scenarioStore });
 
 // Loading the optional measurement library must never block the offline core.
 let ooklaRunner = null;
@@ -33,7 +35,13 @@ try {
 }
 const measurementStore = createMeasurementStore({ runner: ooklaRunner });
 const executionMode = createExecutionMode();
-const executor = createExecutor({ fixtureStore, matlabBridge, measurementStore, executionMode });
+const executor = createExecutor({
+  fixtureStore,
+  matlabBridge,
+  measurementStore,
+  executionMode,
+  matlabImport,
+});
 
 const app = express();
 const port = Number(process.env.PORT ?? 3001);
@@ -50,7 +58,7 @@ app.use('/api/health', createHealthRouter(() =>
 app.use('/api/scenarios', createScenariosRouter(scenarioStore));
 app.use('/api/execute', createExecuteRouter(executor));
 app.use('/api/measure', createMeasurementRouter(measurementStore));
-app.use('/api/matlab', createMatlabRouter(matlabBridge, executionMode));
+app.use('/api/matlab', createMatlabRouter(matlabBridge, executionMode, matlabImport));
 
 // On Vercel the platform serves dist/ directly; importing this module must not
 // try to read a build folder that lives outside the function bundle.

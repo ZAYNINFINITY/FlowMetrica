@@ -65,7 +65,7 @@ const SOURCE_LABELS = {
   },
 };
 
-export default function SourceBadge({ source, className = '' }) {
+export default function SourceBadge({ source, note, className = '' }) {
   const [noteOpen, setNoteOpen] = useState(false);
   const noteId = useId();
   const item = SOURCE_LABELS[source] ?? {
@@ -75,11 +75,12 @@ export default function SourceBadge({ source, className = '' }) {
     note: 'The result did not include a provenance label.',
   };
   const { Icon } = item;
+  const displayNote = note ?? item.note;
 
   return (
     <span
       className={`relative inline-flex items-center gap-1.5 rounded-full border px-2.5 py-1 text-[11px] font-semibold ${item.tone} ${className}`}
-      title={item.note}
+      title={displayNote}
     >
       <Icon aria-hidden="true" className="h-3.5 w-3.5" />
       <span>
@@ -88,7 +89,7 @@ export default function SourceBadge({ source, className = '' }) {
       </span>
       <button
         type="button"
-        aria-label={`Why this label: ${item.note}`}
+        aria-label={`Why this label: ${displayNote}`}
         aria-expanded={noteOpen}
         aria-controls={noteId}
         onClick={() => setNoteOpen((current) => !current)}
@@ -102,7 +103,7 @@ export default function SourceBadge({ source, className = '' }) {
           role="note"
           className="absolute left-0 top-full z-40 mt-1 w-max max-w-[260px] whitespace-normal rounded-lg border border-line bg-raised p-2 text-left text-[11px] font-normal normal-case leading-snug text-muted shadow-panel"
         >
-          {item.note}
+          {displayNote}
         </span>
       )}
     </span>

@@ -35,6 +35,6 @@ export const MATLAB_SETUP_CODE = [
 export const MATLAB_ONLINE_HANDOFF = [
   'Open https://matlab.mathworks.com/ with your free account (20 hours/month).',
   'Upload this project folder, then run: addpath(genpath("matlab")); export_fixtures',
-  'Restart the Node server. Results become genuine "Saved MATLAB Result" fixtures.',
-  'MATLAB Online verifies and exports; it does not provide live execution to the app.',
+  'Download the exported JSON files and import them below; each one is verified before use.',
+  'Imported results are labelled "Saved MATLAB Result". MATLAB Online does not provide live execution.',
 ];

@@ -91,7 +91,9 @@ unavailable.
 | `template_generated` | Report assembled locally from verified values. |
 
 MATLAB Online has no supported general-purpose execution API, so the app does not automate
-a browser session. MATLAB is used manually to verify exports; the badge says
+a browser session. MATLAB is used manually to export fixtures; `POST /api/matlab/verify-export`
+checks metadata, scenario input and the reference answer, then the browser stores only the
+verified copy. `/api/execute` re-verifies it on every saved-result run. The badge says
 **Saved MATLAB Result**, never **Live MATLAB Result**.
 
 AI-assisted scenario drafting also happens outside the app: ChatGPT writes staged JSON
@@ -105,7 +107,7 @@ controls.
 |---|---|---|
 | Ookla speed test | Internet access to speedtest.net | `MEASUREMENT_UNAVAILABLE`; no invented numbers |
 | MATLAB live calls | Desktop MATLAB REST Function Service + env vars | Saved results still work; configured failures return an explicit error |
-| MATLAB Online verification | Free MathWorks account (20 hr/month) | Manual export of saved fixtures, labelled honestly |
+| MATLAB Online verification | Free MathWorks account (20 hr/month) | Manual export + in-app verify/import; labelled honestly, never live |
 
 See `matlab/EXPORT_GUIDE.md` for the export workflow and `docs/INTEGRATIONS.md` for the
 integration contract. MATLAB bridge variables (never commit them):
@@ -126,7 +128,8 @@ src/                     React UI, hash routing (no router dependency)
 docs/                    UI spec, integration contract, scenario prompt,
                          presentation, Roman Urdu pitch, screenshots
 server/routes/           /api/health, /api/scenarios, /api/execute,
-                         /api/measure, /api/matlab/setup
+                         /api/measure, /api/matlab/setup,
+                         /api/matlab/verify-export
 server/services/         shared executor, validator, fixtures, matrix core,
                          MATLAB REST bridge, measurement store
 server/data/scenarios/   13 versioned scenario definitions (4 / 4 / 5)
@@ -165,12 +168,13 @@ function, so online and offline runs return identical saved results.
 
 Live MATLAB stays OFF on the deployed instance by default. MATLAB Online has no supported
 external execution API, and a desktop MATLAB REST service is normally not reachable from a
-serverless function. Online mode therefore uses saved results and live Ookla measurement;
-local mode can opt into live MATLAB with the desktop control panel.
+serverless function. Both local and online modes can verify MATLAB Online exports in Settings;
+the verified JSON stays in browser storage and is re-checked by the serverless function on each
+analysis run. No upload is written to the function's disk.
 
-`npm test` runs **43 tests** covering linear algebra, input purity, row operations,
-catalogue integrity, provenance, MATLAB REST decoding, measurement normalisation,
-concurrency, expiry, cache headers and live-execution failure paths.
+`npm test` runs **48 tests** covering linear algebra, input purity, row operations,
+catalogue integrity, provenance, MATLAB REST decoding, MATLAB export verification,
+measurement normalisation, concurrency, expiry, cache headers and live-execution failure paths.
 
 ## Desktop control panel
 
